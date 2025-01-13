@@ -1,0 +1,11 @@
+hyper-optimizing-zig-parser/.idea/
+hyper-optimizing-zig-parser/*.iml
+hyper-optimizing-zig-parser/*.iws
+hyper-optimizing-zig-parser/*.eml
+hyper-optimizing-zig-parser/out/
+hyper-optimizing-zig-parser/.DS_Store
+hyper-optimizing-zig-parser/.svn
+hyper-optimizing-zig-parser/log/*.log
+hyper-optimizing-zig-parser/tmp/**
+hyper-optimizing-zig-parser/node_modules/
+hyper-optimizing-zig-parser/.sass-cache
