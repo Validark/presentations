@@ -240,7 +240,7 @@
 
 <body style="padding-bottom: 0px; padding-right: 0px">
 
-<svg id="container" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<svg id="container" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet">
 	<g class="slide" id="title">
 		<text class="h1 title-line" x="965" y="325" fill="#F7A41D" text-anchor="middle">HHID Cache</text>
 		<!-- <text class="h1 title-line" x="965" y="575" fill="#F7A41D" text-anchor="middle">HHID Cache</text> -->
@@ -746,7 +746,7 @@
 	</g>
 
 	<g class="slide" id="tree" clicks="18:12,25:7,31:3,44:5,55,1">
-		<g class="code" id="phase-1-code" x="0" y="00" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="95,96:4,100,101,102,104:5,110:3,114:5,120:3,124:7,127,176:4,177,178,180,181:3,185,186,187,188,189,192:2,192:2,191:4,196:2,198:2,198:2,201,125,124:7">
+		<g class="code" id="phase-1-code" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="95,96:4,100,101,102,104:5,110:3,114:5,120:3,124:7,127,176:4,177,178,180,181:3,185,186,187,188,189,192:2,192:2,191:4,196:2,198:2,198:2,201,125,124:7">
 /// An HHID cache that maps u32's to u16's.
 /// Design: https://docs.google.com/document/d/1rlY03DLHRMWOFxCX8THchSgx5AMmm_dAb8x5WJnZYvA/edit?tab=t.0#heading=h.j0zhsan4bqvs
 /// If we get to the point where we have billions of IP addresses in this cache,
@@ -1834,7 +1834,6 @@ fn popcount_bits(
 	}
 
 	function preprocess(slide_id, text, lang) {
-		text = text.replaceAll("&gt;&gt;", "&raquo;").replaceAll("<<", "&laquo;").replaceAll("-&gt;", "&RightArrow;")
 		let start_pos = text.indexOf("\n");
 		let end_pos = text.lastIndexOf("\n");
 
@@ -1844,14 +1843,34 @@ fn popcount_bits(
 		if (text.slice(end_pos, -1).trim() !== "")
 			end_pos = -1
 
-		let lines = text.slice(start_pos + 1, end_pos).split('\n').map(e => e.trimRight().replaceAll('\t', '    '));
-		const unnecessary_whitespace = lines.filter(e => e).reduce((a, c) => Math.min(a, c.length - c.trimLeft().length), Number.POSITIVE_INFINITY);
+		let lines = text
+			.slice(start_pos + 1, end_pos)
+			.split('\n')
+			.map(e => e.trimRight().replaceAll('\t', '    '));
+
+		const unnecessary_whitespace = lines
+			.filter(e => e)
+			.reduce((a, c) => Math.min(a, c.length - c.trimLeft().length), Number.POSITIVE_INFINITY);
+
 		lines = lines.map(e => e.slice(unnecessary_whitespace));
-		code_snippets.set(slide_id, (code_snippets.get(slide_id) || "") + lines.join("\n"));
+		code_snippets.set(slide_id, (code_snippets.get(slide_id) || "") +
+			lines
+				.join("\n")
+				.replaceAll("&gt;", ">")
+				.replaceAll("&lt;", "<")
+				.replaceAll("&amp;", "&")
+		);
 		let curly_depth = 0;
 		let paren_depth = 0;
 
-		const joined_lines = lines.join('\n').replaceAll("&gt;", ">").replaceAll("&lt;", "<").replaceAll(" => ", " &rArr; ").replaceAll(" != ", " &ne; ")
+		const joined_lines = lines.join('\n')
+			.replaceAll("&gt;&gt;", "&raquo;")
+			.replaceAll("<<", "&laquo;")
+			.replaceAll("-&gt;", "&RightArrow;")
+			.replaceAll("&gt;", ">")
+			.replaceAll("&lt;", "<")
+			.replaceAll(" => ", " &rArr; ")
+			.replaceAll(" != ", " &ne; ")
 			.replaceAll(" == ", " &Equal; ");
 
 		const ranges = new Array();
@@ -2168,6 +2187,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		return state;
 	}
 
+	let IS_MOBILE_FULL_SCREEN = false;
+
 	post_processes.push(() => {
 		for (const [is_overlay, elements] of  [[false, slide_elements], [true, overlay_elements]]) {
 			for (const [i, child] of elements.entries()) {
@@ -2279,17 +2300,20 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 			requestAnimationFrame(step);
 		}
 
-		function scrollElementOffsetAnimated(elem, offsetPx, duration = 500) {
-			let startTime = null;
+		let scroll_id = 0;
+
+		function scrollElementOffsetAnimated(elem, offsetPx, duration = 500, section) {
+			if (IS_MOBILE_FULL_SCREEN) return;
+			let startTime = 0.0;
+			const my_scroll_id = ++scroll_id;
 
 			function step(timestamp) {
-				const rect = elem.getBoundingClientRect();
-				const startY = window.scrollY;
-				const targetY = startY + rect.top - offsetPx;
-				const distance = targetY - startY;
+				if (cur_slide != section) return;
+				if (my_scroll_id !== scroll_id) return;
 				if (!startTime) startTime = timestamp;
 				const elapsed = timestamp - startTime;
-				window.scrollTo(0, startY + distance);
+				const rect = elem.getBoundingClientRect();
+				window.scrollTo(0, window.scrollY + rect.top - offsetPx);
 				if (elapsed < duration) requestAnimationFrame(step);
 			}
 
@@ -2299,7 +2323,44 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 
 		{
 			let i = 0;
-			for (const { section, slide_num, animation_duration, selector } of global_scrolls) {
+			const selectors = new Set();
+			const sections = new Set();
+
+			const positions = global_scrolls.map(({ pos }) => 120 - pos * 80);
+
+
+			for (const [i, { section, slide_num, animation_duration, selector, pos }] of global_scrolls.entries()) {
+				sections.add(section);
+				selectors.add(selector);
+
+				// console.log({selector:selector.slice(0, -("-rect".length))});
+
+				global_animations.push({
+					section,
+					selector: selector.slice(0, -("-rect".length)),
+					slide_num,
+					animation_duration,
+					forward_only: true,
+					keyframes: {
+						0:    {  transform: `translateY(${positions[i - 1] || 0}px)` },
+						100:   { transform: `translateY(${positions[i]}px)` },
+					},
+					mobile_full_screen_only: true,
+				});
+
+				global_animations.push({
+					section,
+					selector: selector.slice(0, -("-rect".length)),
+					slide_num,
+					animation_duration: global_scrolls[i+1]?.animation_duration,
+					backward_only: true,
+					keyframes: {
+						0:    {  transform: `translateY(${positions[i + 1] || 0}px)` },
+						100:   { transform: `translateY(${positions[i]}px)` },
+					},
+					mobile_full_screen_only: true,
+				});
+
 				state_transitions.get(section)[slide_num].push(() => {
 					const elem = document.querySelector(selector);
 					const styles = getComputedStyle(elem);
@@ -2314,17 +2375,19 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					scrollElementOffsetAnimated(document.querySelector(selector),
 						// offset from top
 						50,
-						1000 * styles.animationDuration.slice(0, -1));
-				});
-				post_processes.push(() => {
-					scrollElementOffsetAnimated(document.querySelector(selector),
-								// offset from top
-								50,
-								1500);
+						1000 * styles.animationDuration.slice(0, -1), section);
 				});
 			}
+			const selectors_arr = [...selectors];
+			const sections_arr = [...sections];
 
-
+			for (let i = 0; i < selectors_arr.length; i++)
+				state_transitions.get(sections_arr[i])[0].push(() => {
+					scrollElementOffsetAnimated(document.querySelector(selectors_arr[i]),
+								// offset from top
+								50,
+								5000, sections_arr[i]);
+				});
 		}
 
 		// console.log(global_scrolls);
@@ -2416,14 +2479,16 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				const next_height = last_height = `${line_height*(num_lines || 1) + line_height / 7}px`;
 
 				const prev_y = last_y;
-				const next_y = last_y = `${y + (line_height*(v - 1)) + line_height / 7}px`;
+				const next_y_num = y + (line_height*(v - 1)) + line_height / 7;
+				const next_y = last_y = `${next_y_num}px`;
+
 
 				global_scrolls.push({
 					section: slide_id,
 					slide_num: i + 1,
 					animation_duration,
 					linear: true,
-					// pos: next,
+					pos: +v,
 					selector: `#${codeblock_id}-rect`,
 				});
 
@@ -2716,7 +2781,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 	}
 
 	//
-	for (const { section, selector, slide_num, keyframes, animation_delay = '0s', animation_duration = '0s', skip_auto_prev_state = section === prev_section && selector === prev_selector, forward_only = false, backward_only = false, ease = false, linear = false, continuous = false } of global_animations.filter(e => e)) {
+	for (const { section, selector, slide_num, keyframes, animation_delay = '0s', animation_duration = '0s', skip_auto_prev_state = section === prev_section && selector === prev_selector, forward_only = false, backward_only = false, ease = false, linear = false, continuous = false, mobile_full_screen_only = false } of global_animations.filter(e => e)) {
 		if (section !== (prev_section ?? section)) {
 			all_styles.set(prev_section, styles.join("\n"));
 			styles = new Array();
@@ -2733,10 +2798,11 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		const animation = `animation${i} ${animation_duration} ${linear ? "linear" : ease === true ? "ease" : ease || "cubic-bezier(0.69, 0.02, 0.53, 1)"} ${animation_delay} 1 forwards normal`;
 		animations.push(animation)
 
+		const mobile_only = mobile_full_screen_only ? "#container[mobile-translate] " : ""
 		let selectors = selector.split(',');
 
 		if (!skip_auto_prev_state) {
-			styles.push(`.slide#${section} ${selector} {
+			styles.push(`${mobile_only}.slide#${section} ${selector} {
 		${Object.entries(keyframe_entries[0][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
 	}`);
 		}
@@ -2745,11 +2811,11 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		// 	Array.prototype.push.apply(selectors, [...document.querySelectorAll(selector)].filter(x => x.id).map(x => `${selector}#${x.id}`));
 		// }
 
-		styles.push(`${selectors.map(selector => `.slide#${section}[${continuous ? 'fragment-' : 'click="'}${slide_num}${continuous ? '' : '"'}]${forward_only ? "[present-went-forward]" : backward_only ? "[present-went-backward]" : ""} ${selector}`).join(',\n')} {
+		styles.push(`${selectors.map(selector => `${mobile_only}.slide#${section}[${continuous ? 'fragment-' : 'click="'}${slide_num}${continuous ? '' : '"'}]${forward_only ? "[present-went-forward]" : backward_only ? "[present-went-backward]" : ""} ${selector}`).join(',\n')} {
 		animation: ${animations.join(",\n\t")};
 	}`);
 
-		if (!continuous) styles.push(`${selectors.map(selector => `.slide#${section}[fragment-${slide_num + 1}] ${selector}`).join(',\n')} {
+		if (!continuous) styles.push(`${selectors.map(selector => `${mobile_only}.slide#${section}[fragment-${slide_num + 1}] ${selector}`).join(',\n')} {
 		${Object.entries(keyframe_entries[keyframe_entries.length - 1][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
 	}`);
 
@@ -2910,7 +2976,17 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 
 	let is_control_depressed = false;
 
-	window.addEventListener("touchstart", () => document.querySelector("body").requestFullscreen({ navigationUI: "hide" }));
+	window.addEventListener("touchend", () => {
+		document.body.requestFullscreen({ navigationUI: "hide" })
+		.then(() => {
+			IS_MOBILE_FULL_SCREEN = true;
+			container.setAttribute("mobile-translate", "");
+		})
+		.catch(err => {
+			console.error("Fullscreen request failed:", err);
+		});
+	});
+	// window.addEventListener("touchstart", () => void (document.querySelector("body").requestFullscreen({ navigationUI: "hide" })));
 	window.addEventListener("keyup", function (event) {
 		// Do nothing if the event was already processed
 		if (event.defaultPrevented) return;
