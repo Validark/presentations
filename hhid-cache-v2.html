@@ -1133,7 +1133,7 @@ fn popcount_bits(
 		</script>
 	</g>
 
-	<g class="slide" id="querying-intro" clicks="12">
+	<g class="slide" id="querying-intro" clicks="20">
 		<text class="h2" id="" x="980" y="100" text-anchor="middle">How to query?</text>
 		<text click class="h3" id="" x="60" y="200" text-anchor="start">First, some definitions:</text>
 		<text click class="h4" id="" x="100" y="260" text-anchor="start">rank<tspan class="highlighted-blue sub">b</tspan>(<tspan class="highlighted">p</tspan>) <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;the # of <tspan class="highlighted-blue">b</tspan>'s up to pos <tspan class="highlighted">p</tspan></text>
@@ -1143,22 +1143,40 @@ fn popcount_bits(
 
 		<text click class="h3" id="" x="60" y="450" text-anchor="start">To find the index of an integer in the set:</text>
 
-		<text click class="h4" x="466" y="520" text-anchor="start"><tspan class="highlighted">a</tspan> <tspan style="letter-spacing: -12px">:=</tspan> rank<tspan class="highlighted-blue sub">0</tspan>(select<tspan class="highlighted-blue sub">1</tspan>(<tspan class="highlighted">ip<tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4</tspan>))</text>
+		<text click class="h4" x="466" y="520" text-anchor="start"><tspan class="highlighted">p</tspan> <tspan style="letter-spacing: -12px">:=</tspan> rank<tspan class="highlighted-blue sub">0</tspan>(select<tspan class="highlighted-blue sub">1</tspan>(<tspan class="highlighted">ip<tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4</tspan>))</text>
 
-		<text click class="h4" x="250" y="575" text-anchor="start"><tspan class="highlighted">a</tspan> + find(<tspan class="highlighted">ip & 0xF</tspan>, <tspan class="highlighted">a</tspan>, rank<tspan class="highlighted-blue sub">0</tspan>(select<tspan class="highlighted-blue sub">1</tspan>(<tspan class="highlighted">ip<tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4 + 1</tspan>)) - <tspan class="highlighted">a</tspan>)</text>
+		<text click class="h4" x="250" y="575" text-anchor="start">find(<tspan class="highlighted">ip & 0xF</tspan>, <tspan class="highlighted">p</tspan>, rank<tspan class="highlighted-blue sub">0</tspan>(select<tspan class="highlighted-blue sub">1</tspan>(<tspan class="highlighted">ip<tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4 + 1</tspan>)) - <tspan class="highlighted">p</tspan>) + <tspan class="highlighted">p</tspan></text>
 
 		<text click class="h3" id="" x="60" y="660" text-anchor="start">Let's query for <tspan class="highlighted">ip = </tspan><tspan fill="rgb(255, 255, 102)">35</tspan></text>
 
-		<text click class="h4" id="" x="60" y="720" text-anchor="start"><tspan fill="rgb(255, 255, 102)">35</tspan><tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4 <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;2</text>
+		<text click class="h4" id="" x="60" y="720" text-anchor="start"><tspan fill="rgb(255, 255, 102)">35</tspan><tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4 <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;2,</text>
 
-		<text click class="h4" id="" x="60" y="780" text-anchor="start">
-			select<tspan class="highlighted-blue sub">1</tspan>(2) <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;4
+		<text click class="h4" id="" x="401" y="720" text-anchor="start">
+			select<tspan class="highlighted-blue sub">1</tspan>(2) <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;4,
 		</text>
 
-
-		<text click class="h4" id="" x="60" y="840" text-anchor="start">
-			<tspan class="highlighted">a</tspan> <tspan style="letter-spacing: -12px">:=</tspan> rank<tspan class="highlighted-blue sub">0</tspan>(4) <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;2
+		<text click="12" class="h4" id="" x="902" y="720" text-anchor="start">
+			<tspan class="highlighted">p</tspan> <tspan style="letter-spacing: -12px">:=</tspan> rank<tspan class="highlighted-blue sub">0</tspan>(4) <tspan style="letter-spacing: -18px;">=> </tspan>&nbsp;2
 		</text>
+
+		<text click="14" class="h4" x="60" y="780" text-anchor="start">find(<tspan class="highlighted">ip & 0xF</tspan>, <tspan class="highlighted">2</tspan><tspan click="16">, rank<tspan class="highlighted-blue sub">0</tspan>(select<tspan class="highlighted-blue sub">1</tspan>(<tspan class="highlighted">ip<tspan style="letter-spacing: -25px"> </tspan>»<tspan style="letter-spacing: -25px"> </tspan>4 + 1</tspan>)) - <tspan class="highlighted">p</tspan>)</tspan></text>
+
+		<line click="11-20" class="no-slide-in2" x1="600" y1="735" x2="600" y2="735"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-11="600, 250, 735, 860"
+		click-12="600, 250, 735, 860"
+		click-13="200, 150, 835, 905"
+		click-14="200, 150, 835, 905"
+		click-15="860, 900, 955, 1005"
+		click-16="860, 900, 955, 1005"
+		click-17="350, 324, 835, 905"
+		click-18="860, 900, 955, 1005"
+		click-19="1260, 1245, 945, 1005"
+
+		damping="0.7" stiffness="0.05"
+		></line>
+
 
 		<script>
 			document.getElementById("select-def").insertAdjacentHTML("afterend",
@@ -1170,12 +1188,746 @@ fn popcount_bits(
 			gamma3 + "&lt;/text&gt;"
 		);
 
+		const all_nibbles = nums.map(e => (e & 0xF).toString(2).padStart(4, '0')).map((e, i) => `&lt;tspan style="fill: ${colors2[i]} !important;"&gt;${e}&lt;/tspan&gt;`);
+
 		document.getElementById("select-def").insertAdjacentHTML("afterend",
 		`&lt;text id="nibbles-2" click="8" class="h4" style="font-size: 35px" id="" x="${619}" y="1050" text-anchor="start"&gt;` +
-			nums.map(e => (e & 0xF).toString(2).padStart(4, '0')).map((e, i) => `&lt;tspan style="fill: ${colors2[i]} !important;"&gt;${e}&lt;/tspan&gt;`).join("") + "&lt;/text&gt;"
+			all_nibbles.slice(0, 2).join("") + "&lt;/text&gt;"
 		);
 
+		document.getElementById("select-def").insertAdjacentHTML("afterend",
+		`&lt;text id="nibbles-3" click="8" class="h4" style="font-size: 35px" id="" x="${619}" y="1050" text-anchor="start"&gt;` +
+			"&nbsp;".repeat(8) + all_nibbles.slice(2, 6).join("") + "&lt;/text&gt;"
+		);
+
+
+		document.getElementById("select-def").insertAdjacentHTML("afterend",
+		`&lt;text id="nibbles-4" click="8" class="h4" style="font-size: 35px" id="" x="${619}" y="1050" text-anchor="start"&gt;` +
+			"&nbsp;".repeat(24) + all_nibbles.slice(6).join("") + "&lt;/text&gt;"
+		);
+
+		global_animations.push({
+			section: "querying-intro",
+			selector: `#nibbles-2, #nibbles-4`,
+			slide_num: 18,
+			animation_delay: "0s",
+			animation_duration: "0.5s",
+			continuous: true,
+			keyframes: {
+				0:   { transform: "translateY(0px)" },
+				100: { transform: "translateY(30px)" },
+			}
+		});
+
 		</script>
+	</g>
+
+
+	<g class="slide" id="indexing-structure" clicks="9">
+		<text class="h2" id="" x="980" y="100" text-anchor="middle">Can we build an index?</text>
+
+
+
+		<text click="1" id="long-num-line" class="h3" x="1894" y="250" text-anchor="end">|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|</text>
+		<text click="3" id="num-line" class="h3" x="2" y="350" text-anchor="start">|<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-|-----|<tspan class="hidden-dash">-</tspan>-----<tspan class="hidden-dash">-</tspan>|<tspan class="hidden-dash">-</tspan>--<tspan class="hidden-dash">-</tspan>--<tspan class="hidden-dash">-</tspan>-|<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-|<tspan class="hidden-dash">-</tspan>--<tspan class="hidden-dash">-</tspan>--<tspan class="hidden-dash">-</tspan>-|<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>-<tspan class="hidden-dash">-</tspan>--|</text>
+		<text click="2" id="bar-thing" class="h3" x="894" y="250" style="fill: rgb(0, 255, 255)">|</text>
+
+
+		<line click="6-8" class="no-slide-in2" x1="141" x2="141" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="141, 200, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+
+		<line click="6-8" class="no-slide-in2" x1="430" x2="430" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="430, 250, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+
+		<line click="6-8" class="no-slide-in2" x1="700" x2="700" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="700, 650, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+		<line click="6-8" class="no-slide-in2" x1="970" x2="970" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="970, 950, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+
+		<line click="6-8" class="no-slide-in2" x1="1230" x2="1230" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="1230, 1000, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+
+		<line click="6-8" class="no-slide-in2" x1="1500" x2="1500" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="1500, 1300, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+
+		<line click="6-8" class="no-slide-in2" x1="1770" x2="1770" y1="250" y2="250"
+        stroke="rgb(255, 177, 100)" stroke-width="3"
+        marker-end="url(#arrowhead-orange)"
+		click-6="1770, 1800, 250, 300"
+		damping="0.8" stiffness="0.005"
+		></line>
+
+		<script>{
+const str = [
+2031, 1073, 1418, 1597, 2045, 1516, 1801].map((x, i) => `&lt;text click="3" class="h3" id="nummy-${i}" class="h3" x="${67 + i*264}" y="385"&gt;${x}&lt;/text&gt;`).join("");
+document.getElementById("num-line").insertAdjacentHTML("afterend", str);
+
+const str2 = `&lt;text id="thousands" click="5" class="h3" class="h3" x="1891" y="205" text-anchor="end"&gt;${
+	'&lt;tspan class="half-space"&gt;&nbsp;&lt;/tspan&gt1000&lt;tspan class="half-space"&gt;&nbsp;&lt;/tspan&gt;&nbsp;'.repeat(77)
+}&lt;/text&gt;`;
+
+document.getElementById("num-line").insertAdjacentHTML("afterend", str2);
+
+const next_positions = [
+	100, 220, 260, 380, 540, 720, 850
+];
+
+		next_positions.forEach((v, i) => {
+			global_animations.push({
+				section: "indexing-structure",
+				selector: `#nummy-${i}`,
+				slide_num: 4,
+				animation_delay: "0s",
+				animation_duration: "5s",
+				continuous: true,
+				keyframes: {
+					0:   { transform: "translateX(0px)" },
+					100: { transform: `translateX(${v - 8}px)` },
+				}
+			});
+		})
+
+		<!-- global_animations.push({
+			section: "indexing-structure",
+			selector: `#nummie-${i}`,
+			slide_num: 2,
+			animation_delay: "0s",
+			animation_duration: "0.5s",
+			continuous: true,
+			keyframes: {
+				0:   { transform: "translateY(0px)" },
+				100: { transform: "translateY(0px)" },
+			}
+		}); -->
+
+
+		global_animations.push({
+			section: "indexing-structure",
+			selector: `.hidden-dash`,
+			slide_num: 4,
+			animation_delay: "0s",
+			animation_duration: "5s",
+			continuous: true,
+			keyframes: {
+				0:   { "letter-spacing": "-44px", opacity: 0 },
+				100: { "letter-spacing": "0px", opacity: 1 },
+			}
+		});
+
+		global_animations.push({
+			section: "indexing-structure",
+			selector: `#long-num-line`,
+			slide_num: 8,
+			animation_delay: "0s",
+			animation_duration: "200s",
+			continuous: true,
+			linear: true,
+			keyframes: {
+				0:   { transform: "translateX(0px)" },
+				100: { transform: `translateX(18480px)` },
+			}
+		});
+
+		global_animations.push({
+			section: "indexing-structure",
+			selector: `#thousands`,
+			slide_num: 8,
+			animation_delay: "0s",
+			animation_duration: "200s",
+			continuous: true,
+			linear: true,
+			keyframes: {
+				0:   { transform: "translateX(0px)" },
+				100: { transform: `translateX(18480px)` },
+			}
+		});
+
+
+		global_animations.push({
+			section: "indexing-structure",
+			selector: `#bar-thing`,
+			slide_num: 4,
+			animation_delay: "0s",
+			animation_duration: "0.5s",
+			continuous: true,
+			linear: true,
+			keyframes: {
+				0:   { opacity: 1 },
+				100: { opacity: 0 },
+			}
+		});
+
+
+
+		}</script>
+
+
+		<style>
+			.half-space {
+				letter-spacing: -22px !important;
+			}
+		</style>
+
+
+		<g class="code" click="7" x="100" y="500" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig">
+			const IndexItem = packed struct(u64) {
+				chunk_index: u21, // works for: n < 2**32 - 2**28
+				chunk_popcount: u11, // [120, 2048]
+				prefix_popcnt: u32,
+			};
+		</g>
+	</g>
+
+	<g class="slide" id="elias-code" clicks="10">
+<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215:4,219,220,222:3,223,502,503:2,505:5,510,223,222:3,226,227:2,230,231:4,236:2,238,240:2,243,242:3,334,335,336:3,325:3,329,328:4,336:3,339:3,342,343,344:2,348,349,351:15,355:10,367,373,380,386:8,384,386:8,399:13,402:2,406:4,412,422,426,423,426,424,426,429,242:3,245,249,247:5,253,254:3,258:4,258:4,258:4,258:4,263:3,268:3,272:4,277:3,282:5,281:7,288,289:3,293:3,296:5,301,303,304,305,306,309,310,310,310,311,312,313,211,210:3">
+/// An HHID cache that maps u32's to u16's.
+/// If we get to the point where we have billions of IP addresses
+/// in this cache, we can switch this buffer to just be a flat array
+/// of u16's.
+
+// The interval number of bits for how often we cache the popcount.
+const CHECKPOINT_INTERVAL = 2048;
+const CHECKPOINT_BYTE_INTERVAL =
+	@divExact(CHECKPOINT_INTERVAL, @bitSizeOf(u8));
+
+const std = @import("std");
+const builtin = @import("builtin");
+const utils = @import("../utils.zig");
+const caches = @import("../caches.zig");
+const simd = utils.simd;
+const andn = simd.andn;
+const pdep = simd.pdep;
+const compressw = simd.compressw;
+const h_add_lane = simd.h_add_lane;
+
+pub const HHID = utils.StringifyableEnum(u16, .hhid);
+
+const IndexItem = packed struct(u64) {
+    split: u11,
+
+    // Breaks when: (This is checked by the Python code)
+    // (2**28 + N) / 2**11 >= 2**21
+    // N >= 2**32 - 2**28
+    chunk_index: u21,
+    prefix_popcnt: u32,
+};
+
+top_bits: []align(256) const u8 = &.{},
+bottom_bits: []const u8 = &.{},
+index: []const IndexItem = &.{},
+min_popcnt_in_chunk_divider: FastDivider32 = .{},
+
+// This is our associated array
+hhids: []const HHID = &.{},
+
+pub fn deinit(self: @This(), allocator: std.mem.Allocator) void {
+    allocator.free(self.hhids);
+    allocator.free(self.top_bits);
+    allocator.free(self.bottom_bits);
+    allocator.free(self.index);
+}
+
+pub const MAX_IP_COUNT = (@as(u64, 1) << 32) - (@as(u64, 1) << 28) - 1;
+pub const MAX_READABLE_BUFFER_SIZE =
+	get_mem_requirements(MAX_IP_COUNT, .all);
+
+pub fn get_mem_requirements(
+	count: u64,
+	comptime field: enum { high_bits, low_bits, hhids, all }
+) u64 {
+    return switch (field) {
+        .all => @as(u64, 4) +
+            get_mem_requirements(count, .high_bits) +
+            get_mem_requirements(count, .low_bits) +
+            get_mem_requirements(count, .hhids),
+
+        // `2^28 + 1` 1 bits, `count` 0 bits.
+        // The undefined bits at the top (up to 7 because we don't
+		// have bit-addressable memory) are 1's due to the specific
+		// way the Python code is written.
+         .high_bits => ((@as(u32, 1) << 28) + count + 1 + 7) / 8,
+		// `+ 1` is the extra 1 bit at the front for easier querying
+
+        // These are u4's, hence the divide by 2
+        .low_bits => (count + 1) / 2,
+
+        .hhids => count * @sizeOf(HHID),
+    };
+}
+
+pub fn init(
+	allocator: std.mem.Allocator,
+	buffer: []const u8,
+) !@This() {
+    // Format: u32 for count, high_bits, low_bits, label_vec
+    var self: @This() = .{};
+    errdefer self.deinit(allocator);
+
+    var cur = buffer;
+    const count: u32 = @bitCast(cur[0..4].*);
+    cur = cur[4..];
+
+    {
+        const n = get_mem_requirements(count, .high_bits);
+
+        const high_bits = try allocator.alignedAlloc(
+            u8,
+            .fromByteUnits(CHECKPOINT_BYTE_INTERVAL),
+            // Guarantee 4 additional padding bytes to ensure that
+			// grabbing `chunk_u64_2` is safe.
+            4 +
+			std.mem.alignForward(usize, n, CHECKPOINT_BYTE_INTERVAL),
+        );
+        @memcpy(high_bits[0..n], cur[0..n]);
+        @memset(high_bits[n..], 0);
+        cur = cur[n..];
+        self.top_bits = high_bits;
+    }
+
+    {
+        const n = get_mem_requirements(count, .low_bits);
+
+		// We add 9 to make this safe:
+		//          self.bottom_bits[count / 2..][0..9]
+        const low_bits = try allocator.alloc(u8, n + 9);
+        @memcpy(low_bits[0..n], cur[0..n]);
+        @memset(low_bits[n..], 0);
+        cur = cur[n..];
+        self.bottom_bits = low_bits;
+    }
+
+    {
+        const n = get_mem_requirements(count, .hhids);
+        const hhids = try allocator.alloc(HHID, count);
+        @memcpy(std.mem.sliceAsBytes(hhids), cur[0..n]);
+        cur = cur[n..];
+        self.hhids = hhids;
+    }
+
+	// Verify that we consumed the entire buffer
+    std.debug.assert(cur.len == 0);
+
+    {
+        // Generate an index (in the database sense) such that a
+		// select_1(k) query can be satisfied by:
+        // - finding index[k / MIN_POPCOUNT_IN_CHUNK] => IndexItem
+        // - IndexItem.chunk_index points to a `@Vector(32, u64)`
+		// chunk in top_bits. We are either in that one or the next 1.
+        // - Do `k - IndexItem.prefix_popcount`. This value can be
+		// compared against `split`. If we are larger than split, then
+		// we increment our local `IndexItem.chunk_index`
+		// (not in the data structure)
+
+        var min_popcnt_in_chunk: u16 = std.math.maxInt(u16);
+        const chunks: []const @Vector(
+			@divExact(CHECKPOINT_BYTE_INTERVAL, @sizeOf(u64)),
+			u64,
+		) = @ptrCast(self.top_bits[0 .. self.top_bits.len - 4]);
+
+        for (chunks) |chunk|
+            min_popcnt_in_chunk = @min(
+				min_popcnt_in_chunk,
+				@reduce(.Add, @as(@Vector(32, u64), @popCount(chunk))),
+			);
+
+        if (min_popcnt_in_chunk == 0) min_popcnt_in_chunk = 1;
+
+        self.min_popcnt_in_chunk_divider =
+			FastDivider32.init(min_popcnt_in_chunk).?;
+
+        // Effectively we are doing a really weird two-pointers algo
+		// like merge sort, except we guarantee that you can't
+        // have an arbitrary number of advances over the second
+		// conceptual array
+
+        const index = try allocator.alloc(
+			IndexItem,
+			1 + self.min_popcnt_in_chunk_divider.quotient(
+				std.math.maxInt(u28),
+			)
+		);
+        self.min_popcnt_in_chunk_divider.r += 4;
+        //       Do an additional shift by 4  ^
+        // That way, we can feed our u32 in directly instead of
+		// computing (@as(u32, ip) >> 4) first.
+
+        var min_popcnt_cumulative: u32 = 0;
+        var i: @FieldType(IndexItem, "chunk_index") = 0;
+        var incr: u1 = 0;
+
+        var prev_popcnt: u32 = undefined;
+        var next_popcnt: u32 = 0;
+
+        var prev_prefix_popcnt: @FieldType(IndexItem, "prefix_popcnt") = undefined;
+        var next_prefix_popcnt: @FieldType(IndexItem, "prefix_popcnt") = 0;
+
+        for (index) |*slot| {
+            while (min_popcnt_cumulative >= next_prefix_popcnt) {
+                prev_popcnt = next_popcnt;
+                prev_prefix_popcnt = next_prefix_popcnt;
+                i += incr;
+                incr = 1;
+                next_popcnt = if (i >= chunks.len) 2048 else @reduce(
+					.Add,
+					@as(@Vector(32, u32), @popCount(chunks[i])),
+				);
+                next_prefix_popcnt += next_popcnt;
+            }
+
+            slot.* = .{
+                .chunk_index = i,
+                .prefix_popcnt = prev_prefix_popcnt,
+                .split = @intCast(next_popcnt - 1),
+            };
+
+            min_popcnt_cumulative += min_popcnt_in_chunk;
+        }
+
+        self.index = index;
+    }
+
+    return self;
+}
+
+pub fn query(self: @This(), ip: caches.IpAddress) ?HHID {
+    return self.hhids[self.get_index(ip) orelse return null];
+}
+
+pub fn get_index(self: @This(), ip_: caches.IpAddress) ?u32 {
+    // If we are working with an empty data structure, do nothing.
+    // We support this because we unfortunately support initializing
+	// this structure without allocating
+    if (self.top_bits.len == 0) return null;
+    const ip: u32 = @intFromEnum(ip_);
+    const upper_bits = ip >> 4;
+
+    const index_item = self.index[
+		self.min_popcnt_in_chunk_divider.quotient(ip)
+	];
+
+    const last_prefix_popcnt = index_item.prefix_popcnt;
+    const next_prefix_popcnt =
+		index_item.split + last_prefix_popcnt + 1;
+
+    const should_be_next_chunk = upper_bits >= next_prefix_popcnt;
+    const prefix_popcnt = if (should_be_next_chunk)
+		next_prefix_popcnt
+	else
+		last_prefix_popcnt;
+
+	const selected_chunk = @as(u32, index_item.chunk_index) +
+		@intFromBool(should_be_next_chunk);
+	const pos: u11 = @intCast(upper_bits - prefix_popcnt);
+
+    const top_bits_focus =
+		self.top_bits[selected_chunk * CHECKPOINT_BYTE_INTERVAL ..];
+    const prefix_sums = prefix_sum_popcounts(
+		@bitCast(top_bits_focus[0..CHECKPOINT_BYTE_INTERVAL].*)
+	);
+    const masky = @splat(pos) < prefix_sums;
+
+    const bits_skipped_over: u32 = compressw(
+		@splat(0),
+		std.simd.shiftElementsRight(prefix_sums, 1, 0),
+		@bitCast(masky),
+	)[0];
+
+    const index_of_u64: u32 = @ctz(@as(u32, @bitCast(masky)));
+    const chunk_u64: u64 = @bitCast(
+		top_bits_focus[8 * index_of_u64 ..][0..8].*,
+	);
+
+    const target_bit = pdep(
+		@as(u64, 1) << @intCast(pos - bits_skipped_over),
+		chunk_u64
+	);
+
+    const local_preceding_ips_cnt = (index_of_u64 * 64) -
+		bits_skipped_over +
+		@popCount(~chunk_u64 & (target_bit -% 1));
+
+    // bottom_bits_idx is in [0, self.hhids.len]
+    const bottom_bits_idx: u32 =
+		CHECKPOINT_INTERVAL * selected_chunk -
+		prefix_popcnt + local_preceding_ips_cnt;
+
+    // Preload the 1 or 2 cache lines the answer is going to be on.
+	// It's okay if this is out of bounds.
+    @prefetch(self.hhids.ptr + bottom_bits_idx, .{});
+    @prefetch(self.hhids.ptr + bottom_bits_idx + 15, .{});
+
+    const chunk_u64_2: u32 = @bitCast(
+		top_bits_focus[8 * index_of_u64 ..][8..][0..4].*
+	);
+
+    const candidate_low_bits: u32 = @truncate(
+		shld_hi(
+			chunk_u64,
+			chunk_u64_2,
+			@as(u6, @intCast(@clz(target_bit)))
+		)
+	);
+    const num_candidates: u32 = @ctz(candidate_low_bits);
+	// Elias Fano invariant. There should always be some 1 bit
+	// above us, within 16 bits.
+    std.debug.assert(num_candidates <= 16);
+
+	const prelim: u64 = @bitCast(
+		self.bottom_bits[bottom_bits_idx >> 1 ..][0..8].*
+	);
+	const alt = shrd_comptime_shift(
+		prelim,
+		self.bottom_bits[bottom_bits_idx >> 1 ..][8],
+		4,
+	);
+	const bitstring = if (bottom_bits_idx & 1 == 0) prelim else alt;
+
+	const ones: u64 = 0x1111111111111111;
+	const lower_bits: u4 = @truncate(ip);
+	const broadcasted = lower_bits * ones;
+	const eq = bitstring ^ broadcasted;
+
+	// Dinnae fash yersel LLVM, I will tell you how to optimize this.
+	const msb = ones << 3;
+	const matched_mask = (msb -% andn(eq, msb)) & andn(msb, eq);
+    const matched_pos: u5 = @intCast(@ctz(matched_mask) / 4);
+    if (matched_pos >= num_candidates) return null;
+    return bottom_bits_idx + matched_pos;
+}
+
+// There are a lot of ways to fit the popcount of [4]@Vector(8, u64)
+// in a single vector. By default, LLVM will reduce
+// `[4]@Vector(8, u64)` to `[4]@Vector(8, u16)`, then concatenate
+// pairs (a + b, c + d, then a+b + c+d). Instead, we shift two vectors
+// by `8` and `16` bits so we can do a three-way OR on them. In our
+// code, we permute the result of the 3-way OR by itself, and we also
+// feed it into a vperm2 with the untouched last vector to get the
+// right bytes in the right places.
+// Pretty nifty if I can say so myself :)
+fn combine(
+	x: [4]@Vector(8, u64),
+) struct { @Vector(64, u8), @Vector(64, u8) } {
+    return .{
+        @bitCast(x[0] | (x[1] << @splat(8)) | (x[2] << @splat(16))),
+        @bitCast(x[3]),
+    };
+}
+
+fn prefix_sum_popcounts(x: @Vector(32, u64)) @Vector(32, u16) {
+    @setEvalBranchQuota(10000);
+    const popcnts = combine(
+		@bitCast(@as(@Vector(32, u64), @popCount(x)))
+	);
+    const jumbled = comptime combine(
+		@bitCast(std.simd.iota(u64, 32))
+	);
+    comptime var inverse_jumble_vec: [32]i8 = undefined;
+    comptime for (&inverse_jumble_vec, 0..) |*slot, i| {
+        slot.* = std.simd.firstIndexOfValue(jumbled[0], i) orelse
+			~@as(i7, std.simd.firstIndexOfValue(jumbled[1], i).?);
+    };
+
+    const INDEX_OF_ZERO_BYTE = 7;
+    const zeroes = [1]i8{INDEX_OF_ZERO_BYTE} ** 8;
+
+    const prev_lane_popcnts = @shuffle(
+		u8,
+		popcnts[0],
+		@Vector(0, u8){},
+		@as(@Vector(64, i8), @bitCast([8][8]i8{
+			zeroes,
+			zeroes,
+			inverse_jumble_vec[0..8].*,
+			zeroes,
+			inverse_jumble_vec[8..][0..8].*,
+			zeroes,
+			inverse_jumble_vec[16..][0..8].*,
+			zeroes,
+		}))
+	);
+
+    const h = h_add_lane(prev_lane_popcnts);
+
+    // We let the compiler think this is a vector of u64's rather than
+	// u16's so it doesn't insert spurious AND instructions.
+    // It makes no difference here because CHECKPOINT_INTERVAL is less
+	// than 2^16 (nor would it really make sense otherwise).
+    var lane_prefix_sums = h;
+
+    // This happens to be sufficient because we are finding the prefix-sum of 3 values
+    // _, a, b, c | shifted-out values
+    // _, _, a, b | , c
+    // _, _, _, a | , b, c
+    inline for ([2][4]i32{
+        [4]i32{ 0, 0, 1, 2 },
+        // 0 and -1 will both give us zeroes.
+		// In this case we use -1's just because it gives us a
+		// faster instruction.
+        [4]i32{ -1, -1, 0, 1 },
+    }) |shuffler|
+        lane_prefix_sums += @bitCast(@shuffle(
+            u128,
+			// Intentionally `h`, not `lane_prefix_sums`.
+			// Gives us slightly more ILP.
+            @as(@Vector(4, u128), @bitCast(h)),
+            @as(@Vector(4, u128), @splat(0)),
+            shuffler,
+        ));
+
+    comptime std.debug.assert(
+		builtin.target.cpu.arch.endian() == .little,
+	);
+
+    var vec: @Vector(32, u16) = @bitCast(
+		@shuffle(
+			u8,
+			popcnts[0],
+			popcnts[1],
+			// Interlace byte indices with zero bytes so we can
+			// get u16's from `popcnts` in the right order.
+			std.simd.interlace(.{
+				inverse_jumble_vec,
+				@as(@Vector(32, i7), @splat(INDEX_OF_ZERO_BYTE)),
+			}),
+		),
+	);
+	vec += @bitCast(lane_prefix_sums);
+
+    // Since `vec` already has `lane_prefix_sums` added to the first
+	// u16 of each 8-u16's lane. All we need to do is compute the
+	// prefix-sum WITHIN each 8-u16's lane. This is much faster than
+    // trying to do naive cross-lane prefix-sum since we can use
+	// faster shift instructions.
+
+    // zig fmt: off
+    inline for ([3][32]i32{
+        .{ -1,  0,  1,  2, 3, 4, 5, 6, -1,  8,  9, 10, 11, 12, 13, 14, -1, 16, 17, 18, 19, 20, 21, 22, -1, 24, 25, 26, 27, 28, 29, 30 },
+        .{ -1, -1,  0,  1, 2, 3, 4, 5, -1, -1,  8,  9, 10, 11, 12, 13, -1, -1, 16, 17, 18, 19, 20, 21, -1, -1, 24, 25, 26, 27, 28, 29 },
+        .{ -1, -1, -1, -1, 0, 1, 2, 3, -1, -1, -1, -1,  8,  9, 10, 11, -1, -1, -1, -1, 16, 17, 18, 19, -1, -1, -1, -1, 24, 25, 26, 27 },
+    }) |shuffle_vec|
+        vec += @shuffle(u16, vec, @as(@TypeOf(vec), @splat(0)), shuffle_vec);
+    // zig fmt: on
+
+    return vec;
+}
+
+// --------------------------------------------------------------------------------
+// Adapted from: https://github.com/lemire/fast_division
+// BSD 3-Clause License
+//
+// Copyright (c) 2021, Daniel Lemire
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this
+//    list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+const FastDivider32 = struct {
+    r: switch (builtin.mode) {
+        .Debug, .ReleaseSafe => u6,
+        .ReleaseFast, .ReleaseSmall => u8,
+    } = 0,
+    a: u64 = 0,
+    c: u64 = 0,
+
+    divisor: switch (builtin.mode) {
+        .Debug, .ReleaseSafe => ?u32,
+        .ReleaseFast, .ReleaseSmall => void,
+    } = switch (builtin.mode) {
+        .Debug, .ReleaseSafe => null,
+        .ReleaseFast, .ReleaseSmall => {},
+    },
+
+    pub const identity: FastDivider32 = .{ .c = 1, .a = 0, .r = 0 };
+
+    pub fn default_value(value: u32) FastDivider32 {
+        return .{ .c = 0, .a = value, .r = 0 };
+    }
+
+    pub fn init(divisor: u32) ?FastDivider32 {
+        if (divisor == 0) return null;
+        const log2_divisor = @clz(divisor);
+        const m = @as(u64, 1) << ~log2_divisor;
+        const c_floor = m / divisor;
+        const need_fallback =
+			(divisor - (m % divisor) >= m / std.math.maxInt(u32) + 1);
+        const c = c_floor + @intFromBool(!need_fallback);
+        const is_power_2 = std.math.isPowerOfTwo(divisor);
+
+        return .{
+            .c = if (is_power_2) 1 else c,
+            .a = if (need_fallback and !is_power_2) c else 0,
+            .r = @as(u6, if (is_power_2) 31 else 63) - log2_divisor,
+        };
+    }
+
+    pub fn quotient(self: FastDivider32, n: u32) u32 {
+        const ans: u32 =
+			@truncate((n * self.c + self.a) >> @truncate(self.r));
+        switch (builtin.mode) {
+            .Debug, .ReleaseSafe => if (self.divisor) |d|
+				std.debug.assert(n / d == ans),
+            .ReleaseFast, .ReleaseSmall => {},
+        }
+        return ans;
+    }
+};
+// --------------------------------------------------------------------------------
+
+</g>
+<script>
+	document.getElementById("elias-code").setAttribute("clicks", document.getElementById("elias-code-block").getAttribute("steps"));
+</script>
 	</g>
 
 	<g class="slide" id="end">
@@ -1943,12 +2695,20 @@ fn popcount_bits(
 	.code-curly-3 { fill: rgb(80, 250, 123); }
 	.code-curly-4 { fill: rgb(189, 147, 249); }
 	.code-curly-5 { fill: rgb(255, 184, 104); }
+
 	.code-paren-0 { fill: rgb(248, 248, 242); }
 	.code-paren-1 { fill: #F1FA8C; }
 	.code-paren-2 { fill: rgb(255, 184, 104); }
 	.code-paren-3 { fill: rgb(255, 121, 198); }
  	.code-paren-4 { fill: rgb(189, 147, 249); }
  	.code-paren-5 { fill: rgb(139, 233, 253); }
+
+	.code-brack-0 { fill: #F1FA8C; }
+	.code-brack-1 { fill: rgb(255, 184, 104); }
+	.code-brack-2 { fill: rgb(255, 121, 198); }
+	.code-brack-3 { fill: rgb(189, 147, 249); }
+	.code-brack-4 { fill: rgb(139, 233, 253); }
+	.code-brack-5 { fill: rgb(248, 248, 242); }
 
 	@font-face {
 		font-family: 'JetBrains Mono';
@@ -2070,13 +2830,15 @@ fn popcount_bits(
 
 		const joined_lines = lines.join('\n')
 			.replaceAll("&gt;&gt;", "&raquo;")
-			.replaceAll("<<", "&laquo;")
+			.replaceAll("&lt;&lt;", "&laquo;")
 			.replaceAll("-&gt;", "&RightArrow;")
-			.replaceAll("&gt;", ">")
-			.replaceAll("&lt;", "<")
-			.replaceAll(" => ", " &rArr; ")
+			.replaceAll(" =&gt; ", " &rArr; ")
 			.replaceAll(" != ", " &ne; ")
-			.replaceAll(" == ", " &Equal; ");
+			.replaceAll(" &lt;= ", " &le; ")
+			.replaceAll(" &gt;= ", " &ge; ")
+			.replaceAll(" == ", " &Equal; ")
+			.replaceAll("&lt;", "<")
+			.replaceAll("&gt;", ">");
 
 		const ranges = new Array();
 
@@ -2115,13 +2877,13 @@ fn popcount_bits(
 
 			for (const [regex, name] of [
 				[/(?<!\w)(usingnamespace|linksection|threadlocal|unreachable|addrspace|allowzero|nosuspend|anyframe|callconv|comptime|continue|errdefer|noinline|volatile|anytype|noalias|suspend|export|undefined|extern|inline|opaque|orelse|packed|false|true|null|resume|return|struct|switch|align|async|await|break|catch|const|defer|error|union|while|else|enum|test|and|asm|for|pub|try|var|fn|if|or)(?!\w)/g, "keyword"],
-				[/(?<!\w)(Carry|HHID|caches)(?!\w+)/g, "struct-type"],
+				[/(?<!\w)(Carry|HHID|Allocator|IndexItem|FastDivider32|IpAddress)(?!\w+)/g, "struct-type"],
 				[/@\w+/g, "builtin"],
 				[/ +/g, "space"],
-				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[:=><!+~?|^/-]|\.(?=\*)|(?<!\.)\*/ug, "symbol-1"],
+				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&le;)|(?:&ge;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[+*-]?%|\.\.\.?|[:=><!+~?|^/-]|\.(?=\*)|(?<!\.)\*/ug, "symbol-1"],
 				[/(?<=\.)\*/g, "symbol-2"],
 				[/\w+(?=\()|(?<=fn )\w+/g, "func-name"],
-				[/(?<!\w)(?:[ui]\d+|void|bool|uint)(?!\w)/g, "type"],
+				[/(?<!\w)(?:[ui]\d+|void|bool|u?int|[ui]size)(?!\w)/g, "type"],
 				[/(?<!\w)0x[\dA-Fa-f]+/g, "num"],
 				[/(?<!\w)(?:0[b])?\d+/g, "num"],
 				[/\*/g, "star"],
@@ -2190,6 +2952,7 @@ fn popcount_bits(
 		for (const [regex, name, [opener, closer]] of [
 			[/[{}]/g, "curly", "{}"],
 			[/[()]/g, "paren", "()"],
+			[/[[\]]/g, "brack", "()"],
 		]) {
 			outer: for (const { index, 0: { 0: e, length } } of joined_lines.matchAll(regex)) {
 				for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
@@ -2531,10 +3294,10 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 			const selectors = new Set();
 			const sections = new Set();
 
-			const positions = global_scrolls.map(({ pos }) => 120 - pos * 80);
-
+			const positions = global_scrolls.map(({ pos }) => 120 - pos * 80 - 55);
 
 			for (const [i, { section, slide_num, animation_duration, selector, pos }] of global_scrolls.entries()) {
+				// console.log({ section, slide_num, animation_duration, selector, pos });
 				sections.add(section);
 				selectors.add(selector);
 
@@ -2570,16 +3333,13 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					const elem = document.querySelector(selector);
 					const styles = getComputedStyle(elem);
 
-					// console.log({elem, animation_duration: styles.animationDuration})
+					// console.log("selector", selector);
+					// console.log("elem", elem);
+					// console.log("styles.animationDuration", styles.animationDuration);
 
-					// console.log(styles.animationName);       // e.g., "fadeIn"
-					// console.log();   // e.g., "2s"
-					// console.log(styles.animationDelay);      // e.g., "0.5s"
-					// console.log(styles.animationIterationCount); // e.g., "infinite"
-					// console.log('');
 					scrollElementOffsetAnimated(document.querySelector(selector),
 						// offset from top
-						50,
+						-3,
 						1000 * styles.animationDuration.slice(0, -1), section);
 				});
 			}
@@ -2590,7 +3350,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				state_transitions.get(sections_arr[i])[0].push(() => {
 					scrollElementOffsetAnimated(document.querySelector(selectors_arr[i]),
 								// offset from top
-								50,
+								-3,
 								5000, sections_arr[i]);
 				});
 		}
@@ -2675,8 +3435,11 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				// 2076
 
 				const next = last = Math.min(0, (-v + Math.max(2, 3 - num_lines)) * line_height) - 9;
-				const anim_duration = Math.max(0.2, Math.abs(next - prev) / (3000));
-				const animation_duration = `${(i === 0 ? 1/0.9 : 1) * anim_duration}s`;
+				let anim_duration = Math.max(0.2, Math.abs(next - prev) / (10000));
+				if (anim_duration > 1) {
+					anim_duration = 2;
+				}
+				const animation_duration = `${(i === 0 ? 1/0.9 : 1.25) * anim_duration}s`;
 				// console.log({ prev, next, animation_duration });
 				// console.log([v, y + (line_height*(v - 1)) + 10]);
 
@@ -2687,7 +3450,6 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				const next_y_num = y + (line_height*(v - 1)) + line_height / 7;
 				const next_y = last_y = `${next_y_num}px`;
 
-
 				global_scrolls.push({
 					section: slide_id,
 					slide_num: i + 1,
@@ -2696,6 +3458,9 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					pos: +v,
 					selector: `#${codeblock_id}-rect`,
 				});
+
+				// console.log({codeblock_id,v,animation_duration,prev_height, prev_y, next_height, next_y})
+
 
 				return [
 
@@ -2841,6 +3606,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 	let prev_selector;
 	let prev_slide_num;
 	let prev_section;
+	let prev_mobile_full_screen_only;
 	const animations = new Array();
 
 	function getSelectorForInternal(ge, num_clicks) {
@@ -2989,14 +3755,15 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 	for (const { section, selector, slide_num, keyframes, animation_delay = '0s', animation_duration = '0s', skip_auto_prev_state = section === prev_section && selector === prev_selector, forward_only = false, backward_only = false, ease = false, linear = false, continuous = false, mobile_full_screen_only = false } of global_animations.filter(e => e)) {
 		if (section !== (prev_section ?? section)) {
 			all_styles.set(prev_section, styles.join("\n"));
-			styles = new Array();
+			styles = [all_styles.get(section) ?? ""] ?? new Array();
 		}
 		i += 1;
+		const old_styles_len = styles.length;
 		const keyframe_entries = Object.entries(keyframes).filter(e => e[1] !== undefined).map(([a, b]) => [+a, b]).sort((a, b) => a[0] - b[0]);
 		if (keyframe_entries[0]?.[0] !== 0) throw "Missing keyframe 0";
 		if (keyframe_entries[keyframe_entries.length - 1]?.[0] !== 100) throw "Missing keyframe 100";
 
-		if (selector !== prev_selector || slide_num !== prev_slide_num) {
+		if (selector !== prev_selector || slide_num !== prev_slide_num || mobile_full_screen_only !== prev_mobile_full_screen_only) {
 			animations.length = 0;
 		}
 
@@ -3011,6 +3778,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		${Object.entries(keyframe_entries[0][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
 	}`);
 		}
+
 
 		// if (selector.startsWith('.')) {
 		// 	Array.prototype.push.apply(selectors, [...document.querySelectorAll(selector)].filter(x => x.id).map(x => `${selector}#${x.id}`));
@@ -3032,13 +3800,16 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		${keyframe_entries.map(([a, b]) => `${a}% { ${Object.entries(b).map(([a, b]) => `${a}: ${b};`).join(" ")} }`).join("\n\t")}
 	}`);
 
-		if (forward_only) {
+		if (mobile_full_screen_only) {
+			for (let n = old_styles_len; n < styles.length; n++)
+				console.log(styles[n]);
 			// console.log(styles[styles.length - 1]);
 		}
 
 		prev_selector = selector;
 		prev_slide_num = slide_num;
 		prev_section = section;
+		prev_mobile_full_screen_only = mobile_full_screen_only;
 	}
 
 	all_styles.set(prev_section, styles.join("\n"));
