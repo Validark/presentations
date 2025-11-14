@@ -34,10 +34,10 @@
 		g.slide:not([hidden]) > [click]:not([hidden]) tspan.highlighted,
 		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) text.highlighted,
 		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) tspan.highlighted,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
+		g.slide:not([hidden]) g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted,
+		g.slide:not([hidden]) g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted,
+		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
+		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
 		{
 			animation: unhide-highlighted 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
@@ -46,10 +46,10 @@
 		g.slide:not([hidden]) > [click]:not([hidden]) tspan.highlighted-blue,
 		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) text.highlighted-blue,
 		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted-blue,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted-blue,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted-blue,
-		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
+		g.slide:not([hidden]) g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted-blue,
+		g.slide:not([hidden]) g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted-blue,
+		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted-blue,
+		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
 		g.slide > g > text > tspan > tspan.highlighted-blue
 		{
 			animation: unhide-highlighted-blue 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
@@ -243,7 +243,7 @@
 
 <svg id="container" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet">
 	<g class="slide" id="title">
-		<text class="h1 title-line" x="965" y="325" fill="#F7A41D" text-anchor="middle">HHIDv2</text>
+		<text class="h1 title-line" x="965" y="325" fill="#F7A41D" text-anchor="middle">A Giant u32 Map</text>
 		<!-- <text class="h1 title-line" x="965" y="575" fill="#F7A41D" text-anchor="middle">HHID Cache</text> -->
 
 		<g class="title-line">
@@ -376,7 +376,7 @@
 
 <!-- 675 -->
 	<g class="slide" id="basic-idea">
-		<text id="basic-idea-title" class="h2" x="960" y="125" text-anchor="middle">Last time</text>
+		<text id="basic-idea-title" class="h2" x="960" y="125" text-anchor="middle">The problem</text>
 
 		<!-- <text click id="basic-solution-title" class="h2" x="960" y="765" text-anchor="middle">The Solution</text> -->
 		<!-- <text click class="h2" id="basic-utility" x="250" y="600" text-anchor="start">Why this is helpful:</text> -->
@@ -389,8 +389,12 @@
 			let tmp = 0;
 
 		document.getElementById("basic-idea-title").insertAdjacentHTML("afterend", [
-				"-- We made a &lt;tspan class=\"highlighted-blue\"&gt;Map(&lt;/tspan&gt;&lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt; &lt;tspan class=\"highlighted\" style=\"letter-spacing: -22px\"&gt;=>&lt;/tspan&gt;&lt;tspan style=\"letter-spacing: 13px\"&gt; &lt;/tspan&gt;&lt;tspan class=\"highlighted\"&gt;cluster&lt;/tspan&gt;&lt;tspan class=\"highlighted-blue\"&gt;)&lt;/tspan&gt;",
-				<!-- "-- Our data set contains ~170 million &lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt;s", -->
+				"-- We want a &lt;tspan class=\"highlighted-blue\"&gt;Map(&lt;/tspan&gt;&lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt; &lt;tspan class=\"highlighted\" style=\"letter-spacing: -22px\"&gt;=>&lt;/tspan&gt;&lt;tspan style=\"letter-spacing: 13px\"&gt; &lt;/tspan&gt;&lt;tspan class=\"highlighted\"&gt;index&lt;/tspan&gt;&lt;tspan class=\"highlighted-blue\"&gt;)&lt;/tspan&gt;",
+				"-- Our data set contains ~160 million &lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt;s",
+				"-- Naively, we could store each &lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt; in a sorted array,",
+				"&nbsp;&nbsp;&nbsp;&nbsp;and use binary search for real time queries.",
+				"-- However, this would take 640MB minimum, and any",
+				"&nbsp;&nbsp;&nbsp;&nbsp;smart Hash Table \"index\" would only make this worse.",
 				"-- Instead of storing each &lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt; as a &lt;tspan class=\"highlighted\"&gt;u32&lt;/tspan&gt;, we can save",
 				"memory by storing 2^32 bits which represents the entire",
 				"universe of possible &lt;tspan class=\"highlighted\"&gt;IPv4&lt;/tspan&gt; addresses.",
@@ -402,7 +406,7 @@
 //				"-- 2^32 bits&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0.53GB",
 		].map((x, i) =>
 			x.slice(0, 2) === '--'
-				? `&lt;text click class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
+				? `&lt;text click class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv", "&nbsp;&nbsp;v", "&nbsp;vi"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
 				: x[0] === '-'
 					? `&lt;text click class="h4" x="60" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
 					: `&lt;text click class="h4" x="30" y="${tmp=y,y+=65-10,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
@@ -972,7 +976,8 @@ fn popcount_bits(
 		<text click="8" class="h4" id="" x="80" y="425" text-anchor="start">3. High bits are stored in (inverted) Elias gamma coding.</text>
 
 		<script>
-		const nums = "5 10 32 33 35 40 48 52 113".split(' ').map(e => +e);
+
+		const nums = "5 10 32 33 35 40 44 52 113".split(' ').map(e => +e);
 		// 01 0100
 		// 10 0011
 		// 10 0011
@@ -1197,13 +1202,13 @@ fn popcount_bits(
 
 		document.getElementById("select-def").insertAdjacentHTML("afterend",
 		`&lt;text id="nibbles-3" click="8" class="h4" style="font-size: 35px" id="" x="${619}" y="1050" text-anchor="start"&gt;` +
-			"&nbsp;".repeat(8) + all_nibbles.slice(2, 6).join("") + "&lt;/text&gt;"
+			"&nbsp;".repeat(8) + all_nibbles.slice(2, 7).join("") + "&lt;/text&gt;"
 		);
 
 
 		document.getElementById("select-def").insertAdjacentHTML("afterend",
 		`&lt;text id="nibbles-4" click="8" class="h4" style="font-size: 35px" id="" x="${619}" y="1050" text-anchor="start"&gt;` +
-			"&nbsp;".repeat(24) + all_nibbles.slice(6).join("") + "&lt;/text&gt;"
+			"&nbsp;".repeat(28) + all_nibbles.slice(7).join("") + "&lt;/text&gt;"
 		);
 
 		global_animations.push({
@@ -1409,7 +1414,7 @@ const next_positions = [
 	</g>
 
 	<g class="slide" id="elias-code" clicks="10">
-<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215,216,217,219,478,219,218:3,222,223:2,225,226,227:4,232:2,234,236:2,239,238:3,319,322,321:3,310:3,314,313:4,321:3,324:3,327,328,329:2,333,334,336,338,340:10,340:10,352,358,360:6,367:6,374:13,377:2,381:4,381:4,387,397,401,398,401,399,401,404,238:3,241,245,243:5,248,249,250:3,255,254:4,260:5,266:4,271:3,274,275:2,275:2,277,279:3,282:4,286,288,289,290,291,294,295,295,295,296,297,298,211,210:3">
+<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215,216,217,219,478,219,218:3,222,223:2,225,226,227:4,232:2,234,236:2,239,238:3,319,322,321:3,310:3,314,313:4,321:3,324:3,327,328,329:2,333,334,336,338,340:10,340:10,352,358,360:6,367:6,374:13,377:2,381:4,381:4,387,397,401,398,401,399,401,404,238:3,241,245,243:5,248,249,250:3,255,254:4,260:5,266:4,271:3,274,275:2,275:2,277,279:3,284,282:4,286,288,289,290,291,294,295,295,295,296,297,298,211,210:3">
 /// An HHID cache that maps u32's to u16's.
 /// If we get to the point where we have billions of IP addresses
 /// in this cache, we can switch this buffer to just be a flat array
@@ -2512,7 +2517,8 @@ const FastDivider32 = struct {
 	</g>
 
 	<g class="slide" id="elias-code-overlay">
-		<rect id="elias-backdrop" click="1-85" x="0" y="490" height="1250" width="22000" style="fill: #100020F8;"/>
+		<rect id="elias-backdrop" click="1-87" x="1215" y="490" height="1250" width="2020" style="fill: #100020F8;"/>
+
 
 		<!-- <g class="code" click="10" x="10" y="470" width="1920" line-height="60" font-size="50px" letter-spacing="-3.5px" hide-background lang="zig" hide-line-numbers>
 			ip: u32 = 3647664517
@@ -2522,7 +2528,7 @@ const FastDivider32 = struct {
 			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
 		</g> -->
 
-		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:1,131:2,133:3,136:4,136:4,136:4,140:2,142:2,144:3,147,148,149,150,151,152:3,152:3,152:3,155:0,155:4,155:4,159:0,159:3,159:3,159:3,162,162,162,162,162,162,162:2,162:2,162:2,162:2,164:2,166:0,166:2,168:2,170:2,170:2,170:2,170:2,172,173:2,173:2,175:2,175:2,177:2,177:2,179:0,179:0,179:2,181:2,183:2,185,186:2,188,189:2,189:3,192:10,202:2,204,205,206,206,207,208:3,211:2,213:2,215,216,217,218,219,220:4,220:4,220:4,224:2,226:2,228,229,231:2">
+		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:1,131:2,133:3,136:4,136:4,136:4,140:2,142:2,144:3,147,148,149,150,151,152:3,152:3,152:3,155:0,155:4,155:4,159:0,159:3,159:3,159:3,162,162,162,162,162,162,162:2,162:2,162:2,162:2,164:2,166:0,166:2,168:2,170:2,170:2,170:2,170:2,172,173:2,173:2,175:2,175:2,177:2,177:2,179:0,179:0,179:2,181:2,183:2,185,186:2,188,189:2,189:3,192:10,202:2,204,205,206,206,207,208:3,211:2,211:2,213:2,215,216,217,218,219,220:4,220:4,220:4,224:2,226:2,228,229,231:2">
 .LCPI0_0:
 	.byte   7
 	.byte   7
@@ -2759,9 +2765,12 @@ query:
 	ret
 		</g>
 
+		<g id="num-line-workspace">
 		<text click="10-21" class="h3 no-slide-in2" x="15" y="700" text-anchor="start">|----|----|----|----|----|</text>
 		<text click="10-21" class="h3 no-slide-in2" x="59" y="650" text-anchor="start">1000 1000 1000 1000 1000</text>
-		<text click="10-21" id="real-line" class="h3 no-slide-in2" x="15" y="800" text-anchor="start">|------|-----|-------|-----|</text>
+		<text click="10-21" id="real-line" class="h3 no-slide-in2" x="15" y="800"
+		text-anchor="start">|------|-----|-------|-----|</text>
+		</g>
 
 		<script>
 			document.getElementById("real-line").insertAdjacentHTML("afterend", [
@@ -2774,7 +2783,7 @@ query:
 		stroke="rgb(255, 177, 100)" stroke-width="3"
 		marker-end="url(#arrowhead-orange)"
 		click-10="${x1}, ${x2}, ${y1}, ${y2}"
-		damping="0.8" stiffness="0.05"
+		damping="0.3" stiffness="0.025"
 		&gt;&lt;/line&gt;`).join("\n"));
 
 		const picks = "0123456789"
@@ -2863,22 +2872,137 @@ query:
 	<g id="last-workspace">
 		<text click="52" id="cross-lane-ans-3" class="h3 no-slide-in2" x="15" y="1030" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan class="compress-unhide">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tspan><tspan class="hide-bitsy">.<tspan class="highlighted less-stroke-width">#</tspan></tspan>.<tspan class="highlighted less-stroke-width">&amp;</tspan>.<tspan class="highlighted less-stroke-width">*</tspan>.<tspan class="highlighted less-stroke-width">!</tspan>.<tspan class="highlighted less-stroke-width">%</tspan>.<tspan class="highlighted less-stroke-width">$</tspan>.<tspan class="highlighted less-stroke-width">Z</tspan>.<tspan class="highlighted less-stroke-width">Y</tspan>.<tspan class="highlighted-blue less-stroke-width">X</tspan>.<tspan class="highlighted-blue less-stroke-width">W</tspan>.<tspan class="highlighted-blue less-stroke-width">V</tspan>.<tspan class="highlighted-blue less-stroke-width">U</tspan>.<tspan class="highlighted-blue less-stroke-width">T</tspan>.<tspan class="highlighted-blue less-stroke-width">S</tspan>.<tspan class="highlighted-blue less-stroke-width">R</tspan>.<tspan class="highlighted-blue less-stroke-width">Q</tspan>.<tspan class="highlighted less-stroke-width">P</tspan>.<tspan class="highlighted less-stroke-width">O</tspan>.<tspan class="highlighted less-stroke-width">N</tspan>.<tspan class="highlighted less-stroke-width">M</tspan><tspan class="compress-hide">.<tspan class="highlighted less-stroke-width">L</tspan>.<tspan class="highlighted less-stroke-width">K</tspan>.<tspan class="highlighted less-stroke-width">J</tspan>.<tspan class="highlighted less-stroke-width">I</tspan>.<tspan class="highlighted-blue less-stroke-width">H</tspan>.<tspan class="highlighted-blue less-stroke-width">G</tspan>.<tspan class="highlighted-blue less-stroke-width">F</tspan>.<tspan class="highlighted-blue less-stroke-width">E</tspan>.<tspan class="highlighted-blue less-stroke-width">D</tspan>.<tspan class="highlighted-blue less-stroke-width">C</tspan>.<tspan class="highlighted-blue less-stroke-width">B</tspan>.<tspan class="highlighted-blue less-stroke-width">A</tspan><tspan class="unhide-bitsy">.<tspan class="highlighted less-stroke-width">0</tspan></tspan></text>
 
-		<text click="55" id="splat_mask" class="h3" x="15" y="560" text-anchor="start" style="font-size: 24px; letter-spacing: -5px">&nbsp;<tspan class="highlighted less-stroke-width">1 1 1 1 1 1 1 1</tspan> <tspan class="highlighted-blue less-stroke-width">1 1 1 1 1 1 1 1</tspan> <tspan class="highlighted less-stroke-width">1 1 1 0 0 0 0 0</tspan> <tspan class="highlighted-blue less-stroke-width">0 0 0 0 0 0 0 0</tspan></text>
+		<text click="55" id="splat_mask" class="h3" x="65" y="560" text-anchor="start" style="font-size: 24px; letter-spacing: -5px">&nbsp;<tspan class="highlighted less-stroke-width">1 1 1 1 1 1 1 1</tspan> <tspan class="highlighted-blue less-stroke-width">1 1 1 1 1 1 1 1</tspan> <tspan class="highlighted less-stroke-width">1 1 1 0 0 0 0 0</tspan> <tspan class="highlighted-blue less-stroke-width">0 0 0 0 0 0 0 0</tspan></text>
 
-		<text click="60" id="chunk_u64" class="h3" x="15" y="600" text-anchor="start" style="font-size: 24px; letter-spacing: -5px">..<tspan class="highlighted-blue less-stroke-width">1</tspan><tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">1111</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>........<tspan class="highlighted less-stroke-width">1111</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>....<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>...<tspan class="highlighted less-stroke-width">1</tspan></text>
+		<text click="60" id="chunk_u64" class="h3" x="65" y="600" text-anchor="start" style="font-size: 24px; letter-spacing: -5px">..<tspan class="highlighted-blue less-stroke-width">1</tspan><tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">1111</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>........<tspan class="highlighted less-stroke-width">1111</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>....<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>...<tspan class="highlighted less-stroke-width">1</tspan></text>
 
-		<text click="61" id="pdepable" class="h3" x="15" y="660" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan class="pdep-init-spaces-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tspan><tspan class="pdep-init-spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted-blue less-stroke-width">1</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0000</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">........</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">0</tspan><tspan class="pdep-unhide-dots">....</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">000</tspan><tspan class="pdep-unhide-dots">...</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">0</tspan></text>
+		<text click="61" id="pdepable" class="h3" x="65" y="660" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan class="pdep-init-spaces-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tspan><tspan class="pdep-init-spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted-blue less-stroke-width">1</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0000</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">000</tspan><tspan class="pdep-unhide-dots">........</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0000</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted pdep-unhide-0s less-stroke-width">0</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">0</tspan><tspan class="pdep-unhide-dots">....</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">..</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">00</tspan><tspan class="pdep-unhide-dots">.</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">000</tspan><tspan class="pdep-unhide-dots">...</tspan><tspan class="highlighted less-stroke-width pdep-unhide-0s">0</tspan></text>
 
-		<text click="65" id="chunk_u64_2" class="h3" x="15" y="700" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan id="chunk_u64_2-removable">.<tspan class="highlighted less-stroke-width">1</tspan></tspan><tspan class="highlighted less-stroke-width">1</tspan>...<tspan class="highlighted less-stroke-width">1</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>...</text>
-
-
-		<text click="67" id="chunk_u64_clone" class="h3" x="15" y="700" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan id="chunk_u64_clone_unhide">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tspan id="chunk_u64_clone-hide">&nbsp;&nbsp;</tspan>..<tspan class="highlighted-blue less-stroke-width">1</tspan><tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">1111</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>........<tspan class="highlighted less-stroke-width">1111</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">1</tspan>....<tspan id="chunk_u64_clone_overflow"><tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>...<tspan class="highlighted less-stroke-width">1</tspan></tspan></text>
+		<text click="65" id="chunk_u64_2" class="h3" x="65" y="700" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"><tspan id="chunk_u64_2-removable">.<tspan class="highlighted less-stroke-width">1</tspan></tspan><tspan class="highlighted less-stroke-width">1</tspan>...<tspan class="highlighted less-stroke-width">1</tspan>.<tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>...</text>
 
 
+		<text click="67" id="chunk_u64_clone" class="h3" x="65" y="700" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"><tspan
+		id="chunk_u64_clone_unhide">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tspan
+		id="chunk_u64_clone-hide">&nbsp;&nbsp;</tspan>..<tspan class="highlighted-blue
+		less-stroke-width">1</tspan><tspan class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted
+		less-stroke-width">1111</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan
+		class="highlighted less-stroke-width">111</tspan>.<tspan class="highlighted
+		less-stroke-width">111</tspan>........<tspan class="highlighted less-stroke-width">1111</tspan>.<tspan
+		class="highlighted less-stroke-width">1</tspan>..<tspan class="highlighted less-stroke-width">11</tspan>.<tspan
+		class="highlighted less-stroke-width">1</tspan>....<tspan id="chunk_u64_clone_overflow"><tspan
+		class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted less-stroke-width">11</tspan>..<tspan
+		class="highlighted less-stroke-width">11</tspan>.<tspan class="highlighted
+		less-stroke-width">111</tspan>...<tspan class="highlighted less-stroke-width">1</tspan></tspan></text>
 
 		<rect x1="10" x2="150" y1="700" y2="910" fill="red"></rect>
-		<rect click="67" x="336" y="668" height="40" width="4" style="fill: red;"/>
+		<rect click="67" x="386" y="668" height="40" width="4" style="fill: red;"/>
 		</g>
+
+		<g id="nibble-workspace">
+
+			<text click="76" id="nibble_mul_underline" class="h3" x="65" y="590" text-anchor="start" style="font-size: 24px;
+			letter-spacing:-5px">________________________________________________________________</text>
+
+			<text click="76" id="nibble_mul_underline2" class="h3" x="65" y="1000" text-anchor="start" style="font-size: 24px;
+			letter-spacing:-5px">________________________________________________________________</text>
+
+
+		</g>
+
+		<text click="77" id="nibble_xor_underline" class="h3" x="65" y="570" text-anchor="start" style="font-size: 24px;
+			letter-spacing:-5px">________________________________________________________________</text>
+
+		<text click="79" id="nibble-andn-underline" class="h3" x="65" y="660" text-anchor="start" style="font-size:
+		24px;letter-spacing:-5px">________________________________________________________________</text>
+
+		<text click="79" id="nibble-andn-underline2" class="h3" x="65" y="975" text-anchor="start" style="font-size:
+		24px;letter-spacing:-5px">________________________________________________________________</text>
+
+		<text click="79" id="nibble-sub-underline2" class="h3" x="65" y="795" text-anchor="start" style="font-size:
+		24px;letter-spacing:-5px">________________________________________________________________</text>
+
+
+		<script>
+			const nums2 = [...nums, 695, 572, 590-3, 590-4, 590-8, 590-9, 715];
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterbegin", `&lt;text click="70" id="non_alt_nibbles" class="h3" x="65" y="600" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			nums2.map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${i !== 15 ? (e & 0xF).toString(2).padStart(4, '0') : "XXXX"}&lt;/tspan&gt;`).join('')
+		}&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("beforebegin", `&lt;text click="71" id="alt_nibbles" class="h3" x="65" y="650" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;&lt;tspan id="nibble-spaces"&gt;${"&nbsp;".repeat(4*14)}&lt;/tspan&gt;${[152, 766].map((e, i) => `&lt;tspan ${!i ? 'id="nibble-vanish"' : ""} fill="${colors2[i ? 0 : 2]}"&gt;${!i ? "XXXX" : (e & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')}&lt;tspan id="nibble-appear"&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${i !== 15 ? (e & 0xF).toString(2).padStart(4, '0') : "XXXX"}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterbegin", `&lt;text click="74" id="" class="h3" x="65" y="560" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${"&nbsp;".repeat(4*15)}${
+			nums2.slice(10, 11).map((e, i) => `&lt;tspan fill="${colors2[(i + 15) % colors2.length]}"&gt;${i !== 15 ? (e & 0xF).toString(2).padStart(4, '0') : "XXXX"}&lt;/tspan&gt;`).join('')
+		}&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterbegin", `&lt;text click="75" id="" class="h3" x="65" y="585" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			new Array(16).fill(1).map((e, i) => `${(e & 0xF).toString(2).padStart(4, '0')}`).join('')
+		}&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterbegin", new Array(16).fill().map((k, j) => `&lt;text click="76" id="nibble-mul-${j}" class="h3" x="65" y="${620 + j*25}" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;&lt;tspan class="nibble-dotsies"&gt;${".".repeat(4*(15-j))}&lt;/tspan&gt;${
+			nums2.slice(10, 11).map((e, i) => `&lt;tspan fill="${colors2[(i + 15) % colors2.length]}"&gt;${(e & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
+		}&lt;tspan class="nibble-dotsies"&gt;${".".repeat(4*(j))}&lt;/tspan&gt;&lt;/text&gt;`).join(''));
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="74" id="broadcasted-nibble" class="h3" x="65" y="1030" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			new Array(16).fill(nums2.slice(10, 11)).map((e, i) => `&lt;tspan fill="${colors2[15 % colors2.length]}"&gt;${(e & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
+		}&lt;/text&gt;`);
+
+		// //////////////////////////////
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="71" id="xored_alt_nibbles" class="h3" x="65" y="605" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${((e ^ nums2.slice(10, 11)[0]) & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${((e ^ nums2.slice(10, 11)[0]) & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="78" id="first-8s" class="h3" x="65" y="640" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			new Array(16).fill(8).map((e, i) => `${(e & 0xF).toString(2).padStart(4, '0')}`).join('')
+		}&lt;/text&gt;`);
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="79" id="second-8s" class="h3" x="65" y="940" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			new Array(16).fill(8).map((e, i) => `${(e & 0xF).toString(2).padStart(4, '0')}`).join('')
+		}&lt;/text&gt;`);
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="79" id="second-nibbles" class="h3" x="65" y="970" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${((e ^ nums2.slice(10, 11)[0]) & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${((e ^ nums2.slice(10, 11)[0]) & 0xF).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="79" id="second-nibbles-result" class="h3" x="65" y="1005" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${(0x8 & ~((e ^ nums2.slice(10, 11)[0]) & 0xF)).toString(2).padStart(4, '0').replaceAll(/000$/g, "...")}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(0x8 & ~((e ^ nums2.slice(10, 11)[0]) & 0xF)).toString(2).padStart(4, '0').replaceAll(/000$/g, "...")}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="79" id="first-nibbles-result" class="h3" x="65" y="690" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${(((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8).toString(2).padStart(4, '0').replace('0', '.')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8).toString(2).padStart(4, '0').replace('0', '.')}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="80" id="third-8s" class="h3" x="65" y="760" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			new Array(16).fill(8).map((e, i) => `${(e & 0xF).toString(2).padStart(4, '0')}`).join('')
+		}&lt;/text&gt;`);
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="79" id="third-nibbles-result" class="h3" x="65" y="825" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${(0x8 - (((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8)).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(0x8 - (((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8)).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+		</script>
 		<style>
 			.less-stroke-width {
 				stroke-width: 1px !important;
@@ -2889,7 +3013,30 @@ query:
 		const letters = [..."abcdefghijklmnopqrstuvwx"];
 		const letters2 = [...letters, ..."yz234567"];
 		console.log(letters2.filter((_, i) => !((i + 1) % 8)).join(''));
+
 		Array.prototype.push.apply(global_animations, [
+			{
+				section: "elias-code-overlay",
+				selector: "#elias-backdrop",
+				slide_num: 10,
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { "transform": "translateX(0px)" },
+					100:   { "transform": "translateX(-1265px)" },
+				}
+			},
+			{
+				section: "elias-code-overlay",
+				selector: "#num-line-workspace",
+				slide_num: 10,
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, "transform": "translateX(1265px)" },
+					100:   { opacity: 1, "transform": "translateX(0px)" },
+				}
+			},
 			{
 				section: "elias-code-overlay",
 				selector: ".shiftin-start-hidden",
@@ -3460,6 +3607,17 @@ query:
 				}
 			}, {
 				section: "elias-code-overlay",
+				selector: "#elias-code-overlay-codeblock-1",
+				slide_num: 54,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { transform: "translateX(0px)" },
+					100:   { transform: "translateX(100px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
 				selector: "#super-workspace-1",
 				slide_num: 54,
 				animation_delay: "0s",
@@ -3475,8 +3633,8 @@ query:
 				animation_delay: "0s",
 				animation_duration: "2s",
 				keyframes: {
-					0:     { transform: "translateY(0)" },
-					100:   { transform: "translateY(-500px)" },
+					0:     { transform: "translate(0, 0)" },
+					100:   { transform: "translate(50px, -500px)" },
 				}
 			}, {
 				section: "elias-code-overlay",
@@ -3643,6 +3801,288 @@ query:
 					0:     { opacity: 1 },
 					100:   { opacity: 0 },
 				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble-vanish, #nibble-spaces",
+				slide_num: 72,
+				animation_delay: "0s",
+				animation_duration: "5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 1, "letter-spacing": "-5px" },
+					100:   { opacity: 0, "letter-spacing": "-24px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble-appear",
+				slide_num: 72,
+				animation_delay: "0s",
+				animation_duration: "5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, "letter-spacing": "-24px" },
+					20:    { opacity: 0.1 },
+					100:   { opacity: 1, "letter-spacing": "-5px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#alt_nibbles",
+				slide_num: 73,
+				animation_delay: "3s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { transform: "translateY(0)" },
+					100:   { transform: "translateY(-125px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#non_alt_nibbles",
+				slide_num: 73,
+				animation_delay: "3s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 1 },
+					100:   { opacity: 0 },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble_mul_underline",
+				slide_num: 76,
+				animation_delay: "0s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			}, ...new Array(16).fill().map((_, j) => ({
+				section: "elias-code-overlay",
+				selector: `#nibble-mul-${j}`,
+				slide_num: 76,
+				animation_delay: "1s",
+				animation_duration: "5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: `translate(${j*76}px, ${-60 - 25*j}px)` },
+					20:    { opacity: 1 },
+					50:    { transform: `translate(${j*76}px, 0px)` },
+					100:   { opacity: 1, transform: "translate(0, 0)" },
+				}
+			})), {
+				section: "elias-code-overlay",
+				selector: ".nibble-dotsies",
+				slide_num: 76,
+				animation_delay: "4.5s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0 },
+					100:   { opacity: 1 },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble_mul_underline2",
+				slide_num: 76,
+				animation_delay: "5.5s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#broadcasted-nibble`,
+				slide_num: 76,
+				animation_delay: "7s",
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: `translateY(${-50}px)` },
+					100:   { opacity: 1, transform: "translateY(0)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#nibble-workspace`,
+				slide_num: 77,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 1 },
+					100:   { opacity: 0 },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#broadcasted-nibble`,
+				slide_num: 77,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				skip_auto_prev_state: true,
+				keyframes: {
+					0:     { opacity: 1, transform: "translateY(0)" },
+					100:   { opacity: 1, transform: "translateY(-470px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble_xor_underline",
+				slide_num: 77,
+				animation_delay: "2s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#xored_alt_nibbles`,
+				slide_num: 77,
+				animation_delay: "3s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-50px)" },
+					100:   { opacity: 1, transform: "translateY(0)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#second-8s`,
+				slide_num: 79,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-300px)" },
+					20:    { opacity: 1 },
+					100:   { opacity: 1, transform: "translateY(0)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#second-nibbles`,
+				slide_num: 79,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-365px)" },
+					20:    { opacity: 1 },
+					100:   { opacity: 1, transform: "translateY(0)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#xored_alt_nibbles`,
+				slide_num: 79,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				skip_auto_prev_state: true,
+				keyframes: {
+					0:     { opacity: 1, transform: "translateY(0px)" },
+					100:   { opacity: 1, transform: "translateY(20px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: `#first-8s`,
+				slide_num: 79,
+				animation_delay: "0s",
+				animation_duration: "2s",
+				continuous: true,
+				skip_auto_prev_state: true,
+				keyframes: {
+					0:     { opacity: 1, transform: "translateY(0px)" },
+					100:   { opacity: 1, transform: "translateY(15px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble-andn-underline, #nibble-andn-underline2",
+				slide_num: 79,
+				animation_delay: "2s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#second-nibbles-result, #first-nibbles-result",
+				slide_num: 79,
+				animation_delay: "3.5s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-65px)" },
+					20:    { opacity: 1 },
+					100:   { opacity: 1, transform: "translateY(0)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#first-nibbles-result",
+				slide_num: 80,
+				animation_delay: "0s",
+				animation_duration: "1s",
+				continuous: true,
+				skip_auto_prev_state: true,
+				keyframes: {
+					0:     { opacity: 1, transform: "translateY(0px)" },
+					100:   { opacity: 1, transform: "translateY(100px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#third-8s",
+				slide_num: 80,
+				animation_delay: "0s",
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-100px)" },
+					20:    { opacity: 1 },
+					100:   { opacity: 1, transform: "translateY(0px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#nibble-sub-underline2",
+				slide_num: 80,
+				animation_delay: "2s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#third-nibbles-result",
+				slide_num: 80,
+				animation_delay: "3.5s",
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-35px)" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateY(0px)" },
+				}
+			}, {
+				section: "elias-code-overlay",
+				selector: "#second-nibbles-result",
+				slide_num: 81,
+				animation_delay: "0s",
+				animation_duration: "1s",
+				skip_auto_prev_state: true,
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 1, transform: "translateY(0px)" },
+					100:   { opacity: 1, transform: "translateY(-155px)" },
+				}
 			}
 		]);
 
@@ -3663,19 +4103,6 @@ query:
 				100:   { transform: `translate(${(i % 8) * 19}px, ${200 + (i % 8) * 27}px)` },
 			}
 		})));
-
-		<!-- Array.prototype.push.apply(global_animations, letters.map((l, i) => ({
-			section: "elias-code-overlay",
-			selector: "#bitsies-1-2, #bitsies-2-2, #bitsies-3-2",
-			slide_num: 37,
-			animation_delay: "0s",
-			animation_duration: "5s",
-			keyframes: {
-				0:     { transform: "translateY(0)" },
-				100:   { transform: "translateY(150px)" },
-			}
-		}))); -->
-
 
 		document.getElementById("workspace-1").insertAdjacentHTML("beforeend", letters.map((l, i) => `&lt;text click="37" class="h3 no-slide-in2" id="pop-bit-${i}" x="15" y="570" text-anchor="start" style="font-size: 24px; letter-spacing: -5px"&gt;&lt;tspan class="bit-spacing-disappear"&gt;${"&nbsp;".repeat(start_str.indexOf(l))}&lt;/tspan&gt;&lt;tspan class="bit-spacing-appear"&gt;${"&nbsp;".repeat(end_str.indexOf(l))}&lt;/tspan&gt;&lt;tspan class="highlighted less-stroke-width"&gt;${l}&lt;/tspan&gt;&lt;/text&gt;`).join(''));
 
