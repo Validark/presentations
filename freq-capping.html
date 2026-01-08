@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Double-Buffers & VPGATHERDD</title>
+	<title>Frequency Capping</title>
 	<link rel="stylesheet" type="text/css" href="./fonts/Iosevka/Iosevka.css">
 	<style>
 		[hidden] {
@@ -24,7 +24,7 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) text:not(.highlighted):not(.highlighted-blue),
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) tspan:not(.highlighted):not(.highlighted-blue)
 		{
-			animation: unhide 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 
@@ -37,7 +37,7 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
 		{
-			animation: unhide-highlighted 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) > [click]:not([hidden]) text.highlighted-blue,
@@ -50,27 +50,27 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
 		g.slide > g > text > tspan > tspan.highlighted-blue
 		{
-			animation: unhide-highlighted-blue 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted-blue 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide:not(.no-slide-in):not(.no-slide-in2) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in {
-			animation: no-unhide-slide 1s ease 0s 1 forwards;
+			animation: no-unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in2 {
-			animation: no-unhide-slide2 1s ease 0s 1 forwards;
+			animation: no-unhide-slide2 0.5s ease 0s 1 forwards;
 		}
 
 		.hide-slide {
-			animation: hide-slide 1s ease 0s 1 forwards;
+			animation: hide-slide 0.5s ease 0s 1 forwards;
 		}
 
 
@@ -155,6 +155,7 @@
 			color: hsl(265, 89%, 78%);
 			text-align: center;
 			line-height: 1.25;
+			letter-spacing: -1px;
 		}
 
 		.h2, .h3, .h4 {
@@ -248,13 +249,13 @@
 .sub {
 	font-size: 60%;
 	baseline-shift: -10px;
-	letter-spacing: -8px;
+	/* letter-spacing: -8px; */
 }
 
 .super {
 	font-size: 60%;
 	baseline-shift: 20px;
-	letter-spacing: -8px;
+	/* letter-spacing: -8px; */
 }
 
 .sub-space {
@@ -285,6 +286,16 @@
 	letter-spacing: -8px;
 }
 
+.bullet-dot-rot {
+	font-size: 150%;
+	baseline-shift: -4px;
+    letter-spacing: -21px;
+	transform: rotate(45deg)
+}
+
+.invis {
+	opacity: 0;
+}
 </style>
 
 
@@ -293,12 +304,29 @@
 		const global_scrolls = [];
 		const state_transitions = new Map();
 		const post_processes = [];
+		const bullet_post_processes = [];
+		const colors2 = new Map([
+			["red-orange", "rgb(240, 86, 39)"],
+			["blue", "rgb(0, 100, 255)"],
+			["yellow", "rgb(255, 255, 102)"],
+			["green", "rgb(50, 255, 50)"],
+			["cyan", "rgb(0, 255, 255)"],
+			["orange", "rgb(255, 177, 100)"],
+			["pink", "rgb(255, 112, 255)"],
+			["white", "rgb(255, 255, 255)"],
+			["dark-green", "rgb(18, 188, 16)"],
+			["gold", "rgb(255, 215, 20)"],
+			["red", "rgb(255, 99, 132)"],
+
+			//<!-- lime green: rgb(70, 255, 180) -->
+		]);
 	</script>
 </head>
 
 <body style="padding-bottom: 0px; padding-right: 0px">
 
 <svg id="container" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet">
+	<g class="slide" id="pre-title"></g>
 	<g class="slide" id="title">
 		  <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7"
@@ -311,17 +339,38 @@
       <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(255, 177, 100)"/>
     </marker>
   </defs>
-		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">Double-Buffers</text>
-		<!-- <text class="h1 title-line" x="965" y="575" fill="#F7A41D" text-anchor="middle">HHID Cache</text> -->
-
-		<text class="h1 title-line" x="965" y="475" fill="#F7A41D" text-anchor="middle">&</text>
+		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">Frequency</text>
+		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">Capping</text>
 
 		<g class="title-line">
-			<text class="h1" x="965" y="650" fill="#F7A41D" text-anchor="middle">VPGATHERDD</text>
+			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">in &nbsp;&nbsp;&nbsp;</text>
+
+			<svg id="zig-logo" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 154 140" height="280" width="280" x="965" y="500">
+				<g fill="#F7A41D">
+					<g id="logo-left-side">
+						<polygon points="46,22 28,44 19,30"></polygon>
+						<polygon points="46,22 33,33 28,44 22,44 22,95 31,95 20,100 12,117 0,117 0,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="31,95 12,117 4,106"></polygon>
+					</g>
+					<g id="logo-middle">
+						<polygon points="56,22 62,36 37,44"></polygon>
+						<polygon points="56,22 111,22 111,44 37,44 56,32" shape-rendering="crispEdges"></polygon>
+						<polygon points="116,95 97,117 90,104"></polygon>
+						<polygon points="116,95 100,104 97,117 42,117 42,95" shape-rendering="crispEdges"></polygon>
+						<polygon points="150,0 52,117 3,140 101,22"></polygon>
+					</g>
+					<g id="logo-right-side">
+						<polygon points="141,22 140,40 122,45"></polygon>
+						<polygon points="153,22 153,117 106,117 120,105 125,95 131,95 131,45 122,45 132,36 141,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="125,95 130,110 106,117"></polygon>
+					</g>
+				</g>
+			</svg>
 		</g>
 
 		<text class="h2" id="by-line-1" x="960" y="875" text-anchor="middle">by Niles Salter</text>
-		<text class="h2" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="stroke: rgb(0, 255, 255); stroke-width: 2px">https://validark.dev</tspan></text>
+		<text class="h3" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="stroke: rgb(0, 255, 255);
+		stroke-width: 2px">https://validark.dev</tspan></text>
 
 		<script>
 			const EXTRA_DELAY = 0.25;
@@ -336,7 +385,7 @@
 				keyframes: {
 					0:   { "letter-spacing": "-1em", opacity: 0, transform: "scale(0.25) translate(140rem, 50rem)", "font-size": "1rem" },
 					30:  { opacity: 1, "font-size": "8rem" },
-					100: { "letter-spacing": 0, opacity: 1, transform: "scale(1) translate(0, 0)", "font-size": "8rem" },
+					100: { "letter-spacing": "-1px", opacity: 1, transform: "scale(1) translate(0, 0)", "font-size": "8rem" },
 				}
 			}, {
 				section: "title",
@@ -347,7 +396,7 @@
 				ease: "cubic-bezier(0, 1, 0, 1)",
 				keyframes: {
 					0:   { "letter-spacing": "-1em" },
-					100: { "letter-spacing": 0 },
+					100: { "letter-spacing": "-1px" },
 				}
 			}, {
 				section: "title",
@@ -398,457 +447,555 @@
 		</script>
 	</g>
 
-
-	<g class="slide" id="motivation" clicks="28">
-		<text class="h2" id="motivation-title" x="980" y="100" text-anchor="middle">Motivating Example</text>
-		<!-- <text class="h4" id="" x="250" y="300" text-anchor="start"></text>
-		<text class="h4" id="" x="250" y="425" text-anchor="start">with guaranteed space</text>
-		<text class="h4" id="" x="250" y="550" text-anchor="start">and memory constraints!</text> -->
-
-		<script>
-			const updated_first = new Set([1, 3, 4])
-			document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(10).fill().map((_, i) => {
-				return `&lt;g click="2" class="unhide-slide no-slide-in" style="transform: translate(${i === 9 ? `625px, 250px` : `${i*150}px, 700px`}) scale(0.5)"&gt;
-		&lt;text class="h4" id="" x="672" y="600" text-anchor="middle" style="font-size:
-		100px !important; fill: rgb(255, 177, 100) !important"&gt;${i === 9 ? 'W' : i}&lt;/text&gt;
-
-		${1 ? `&lt;text click="${i === 9 ? '7-11' : '8-' + (updated_first.has(i) ? '14' : '20')}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][0]} !important"&gt;${["A","B"][0]}&lt;/text&gt;` : ""}
-
-		${`&lt;text click="${i === 9 ? '11-24' : updated_first.has(i) ? '14-26' : '20-26'}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][1]} !important"&gt;${["A","B"][1]}&lt;/text&gt;`}
-
-		${`&lt;text click="${24 + 2*(i !== 9)}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][0]} !important"&gt;${["A","B"][0]}&lt;/text&gt;`}
-
-
-		&lt;rect x="547" y="450" width="238" height="25.5" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="547" y="475" width="25" height="138" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="760" y="475" width="25" height="138" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="547" y="612.5" width="238" height="25.5" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;/g&gt;`;
-			}).join("\n"));
-		</script>
-
-		<g id="motivation-group-4" click="4">
-			<g click="4" class="unhide-slide no-slide-in" style="transform: translate(-200px, -100px)">
-			<text class="h4" id="" x="772" y="700" text-anchor="middle" style="font-size:
-			100px !important; fill: rgb(255, 99, 132) !important">A</text>
-			<rect class="unhide-slide no-slide-in" x="647" y="550" width="238" height="25.5" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="647" y="575" width="25" height="138" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="860" y="575" width="25" height="138" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="647" y="712.5" width="238" height="25.5" fill="rgb(255, 99, 132)"></rect>
-			</g>
-
-			<g click="4" class="unhide-slide no-slide-in" style="transform: translate(200px, 100px)">
-			<text class="h4" id="" x="1148" y="500" text-anchor="middle" style="font-size:
-			100px !important; fill: rgb(72, 136, 255) !important">B</text>
-			<rect x="1023" y="350" width="238" height="25.5" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1023" y="375" width="25" height="138" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1236" y="375" width="25" height="138" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1023" y="512.5" width="238" height="25.5" fill="rgb(72, 136, 255)"></rect>
-			</g>
-		</g>
-
-
-
-
-
-		<script>
-			document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(9).fill().map((_, i) => `&lt;line class="no-slide-in2 vertbar" click="5-28"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="960" x2="960" y1="540" y2="540"
-		click-5="${340 + i*150}, ${445 + i*30}, 920, 650"
-		click-6="${340 + i*150}, ${445 + i*30 + 776}, 920, 650"
-		click-7="${339 + i*148}, ${120 + i*15 + 776}, 920, 580"
-		click-8="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-9="${340 + i*150}, ${445 + i*30}, 860, 650"
-		click-10="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-11="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-12="${340 + i*150}, ${445 + i*30}, 860, 650"
-		click-13="${updated_first.has(i) ? `${339 + i*148}, ${120 + i*15 + 776}, 860, 580` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-14="${updated_first.has(i) ? `${339 + i*148}, ${120 + i*15 + 776}, 860, 580` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-15="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-16="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-17="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-18="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-19="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-20="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-21="${true ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-22="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-23="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-24="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-25="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-26="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-27="${340 + i*150}, ${445 + i*30}, 860, 650"
-		<!-- click-15="${340 + i*150}, ${445 + i*30 + 776}, 860, 650" -->
-		&gt;&lt;/line&gt;`).join("\n"));
-
-		document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(1).fill().map((_, i) => `&lt;line class="no-slide-in2 vertbar" click="5-26"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="960" x2="960" y1="540" y2="540"
-		click-5="1020, 1210, 520, 520"
-		click-6="890, 700, 520, 520"
-		click-7="960, 960, -50000, -50000"
-		click-8="960, 960, -50000, -50000"
-		click-9="960, 960, -50000, -50000"
-		click-10="1020, 1210, 520, 520"
-		click-11="960, 960, -50000, -50000"
-		click-12="960, 960, -50000, -50000"
-		click-13="960, 960, -50000, -50000"
-		click-14="960, 960, -50000, -50000"
-		click-15="960, 960, -50000, -50000"
-		click-16="890, 700, 520, 520"
-		click-17="890, 700, 520, 520"
-		click-18="890, 700, 520, 520"
-		click-19="890, 700, 520, 520"
-		click-20="890, 700, 520, 520"
-		click-21="890, 700, 520, 520"
-		click-22="890, 700, 520, 520"
-		click-23="890, 700, 520, 520"
-		click-24="890, 700, 520, 520"
-		click-25="890, 700, 520, 520"
-		&gt;&lt;/line&gt;`).join("\n"));
-		</script>
-
-
-		<text class="h2" click="17-23" id="" x="800" y="560" text-anchor="middle" style="fill: red !important">X</text>
-
-		<script>
-			{
-			let iter = 0;
-			let iter2 = 0;
-			let y = 225+50+4.5*100-65-50-400;
-			let tmp = 0;
-
-
-			const bullets = {
-				0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;",
-				2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;",
-			};
-
-		const colors2 = new Map([
-			["cyan", "rgb(0, 255, 255)"],
-			["orange", "rgb(255, 177, 100)"],
-			["red", "rgb(255, 99, 132)"],
-			["green", "rgb(144, 238, 144)"],
-			["yellow", "rgb(255, 255, 102)"],
-			["pink", "rgb(255, 112, 255)"],
-			["blue", "rgb(70, 255, 180)"],
-			["pink", "rgb(255, 15, 180)"],
-			["gold", "rgb(255, 215, 20)"],
-
-			<!-- lime green: rgb(70, 255, 180) -->
-		]);
-
-		let click_offset = 1;
-
-		document.getElementById("motivation-title").insertAdjacentHTML("afterend", [
-				":Let's imagine we have a multi-threaded server",
-				"~:And a double-buffered cache system",
-		].map((x, i) => {
-			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
-			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + bullets[spaces.length]);
-			x = x.replaceAll(/:(.+?):{(.+?)\}/g, (_, color, content) => `&lt;tspan fill=\"${colors2.get(color)}\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
-
-			return x.slice(0, 2) === '--'
-						? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
-						: x[0] === '-'
-							? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${x.slice(2)}&lt;/text&gt;`
-							: `&lt;text click="${i + click_offset}" class="h4" x="30" y="${tmp=y,y+=65-10,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
-			}).join(""));
-		}
-		</script>
-	</g>
-
-	<g class="slide" id="writer-code" clicks="4">
-		<text class="h2" id="" x="980" y="100" text-anchor="middle">Cache-Writer Check</text>
-
-		<g click class="code" id="zig-code-1" x="50" y="150" width="1920" line-height="80" line-num-indent="80"
-		line-indent="100" hide-background lang="zig" steps="-3,2:5,7:4" do-not-move-mobile>
-		pub fn writer_begin_update(self: *@This()) ?struct { *T, *T } {
-			for (self.thread_phases) |t_phase| {
-				if (t_phase.phase.load(.acquire) != self.prev_phase) {
-					return null;
-				}
-			}
-			return .{
-				&self.buffer_data[prev_phase & 1].data,
-				&self.buffer_data[(prev_phase +% 1) & 1].data,
-			};
-		}
+	<g class="slide" id="intro" title="The problem">
+		<g class="bullets" y="175">
+Customers can set limits for how often each :cyan:{IPv4 address}@can be shown an :orange:{impression}. E.g.:
+ &nbsp;&nbsp;&nbsp;i. &nbsp;&nbsp;1 per minute@&nbsp;&nbsp;ii. &nbsp;10 per hour@&nbsp;iii. 100 per week
+Example impression timestamps:
+                : :red:{110}&nbsp;&nbsp;:green:{135}&nbsp;&nbsp;:yellow:{140}&nbsp;&nbsp;:pink:{162}&nbsp;&nbsp;:blue:{187}
+If we have a limit of :orange:{1 per minute}, we will have spaced these@out more.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:green:{170}&nbsp;&nbsp;:yellow:{235}&nbsp;&nbsp;:pink:{300}&nbsp;&nbsp;:blue:{372}
+This is going to go in our load balancer, therefore we need high@compression and high performance.
 		</g>
 	</g>
 
-	<g class="slide" id="vectorized-code" clicks="18">
-		<text class="h2" id="vectorizable-title" x="980" y="100" text-anchor="middle">We can vectorize that!</text>
+	<g class="slide" id="solution-1" title="Basic Solution" clicks="13">
+		<g id="sol-bullets" class="bullets" y="175">
+We can solve this problem by storing :orange:{N} timestamps:
+  :When a timestamp goes out of range on the left side, we@can drop it.
 
-		<g click="1" class="code" id="asm-code-full" x="50" y="100" width="1920" line-height="80" line-num-indent="80"
-		line-indent="100" hide-background lang="asm" steps="160,7" do-not-move-mobile>
-		.LBB0_1:
-			bzhi    r8d, edx, ecx
-			cmp     ecx, 64
-			cmovae  r8d, edx
-			kmovd   k1, r8d
-			vmovdqa64       zmm3, zmm0
-			vpgatherdd      zmm3 {k1}, dword ptr [rax + 8*zmm2]
-			vpternlogd      zmm1, zmm3, zmm0, 246
-			add     rax, 1024
-			sub     ecx, 16
-			ja      .LBB0_1
 		</g>
 
-		<g click="3" class="code" id="asm-code-partial" x="50" y="100" width="1920" line-height="80" line-num-indent="80"
-		line-indent="204" hide-background hide-line-numbers lang="asm">
+		<g id="num_slider"></g>
 
+		<script> {
+			let i = 0;
+			const cs = [...colors2.values()];
 
+			for (const n of [110, 170, 235, 300, 372, 422, 476, 522, 766, 812, 844, 855, 922, 950]) {
+				document.getElementById("num_slider").insertAdjacentHTML("afterbegin", `&lt;text id="nummy-${i}" click="4" class="h3" x="${500 + 200 * i}" style="fill:${cs[i % cs.length]}" y="450" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
 
+				if (i > 5) {
+					global_animations.push({
+						section: "solution-1",
+						selector: `#nummy-${i}`,
+						slide_num: i - 1,
+						animation_delay: `0s`,
+						animation_duration: "10s",
+						continuous: true,
+						ease: "cubic-bezier(0, 1, 0, 1)",
+						keyframes: {
+							0:   { transform: "translateX(300px)", opacity: 0 },
+							100: { transform: "translateX(0px)", opacity: 1 },
+						}
+					});
+				} else {
+				}
+				global_animations.push({
+					section: "solution-1",
+					selector: `#nummy-${i}`,
+					slide_num: 5 + i,
+					animation_delay: `0s`,
+					animation_duration: "10s",
+					continuous: true,
+					ease: "cubic-bezier(0, 1, 0, 1)",
+					keyframes: {
+						0:   { transform: "translateX(0)", opacity: 1 },
+						100: { transform: "translateX(0px)", opacity: 0 },
+					}
+				});
 
+				global_animations.push({
+					section: "solution-1",
+					selector: `#num_slider`,
+					slide_num: 4 + i,
+					animation_delay: `0s`,
+					animation_duration: i ? "10s" : "0s",
+					ease: "cubic-bezier(0, 1, 0, 1)",
+					continuous: true,
+					keyframes: {
+						0:   { transform: `translateX(${(i-1)*-200}px)` },
+						100: { transform: `translateX(${(i)*-200}px)` },
+					}
+				});
 
-
-			vpgatherdd      zmm3 {k1}, dword ptr [rax + 8*zmm2]
-		</g>
-
-		<line class="no-slide-in2 vertbar" click="4-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="0" x2="0" y1="700" y2="700"
-		click-4="100, 250, 720, 670"
-		></line>
-
-		<text click="4-16" class="h3" id="" x="5" y="770" text-anchor="start">vector</text>
-
-		<line class="no-slide-in2 vertbar" click="5-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="300" x2="395" y1="820" y2="680"
-		click-5="250, 295, 820, 680"
-		></line>
-
-		<text click="5-16" class="h3" id="" x="150" y="870" text-anchor="start">packed</text>
-
-		<line class="no-slide-in2 vertbar" click="6-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="480" x2="480" y1="900" y2="900"
-		click-6="480, 480, 920, 675"
-		></line>
-
-		<text click="6-16" class="h3" id="" x="460" y="970" text-anchor="start">dword<tspan style="font-size: 60%;
-		baseline-shift: 10px;"> (indices=i32)</tspan></text>
-
-		<line class="no-slide-in2 vertbar" click="7-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="480" x2="480" y1="920" y2="675"
-		click-7="1050, 1500, 920, 675"
-		></line>
-
-
-
-
-
-		<line class="no-slide-in2 vertbar" click="8-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="650" x2="650" y1="820" y2="820"
-		click-8="650, 510, 820, 675"
-		></line>
-
-
-
-		<text click="8-16" class="h3" id="" x="550" y="870" text-anchor="start">dword<tspan style="font-size: 60%;
-		baseline-shift: 10px;"> (load size)</tspan></text>
-
-		<line class="no-slide-in2 vertbar" click="9-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="650" x2="510" y1="820" y2="675"
-		click-9="649, 1010, 820, 675"
-		></line>
-
-
-
-		<text click="10-16" class="h3" id="" x="900" y="420" text-anchor="start">pointer to an array</text>
-
-		<line class="no-slide-in2 vertbar" click="11-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="1100" x2="1100" y1="420" y2="420"
-		click-11="1100, 1300, 420, 600"
-		></line>
-
-		<text click="12-16" class="h3" id="" x="650" y="520" text-anchor="start">mask</text>
-
-		<line class="no-slide-in2 vertbar" click="13-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="730" x2="730" y1="520" y2="520"
-		click-13="730, 860, 520, 600"
-		></line>
-
-		<text click="14-16" class="h3" id="" x="50" y="570" text-anchor="start">destination</text>
-
-		<line class="no-slide-in2 vertbar" click="15-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="540" x2="540" y1="570" y2="570"
-		click-15="540, 660, 570, 616"
-		></line>
-
-		<g click="16-17" class="code" id="zig-equivalent" x="0" y="0" width="1920" line-height="80" line-num-indent="80"
-		line-indent="0" hide-background hide-line-numbers lang="zig">
-			fn vpgatherdd(
-				zmm3: @Vector(16, i32),
-				k1: @Vector(16, bool),
-				rax: [*]const i32,
-				zmm2: @Vector(16, i32),
-			) @Vector(16, i32) {
-				zmm3 = k1 ? @as(@Vector(16, *i32), @splat(rax) + zmm2).* : zmm3;
-				return zmm3;
+				++i;
 			}
-		</g>
+			<!-- bullet_post_processes.push(() => {
+				const p = document.getElementById("sol-bullets");
+				const x = p.children[3];
+				let i = 0;
+				for (const y of x.children) {
+					const id = y.id = "noodley_" + i++;
 
-		<g click="17" class="code" id="zig-equivalent" x="0" y="0" width="1920" line-height="80" line-num-indent="80"
-		line-indent="0" hide-background hide-line-numbers lang="zig">
-			fn vpgatherdd(
-				ptr: usize,
-				offsets: @Vector(16, i32),
-				passthrough: @Vector(16, u32),
-				mask: @Vector(16, bool),
-				comptime comptime_offset: i32,
-				comptime comptime_mul: enum(u4) {
-					@"1" = 1,
-					@"2" = 2,
-					@"4" = 4,
-					@"8" = 8,
-				},
-			) @Vector(16, i32) {
-				var ret: @Vector(16, u32) = undefined;
-
-				inline for (0..16) |i|
-					ret[i] = if (!mask[i]) passthrough[i] else @atomicLoad(
-						u32,
-						@as(*u32, @ptrFromInt(
-							ptr +% @as(
-								usize,
-								@bitCast(
-									@as(i64, offsets[i]) * @intFromEnum(comptime_mul) + comptime_offset,
-								),
-							),
-						)),
-						.acquire,
-					);
-
-				return ret;
-			}
-		</g>
-
-		<script>
-			global_animations.push({
-				section: "vectorized-code",
-				selector: "#asm-code-partial",
-				slide_num: 3,
-				animation_duration: "5s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1, transform: "translate(0, 0)" },
-					40:  { transform: "translate(0, 0)" },
-					100: { opacity: 1, transform: "translate(0, 0px)" },
 				}
-			}, {
-				section: "vectorized-code",
-				selector: "#asm-code-full, #vectorizable-title",
-				slide_num: 3,
-				animation_duration: "2s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				}
-			}, {
-				section: "vectorized-code",
-				selector: "#asm-code-partial",
-				slide_num: 16,
-				animation_duration: "0.5s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				}
-			});
-		</script>
+			}) -->
+		}</script>
 	</g>
 
-	<g class="slide" id="conclusory">
-		<text class="h2" id="conclusion-title" x="980" y="100" text-anchor="middle">Other variants</text>
+	<g class="slide" id="bucketing" title="Buckets solution" clicks="37">
 
-		<script>
-			{
-			let iter = 0;
-			let iter2 = 0;
-			let y = 225+50+4.5*100-65-50-400;
-			let tmp = 0;
+		<text class="h3" x="160" y="600" text-anchor="start" click="2">timestamp * 15 / 150 % 16</text>
+
+		<g id="num_slider_2"></g>
+
+		<script>{
+			const R = 64;
+			const D = 120;
+			const S = D * 0.7;
+			const X = 15;
+
+			document.getElementById("bucketing").insertAdjacentHTML("afterbegin", `&lt;g id="first-boxes" click&gt;${new Array(16).fill().map((_, i) => {
+				const box_text = `&lt;text id="box-${i}-0" class="h4" x="${X + 42.5 + D*i}" y="${360}" text-anchor="middle" style="fill: black"&gt;0&lt;/text&gt;`;
+				return `&lt;path class="box" fill="${[...colors2.values()][6+Math.floor(i / R)]}" d="M ${X + D * (i % R)} ${300 + (D * Math.floor(i / R))} h ${S} v ${S} h -${S} Z" /&gt;${box_text}&lt;text id="box-label-${i}" class="h4" x="${X + 42.5 + D*i}" y="${295}" text-anchor="middle" style=""&gt;${i}&lt;/text&gt;` +
+
+				new Array(3).fill().map((_, j) => `&lt;g class="range-${j}"&gt;&lt;text class="h4" id="range-${i}-${j}" x="${X + 42.5 + D*i}" y="${415 + j*30}" text-anchor="middle" style="font-size: 16px"&gt;${j*160+i*10}-${j*160+(1+i)*10 - 1}&lt;/text&gt;&lt;/g&gt;`).join('');
+			}).join("\n")}&lt;/g&gt;`);
+
+			const slides_to_show_numbers = [3, 24, 24];
+			for (let j = 0; j < 3; j++)
+				global_animations.push({
+					section: "bucketing",
+					selector: `.range-${j}`,
+					slide_num: slides_to_show_numbers[j],
+					animation_delay: `0s`,
+					animation_duration: "2s",
+					continuous: true,
+					keyframes: {
+						0:   { transform: "translateY(-30px)", opacity: 0 },
+						100: { transform: "translateY(0px)", opacity: 1 },
+					}
+				});
+
+			let i = 0;
+			const cs = [...colors2.values()];
+			const num_box_texts = new Array(16).fill(0);
+			const num_box_texts2 = new Array(16).fill(0);
+
+			let prev_box_id = 0;
+
+			for (const n of [0, 2, 6, 8, 11, 17, 24, 27, 28, 29, 45, 48, 49, 50, 51, 53, 55, 58, 70, 72, 123, 152, 159, 160, 215, 422, 444, 445, 450, 462, 466, 471, 475, 479]) {
+				document.getElementById("num_slider_2").insertAdjacentHTML("afterbegin", `&lt;text id="anummy-${i}" click="3" class="h3" x="${900 + 200 * i}" style="fill:${cs[i % cs.length]}" y="700" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
+
+				const cur_box_id = Math.floor(n / 10);
+
+				if (prev_box_id !== cur_box_id || n === 0) {
+					global_animations.push({
+						section: "bucketing",
+						selector: `#box-label-${prev_box_id % 16}, #range-${prev_box_id % 16}-0, #range-${prev_box_id % 16}-1, #range-${prev_box_id % 16}-2`,
+						slide_num: 3 + i,
+						animation_delay: `0s`,
+						animation_duration: "2s",
+						continuous: true,
+						skip_auto_prev_state: true,
+						ease: "cubic-bezier(0, 1, 0, 1)",
+						keyframes: {
+							0:   { fill: "cyan" },
+							100: { fill: "hsl(265, 89%, 78%)" },
+						}
+					});
+
+					global_animations.push({
+						section: "bucketing",
+						selector: `#box-label-${cur_box_id % 16}, #range-${cur_box_id % 16}-0, #range-${cur_box_id % 16}-1, #range-${cur_box_id % 16}-2`,
+						slide_num: 3 + i,
+						animation_delay: `0s`,
+						animation_duration: "2s",
+						continuous: true,
+						skip_auto_prev_state: true,
+						ease: "cubic-bezier(0, 1, 0, 1)",
+						keyframes: {
+							0:   { fill: "hsl(265, 89%, 78%)" },
+							100: { fill: "cyan" },
+						}
+					});
+				}
+
+				for (let box_id_ = (prev_box_id + (prev_box_id !== cur_box_id)); box_id_ <= cur_box_id; ++box_id_) {
+					const box_id = box_id_ % 16;
+					let prev_box_text = num_box_texts2[box_id];
+					num_box_texts2[box_id] = box_id_ === cur_box_id ? 1 + (prev_box_id === cur_box_id ? num_box_texts2[box_id] : 0) : 0;
+					if (num_box_texts2[box_id] === 0 && prev_box_text === 0 && n < 215) continue;
+
+					global_animations.push({
+						section: "bucketing",
+						selector: `#box-${box_id}-${num_box_texts[box_id]}`,
+						slide_num: 3 + i,
+						animation_delay: `0s`,
+						animation_duration: "10s",
+						continuous: true,
+						ease: "cubic-bezier(0, 1, 0, 1)",
+						keyframes: {
+							0:   { transform: "translateY(0px)", opacity: 1 },
+							100: { transform: "translateY(-50px)", opacity: 0 },
+						}
+					});
+
+					document.getElementById(`box-${box_id}-${num_box_texts[box_id]}`).insertAdjacentHTML("afterend", `&lt;text id="box-${box_id}-${++num_box_texts[box_id]}" click="${3 + i}" class="h4" x="${X + 42.5 + D*box_id}" y="${360}" text-anchor="middle" style="fill: black"&gt;${num_box_texts2[box_id]}&lt;/text&gt;`);
+
+					global_animations.push({
+						section: "bucketing",
+						selector: `#box-${box_id}-${num_box_texts[box_id]}`,
+						slide_num: 3 + i,
+						animation_delay: `0s`,
+						animation_duration: "4s",
+						continuous: true,
+						ease: "cubic-bezier(0, 1, 0, 1)",
+						keyframes: {
+							0:   { transform: "translateY(50px)", opacity: 0, fill: "red" },
+							100: { transform: "translateY(0px)", opacity: 1, fill: "black" },
+						}
+					});
+				}
+				console.log('done');
+				prev_box_id = cur_box_id;
 
 
-			const bullets = {
-				0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;",
-				2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;",
-			};
+				global_animations.push({
+					section: "bucketing",
+					selector: `#anummy-${i}`,
+					slide_num: 3 + i,
+					animation_delay: `0s`,
+					animation_duration: "4s",
+					continuous: true,
+					ease: "cubic-bezier(0, 1, 0, 1)",
+					keyframes: {
+						0:   { transform: "translateX(100px)", opacity: 0 },
+						100: { transform: "translateX(0px)", opacity: 1 },
+					}
+				});
 
-		const colors2 = new Map([
-			["cyan", "rgb(0, 255, 255)"],
-			["orange", "rgb(255, 177, 100)"],
-			["red", "rgb(255, 99, 132)"],
-			["green", "rgb(144, 238, 144)"],
-			["yellow", "rgb(255, 255, 102)"],
-			["pink", "rgb(255, 112, 255)"],
-			["blue", "rgb(70, 255, 180)"],
-			["pink", "rgb(255, 15, 180)"],
-			["gold", "rgb(255, 215, 20)"],
+				global_animations.push({
+					section: "bucketing",
+					selector: `#anummy-${i}`,
+					slide_num: 4 + i,
+					animation_delay: `0s`,
+					animation_duration: "10s",
+					continuous: true,
+					ease: "cubic-bezier(0, 1, 0, 1)",
+					keyframes: {
+						0:   { transform: "translateX(0)", opacity: 1 },
+						100: { transform: "translateX(0px)", opacity: 0 },
+					}
+				});
 
-			<!-- lime green: rgb(70, 255, 180) -->
-		]);
+				global_animations.push({
+					section: "bucketing",
+					selector: `#num_slider_2`,
+					slide_num: 3 + i,
+					animation_delay: `0s`,
+					animation_duration: i ? "4s" : "0s",
+					ease: "cubic-bezier(0, 1, 0, 1)",
+					continuous: true,
+					keyframes: {
+						0:   { transform: `translateX(${(i-1)*-200}px)` },
+						100: { transform: `translateX(${(i)*-200}px)` },
+					}
+				});
 
-		let click_offset = 1;
+				++i;
+			}
 
-		document.getElementById("conclusion-title").insertAdjacentHTML("afterend", [
-				":We have 4 possible combinations of ```gather``` instructions!",
-				"  :`vpgatherdd`, ``vpgatherdq``, `vpgatherqd`, ``vpgatherqq``",
-				":We have 4 possible combinations of ```scatter``` instructions!",
-				"  :We can use these to issue 8 or 16 stores at once!",
-				":`vpscatterdd`, ``vpscatterdq``, `vpscatterqd`, & ``vpscatterqq``",
-				"  :Unfortunately, these can't be used for atomic \"release\"",
-				"&nbsp;&nbsp;&nbsp;stores. But most stores are fair game!",
-		].map((x, i) => {
-			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
-			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + bullets[spaces.length]);
-			x = x.replaceAll(/:(.+?):{(.+?)\}/g, (_, color, content) => `&lt;tspan fill=\"${colors2.get(color)}\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
+		}</script>
+	</g>
 
-			return x.slice(0, 2) === '--'
-						? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=5+50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
-						: x[0] === '-'
-							? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=5+50+10+30,y}" text-anchor="start"&gt;${x.slice(2)}&lt;/text&gt;`
-							: `&lt;text click="${i + click_offset}" class="h4" x="30" y="${tmp=y,y+=5+65-10,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
-			}).join(""));
-		}
-		</script>
+	<g class="slide" id="division-1" title="Division Digression I">
+		<text class="h3" x="160" y="600" text-anchor="start">timestamp * 15 / 150 % 16</text>
+		<text class="h4" x="160" y="640" text-anchor="start" click="1">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</text>
+		<text class="h4" x="750" y="680" text-anchor="start" click="1">How do we perform this calculation??</text>
+
+		<text class="h4" x="160" y="750" text-anchor="start" click="2">(((timestamp << 4) - timestamp) / 150) & 15</text>
+	</g>
+
+	<g class="slide" id="division-2" title="Division Digression II">
+		<g class="code" x="-75" y="150" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers>
+const V = @Vector(8, u64);
+
+export fn foo(a: V, b: V) V {
+    return a / b;
+}
+		</g>
+
+	<g click class="code" x="750" y="150" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background hide-line-numbers lang="asm">
+foo:
+	vextracti32x4   xmm2, zmm0, 3
+	vextracti32x4   xmm3, zmm1, 3
+	xor     edx, edx
+	vextracti32x4   xmm5, zmm1, 2
+	vpextrq rax, xmm2, 1
+	vpextrq rcx, xmm3, 1
+	vmovq   rsi, xmm5
+	div     rcx
+	vmovq   rcx, xmm3
+	vextracti32x4   xmm3, zmm0, 2
+	xor     edx, edx
+	vmovq   xmm4, rax
+	vmovq   rax, xmm2
+	div     rcx
+	vpextrq rcx, xmm5, 1
+	xor     edx, edx
+	vmovq   xmm2, rax
+	vpextrq rax, xmm3, 1
+	div     rcx
+	vpunpcklqdq     xmm2, xmm2, xmm4
+	xor     edx, edx
+	mov     rcx, rax
+	vmovq   rax, xmm3
+	vmovq   xmm3, rcx
+	div     rsi
+	xor     edx, edx
+	vmovq   xmm4, rax
+	vpunpcklqdq     xmm3, xmm4, xmm3
+	vextracti128    xmm4, ymm1, 1
+	vinserti128     ymm2, ymm3, xmm2, 1
+	vextracti128    xmm3, ymm0, 1
+	vpextrq rcx, xmm4, 1
+	vpextrq rax, xmm3, 1
+	div     rcx
+	vmovq   rcx, xmm4
+	xor     edx, edx
+	vmovq   xmm5, rax
+	vmovq   rax, xmm3
+	div     rcx
+	vpextrq rcx, xmm1, 1
+	xor     edx, edx
+	vmovq   xmm3, rax
+	vpextrq rax, xmm0, 1
+	div     rcx
+	vmovq   rcx, xmm1
+	vpunpcklqdq     xmm3, xmm3, xmm5
+	xor     edx, edx
+	vmovq   xmm4, rax
+	vmovq   rax, xmm0
+	div     rcx
+	vmovq   xmm0, rax
+	vpunpcklqdq     xmm0, xmm0, xmm4
+	vinserti128     ymm0, ymm0, xmm3, 1
+	vinserti64x4    zmm0, zmm0, ymm2, 1
+	ret
+		</g>
+	</g>
+
+	<g class="slide" id="division-3" title="Division Digression III">
+		<g class="code" x="-75" y="150" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers>
+const V = @Vector(8, u32);
+
+export fn foo(timestamp: u32) V {
+    return @as(V, @splat(timestamp)) /
+		@as(V, .{
+			300,
+			86400,
+			7*86400,
+			30*86400,
+			60*86400,
+			90*86400,
+			180*86400,
+			365*86400
+		});
+}
+		</g>
+<g class="code" x="-75" y="1400" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background hide-line-numbers lang="asm">
+.LCPI0_0:
+	.long   3257812231
+	.zero   4
+	.long   3474999713
+	.zero   4
+	.long   2316666475
+	.zero   4
+	.long   1142465659
+	.zero   4
+.LCPI0_1:
+	.long   458129845
+	.long   3257812231
+	.long   1861606989
+	.long   3474999713
+	.long   3474999713
+	.long   2316666475
+	.long   2316666475
+	.long   1142465659
+.LCPI0_3:
+	.long   5
+	.long   16
+	.long   18
+	.long   21
+	.long   22
+	.long   22
+	.long   23
+	.long   23
+.LCPI0_4:
+	.byte   1
+	.byte   9
+	.byte   3
+	.byte   11
+	.byte   5
+	.byte   13
+	.byte   7
+	.byte   15
+foo:
+	vpbroadcastd    ymm0, edi
+	vpmuludq        ymm1, ymm0, ymmword ptr [rip + .LCPI0_0]
+	vpmuludq        ymm0, ymm0, ymmword ptr [rip + .LCPI0_1]
+	vpmovsxbd       ymm2, qword ptr [rip + .LCPI0_4]
+	vpermi2d        ymm2, ymm0, ymm1
+	vpsrlvd ymm0, ymm2, ymmword ptr [rip + .LCPI0_3]
+	ret
+</g>
+	</g>
+
+	<g class="slide" id="division-4" title="Division Digression IV">
+		<g class="bullets" y="175">
+:We can do the calculations the compiler does when we are@given an update to our time limit!
+  :See :orange:{Integer Division by Constants: Optimal Bounds} by@Daniel Lemire, Colin Bartlett, & Owen Kaser
+:For our use case, we can do something even more efficient@and simpler!
+  :t / D is the same as t * (1 / D)
+  :t / D is the same as (t * (2^{52} / D)) / 2^{52}
+:We have :cyan:{vpmadd52huq} which computes a 52-bit multiply,@then takes the upper 52 bits of the 104 bit result.
+  :We can use this instruction to do 8 divisions in 4 cycles@of latency. And we can start 2 per cycle on newer CPUs!
+		</g>
+	</g>
+
+	<g class="slide" id="bit-manip">
+		<g class="code" x="-75" y="20" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers steps="1,2,3,4,5,6,9,8:4,8:4,8:4,8:4">
+		const V = @Vector(8, u64);
+		const cur_block: V = timestamp.divide(durations);
+        const prev_block: V = self.prev_timestamp.divide(durations);
+        const block_skip = cur_block - prev_block;
+		const incr_masks: @Vector(64, u8) = @bitCast(
+			simd.rotl(@as(V, @splat(1)), cur_block)
+		);
+		const delete_masks: @Vector(64, u8) = @bitCast(simd.rotl(
+			simd.vpsllv(@as(V, @splat(std.math.maxInt(denom_int))), block_skip),
+			-%~prev_block,
+		));
+		</g>
+		<text class="h3" x="460" y="1025" text-anchor="start" click="7">&nbsp;1111111111111111 << 4</text>
+		<text class="h3" x="460" y="1100" text-anchor="start" click="8-9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1111111111110000</text>
+		<text class="h3" x="460" y="1100" text-anchor="start" click="9">rotl(1111111111110000, 5)</text>
+		<text class="h3" x="460" y="1175" text-anchor="start" click="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1111111000011111</text>
+	</g>
+
+	<g class="slide" id="interleaving" title="Doing it with SIMD">
+		<script>{
+			const R = 64;
+			const D = 29;
+			const S = D * 16 / 18;
+
+			const X = 30;
+
+			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", `&lt;g id="non-interleaved-boxes" click&gt;${new Array(8*64).fill().map((_, i) => {
+				return `&lt;path class="box" fill="${[...colors2.values()][Math.floor(i / R)]}" d="M ${X + D * (i % R)} ${300 + (D * Math.floor(i / R))} h ${S} v ${S} h -${S} Z" /&gt;`;
+			}).join("\n")}&lt;/g&gt;`);
+
+			document.getElementById("non-interleaved-boxes").insertAdjacentHTML("afterbegin", `&lt;g click&gt;${new Array(8*64).fill().map((_, i) => {
+				return `&lt;path class="box" fill="${[...colors2.values()][Math.floor(i / 8 % 8)]}" d="M ${X + D * (i % R)} ${600 + (D * Math.floor(i / R))} h ${S} v ${S} h -${S} Z" /&gt;`;
+			}).join("\n")}&lt;/g&gt;`);
+		}</script>
+	</g>
+
+	<g class="slide" id="future" title="Future work">
+		<g class="bullets" y="175">
+:We plan on being ready to ship next week!!
+		</g>
 	</g>
 
 	<g class="slide" id="end">
-		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing: 0.1px;">fin</text>
+		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;">fin</text>
+
+
+<script>
+{
+	const bullets = {
+		0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	const semicolons = {
+		0: "&lt;tspan class=\"invis bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"invis bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"invis bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	for (const bulleted of document.getElementsByClassName("bullets")) {
+		let click_offset = 1;
+		let iter = 0;
+		let iter2 = 0;
+		let y = +bulleted.getAttribute('y') - 70;
+		let tmp = 0;
+
+
+		let lines = bulleted.innerHTML
+			.split('\n')
+			.filter(e => e.trimRight())
+			.flatMap(e => {
+				const sub_lines = e.split('@');
+				const first_line_prefix = sub_lines[0].match(/^ */)[0];
+				for (let i = 0; ++i < sub_lines.length;)
+					sub_lines[i] = first_line_prefix + '@' + sub_lines[i];
+				sub_lines[0] = "$$$" + sub_lines[0];
+				return sub_lines;
+			});
+
+		const unnecessary_whitespace = lines
+			.reduce((a, c) => Math.min(a, c.length - c.trimRight().length), Number.POSITIVE_INFINITY);
+
+		function boop(x,y) {
+			return colors2.get(x);
+		}
+
+
+		let indentation;
+		let using_semis;
+
+		const my_lines = lines.map((x, i) => {
+			indentation = x.match(/^\$\$\$/) ? x.match(/^( *)/)?.[1]?.length : indentation;
+			using_semis = x.match(/^\$\$\$/) ? x.match(/^\$\$\$( *):/) : using_semis;
+
+			const is_cont = !x.match(/^\$\$\$/);
+			const use_semis = is_cont && using_semis;
+			x = x.replace(/^\$\$\$/, "");
+			x = x.slice(unnecessary_whitespace);
+			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
+			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + (bullets[spaces.length] ?? ""));
+			x = x.replace(/^( *)@/, (_, spaces) => "&nbsp;".repeat(spaces.length) + ((use_semis ? semicolons : {})[indentation] ?? ""));
+			x = x.replace(/^( *)/, (_, spaces) => "&nbsp;".repeat(spaces.length));
+			x = x.replaceAll(/([^\\]):([)OopPD(])(?!\w)/g, (_, char, content) => char + `&lt;tspan style="letter-spacing: -32px" rotate="90" fill=\"${'cyan'}\"&gt;&lt;tspan style="baseline-shift: 42px;"&gt;:&lt;/tspan&gt;&lt;tspan style="baseline-shift: 22px;"&gt;${content}&lt;/tspan&gt;&lt;/tspan&gt;`);
+			x = x.replaceAll(/([^\\]):(.+?):{(.+?)\}/g, (_, char, color, content) => char + `&lt;tspan fill=\"${boop(color, content)}\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll("naive", "naïve");
+			x = x.replaceAll("\\:", ":");
+
+			return `&lt;text click="${i + click_offset}" class="h4" x="30" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
+		}).join("");
+		bulleted.innerHTML = my_lines;
+	}
+
+	for (const codeblock of document.getElementsByClassName("code")) {
+		const steps = codeblock.getAttribute("steps") || codeblock.getAttribute("mini-steps");
+		if (steps) {
+			let slide = codeblock;
+			do slide = slide.parentNode; while (!slide.classList.contains("slide"));
+			slide.setAttribute('clicks', steps.split(',').length + 1);
+		}
+	}
+
+	for (const slide of document.getElementsByClassName("slide")) {
+		const title = slide.getAttribute('title')
+		if (title) {
+			slide.insertAdjacentHTML("afterbegin", `&lt;text class="h2" x="980" y="100" text-anchor="middle"&gt;${title}&lt;/text&gt;`);
+		}
+	}
+
+	for (const bullet_post_process of bullet_post_processes) {
+		bullet_post_process();
+	}
+
+}
+</script>
 	</g>
 </svg>
 
@@ -1107,9 +1254,10 @@
 	}
 </style>
 
+
 <script>
 	const code_snippets = new Map();
-	code_snippets.set("title", "HHID Cache in Zig\nby Niles Salter (validark.dev)");
+	code_snippets.set("title", "Frequency Capping\nby Niles Salter (validark.dev)");
 
 	function processRanges(ranges, joined_lines) {
 		return ranges
@@ -1161,7 +1309,7 @@
 			.replaceAll(" != ", " &ne; ")
 			.replaceAll(" &lt;= ", " &le; ")
 			.replaceAll(" &gt;= ", " &ge; ")
-			.replaceAll(" == ", " &Equal; ")
+			// .replaceAll(" == ", " &Equal; ")
 			.replaceAll("&lt;", "<")
 			.replaceAll("&gt;", ">");
 
@@ -1204,7 +1352,7 @@
 
 			for (const [regex, name] of [
 				[/(?<!\w)(usingnamespace|linksection|threadlocal|unreachable|addrspace|allowzero|nosuspend|anyframe|callconv|comptime|continue|errdefer|noinline|volatile|anytype|noalias|suspend|export|undefined|extern|inline|opaque|orelse|packed|false|true|null|resume|return|struct|switch|align|async|await|break|catch|const|defer|error|union|while|else|enum|test|and|asm|for|pub|try|var|fn|if|or)(?!\w)/g, "keyword"],
-				[/(?<!\w)(Carry|HHID|Allocator|IndexItem|FastDivider32|IpAddress|T)(?!\w+)/g, "struct-type"],
+				[/(?<!\w)(Carry|HHID|Foo|Bar|Allocator|IndexItem|FastDivider32|IpAddress|V|T)(?!\w+)/g, "struct-type"],
 				[/@\w+/g, "builtin"],
 				[/ +/g, "space"],
 				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&le;)|(?:&ge;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[+*-]?%|\.\.\.?|[:=><!+~?|^/-]|\.(?=\*)|(?<!\.)\*/ug, "symbol-1"],

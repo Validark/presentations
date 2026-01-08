@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8">
-	<title>Double-Buffers & VPGATHERDD</title>
+	<title>fill vs init</title>
 	<link rel="stylesheet" type="text/css" href="./fonts/Iosevka/Iosevka.css">
 	<style>
 		[hidden] {
@@ -24,7 +24,7 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) text:not(.highlighted):not(.highlighted-blue),
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) tspan:not(.highlighted):not(.highlighted-blue)
 		{
-			animation: unhide 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 
@@ -37,7 +37,7 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
 		{
-			animation: unhide-highlighted 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) > [click]:not([hidden]) text.highlighted-blue,
@@ -50,27 +50,27 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
 		g.slide > g > text > tspan > tspan.highlighted-blue
 		{
-			animation: unhide-highlighted-blue 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted-blue 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide:not(.no-slide-in):not(.no-slide-in2) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in {
-			animation: no-unhide-slide 1s ease 0s 1 forwards;
+			animation: no-unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in2 {
-			animation: no-unhide-slide2 1s ease 0s 1 forwards;
+			animation: no-unhide-slide2 0.5s ease 0s 1 forwards;
 		}
 
 		.hide-slide {
-			animation: hide-slide 1s ease 0s 1 forwards;
+			animation: hide-slide 0.5s ease 0s 1 forwards;
 		}
 
 
@@ -155,6 +155,7 @@
 			color: hsl(265, 89%, 78%);
 			text-align: center;
 			line-height: 1.25;
+			letter-spacing: -1px;
 		}
 
 		.h2, .h3, .h4 {
@@ -285,6 +286,16 @@
 	letter-spacing: -8px;
 }
 
+.bullet-dot-rot {
+	font-size: 150%;
+	baseline-shift: -4px;
+    letter-spacing: -21px;
+	transform: rotate(45deg)
+}
+
+.invis {
+	opacity: 0;
+}
 </style>
 
 
@@ -299,6 +310,7 @@
 <body style="padding-bottom: 0px; padding-right: 0px">
 
 <svg id="container" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet">
+	<g class="slide" id="pre-title"></g>
 	<g class="slide" id="title">
 		  <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7"
@@ -311,17 +323,38 @@
       <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(255, 177, 100)"/>
     </marker>
   </defs>
-		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">Double-Buffers</text>
+		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">fill vs init</text>
 		<!-- <text class="h1 title-line" x="965" y="575" fill="#F7A41D" text-anchor="middle">HHID Cache</text> -->
 
-		<text class="h1 title-line" x="965" y="475" fill="#F7A41D" text-anchor="middle">&</text>
-
 		<g class="title-line">
-			<text class="h1" x="965" y="650" fill="#F7A41D" text-anchor="middle">VPGATHERDD</text>
+			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">in &nbsp;&nbsp;&nbsp;</text>
+
+			<svg id="zig-logo" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 154 140" height="280" width="280" x="965" y="500">
+				<g fill="#F7A41D">
+					<g id="logo-left-side">
+						<polygon points="46,22 28,44 19,30"></polygon>
+						<polygon points="46,22 33,33 28,44 22,44 22,95 31,95 20,100 12,117 0,117 0,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="31,95 12,117 4,106"></polygon>
+					</g>
+					<g id="logo-middle">
+						<polygon points="56,22 62,36 37,44"></polygon>
+						<polygon points="56,22 111,22 111,44 37,44 56,32" shape-rendering="crispEdges"></polygon>
+						<polygon points="116,95 97,117 90,104"></polygon>
+						<polygon points="116,95 100,104 97,117 42,117 42,95" shape-rendering="crispEdges"></polygon>
+						<polygon points="150,0 52,117 3,140 101,22"></polygon>
+					</g>
+					<g id="logo-right-side">
+						<polygon points="141,22 140,40 122,45"></polygon>
+						<polygon points="153,22 153,117 106,117 120,105 125,95 131,95 131,45 122,45 132,36 141,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="125,95 130,110 106,117"></polygon>
+					</g>
+				</g>
+			</svg>
 		</g>
 
 		<text class="h2" id="by-line-1" x="960" y="875" text-anchor="middle">by Niles Salter</text>
-		<text class="h2" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="stroke: rgb(0, 255, 255); stroke-width: 2px">https://validark.dev</tspan></text>
+		<text class="h3" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="stroke: rgb(0, 255, 255);
+		stroke-width: 2px">https://validark.dev</tspan></text>
 
 		<script>
 			const EXTRA_DELAY = 0.25;
@@ -336,7 +369,7 @@
 				keyframes: {
 					0:   { "letter-spacing": "-1em", opacity: 0, transform: "scale(0.25) translate(140rem, 50rem)", "font-size": "1rem" },
 					30:  { opacity: 1, "font-size": "8rem" },
-					100: { "letter-spacing": 0, opacity: 1, transform: "scale(1) translate(0, 0)", "font-size": "8rem" },
+					100: { "letter-spacing": "-1px", opacity: 1, transform: "scale(1) translate(0, 0)", "font-size": "8rem" },
 				}
 			}, {
 				section: "title",
@@ -347,7 +380,7 @@
 				ease: "cubic-bezier(0, 1, 0, 1)",
 				keyframes: {
 					0:   { "letter-spacing": "-1em" },
-					100: { "letter-spacing": 0 },
+					100: { "letter-spacing": "-1px" },
 				}
 			}, {
 				section: "title",
@@ -398,457 +431,281 @@
 		</script>
 	</g>
 
+	<g class="slide" id="prelim">
+		<text class="h2" x="980" y="100" text-anchor="middle">init and deinit</text>
 
-	<g class="slide" id="motivation" clicks="28">
-		<text class="h2" id="motivation-title" x="980" y="100" text-anchor="middle">Motivating Example</text>
-		<!-- <text class="h4" id="" x="250" y="300" text-anchor="start"></text>
-		<text class="h4" id="" x="250" y="425" text-anchor="start">with guaranteed space</text>
-		<text class="h4" id="" x="250" y="550" text-anchor="start">and memory constraints!</text> -->
+		<g class="code" x="100" y="200" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers lang="zig" steps="1,2,4,5,6,7,8,9,12,13,14,15,16,20,22,24,26">
+const Foo = struct {
+	memory: []const u8,
 
-		<script>
-			const updated_first = new Set([1, 3, 4])
-			document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(10).fill().map((_, i) => {
-				return `&lt;g click="2" class="unhide-slide no-slide-in" style="transform: translate(${i === 9 ? `625px, 250px` : `${i*150}px, 700px`}) scale(0.5)"&gt;
-		&lt;text class="h4" id="" x="672" y="600" text-anchor="middle" style="font-size:
-		100px !important; fill: rgb(255, 177, 100) !important"&gt;${i === 9 ? 'W' : i}&lt;/text&gt;
+	pub fn init(
+		allocator: std.mem.Allocator,
+		payload: []const u8,
+	) !@This() {
+		const memory = try allocator.dupe(u8, payload);
+		return .{ .memory = memory };
+	}
 
-		${1 ? `&lt;text click="${i === 9 ? '7-11' : '8-' + (updated_first.has(i) ? '14' : '20')}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][0]} !important"&gt;${["A","B"][0]}&lt;/text&gt;` : ""}
+	pub fn deinit(
+		self: @This(),
+		allocator: std.mem.Allocator,
+	) void {
+		allocator.free(self.memory);
+	}
+};
 
-		${`&lt;text click="${i === 9 ? '11-24' : updated_first.has(i) ? '14-26' : '20-26'}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][1]} !important"&gt;${["A","B"][1]}&lt;/text&gt;`}
+const foo: Foo = try .init(gpa, payload);
+// or
+const foo = try Foo.init(gpa, payload);
 
-		${`&lt;text click="${24 + 2*(i !== 9)}" class="h4" id="" x="672" y="450" text-anchor="middle" style="font-size:
-		100px !important; fill: ${["rgb(255, 99, 132)", "rgb(72, 136, 255)"][0]} !important"&gt;${["A","B"][0]}&lt;/text&gt;`}
-
-
-		&lt;rect x="547" y="450" width="238" height="25.5" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="547" y="475" width="25" height="138" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="760" y="475" width="25" height="138" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;rect x="547" y="612.5" width="238" height="25.5" fill="rgb(255, 177, 100)"&gt;&lt;/rect&gt;
-		&lt;/g&gt;`;
-			}).join("\n"));
-		</script>
-
-		<g id="motivation-group-4" click="4">
-			<g click="4" class="unhide-slide no-slide-in" style="transform: translate(-200px, -100px)">
-			<text class="h4" id="" x="772" y="700" text-anchor="middle" style="font-size:
-			100px !important; fill: rgb(255, 99, 132) !important">A</text>
-			<rect class="unhide-slide no-slide-in" x="647" y="550" width="238" height="25.5" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="647" y="575" width="25" height="138" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="860" y="575" width="25" height="138" fill="rgb(255, 99, 132)"></rect>
-			<rect class="unhide-slide no-slide-in" x="647" y="712.5" width="238" height="25.5" fill="rgb(255, 99, 132)"></rect>
-			</g>
-
-			<g click="4" class="unhide-slide no-slide-in" style="transform: translate(200px, 100px)">
-			<text class="h4" id="" x="1148" y="500" text-anchor="middle" style="font-size:
-			100px !important; fill: rgb(72, 136, 255) !important">B</text>
-			<rect x="1023" y="350" width="238" height="25.5" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1023" y="375" width="25" height="138" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1236" y="375" width="25" height="138" fill="rgb(72, 136, 255)"></rect>
-			<rect x="1023" y="512.5" width="238" height="25.5" fill="rgb(72, 136, 255)"></rect>
-			</g>
-		</g>
+defer foo.deinit();
+// or
+errdefer foo.deinit();
 
 
 
-
-
-		<script>
-			document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(9).fill().map((_, i) => `&lt;line class="no-slide-in2 vertbar" click="5-28"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="960" x2="960" y1="540" y2="540"
-		click-5="${340 + i*150}, ${445 + i*30}, 920, 650"
-		click-6="${340 + i*150}, ${445 + i*30 + 776}, 920, 650"
-		click-7="${339 + i*148}, ${120 + i*15 + 776}, 920, 580"
-		click-8="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-9="${340 + i*150}, ${445 + i*30}, 860, 650"
-		click-10="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-11="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-12="${340 + i*150}, ${445 + i*30}, 860, 650"
-		click-13="${updated_first.has(i) ? `${339 + i*148}, ${120 + i*15 + 776}, 860, 580` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-14="${updated_first.has(i) ? `${339 + i*148}, ${120 + i*15 + 776}, 860, 580` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-15="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-16="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-17="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-18="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${340 + i*150}, ${445 + i*30}, 860, 650`}"
-		click-19="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-20="${updated_first.has(i) ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-21="${true ? `${340 + i*150}, ${445 + i*30 + 776}, 860, 650` : `${339 + i*148}, ${120 + i*15 + 776}, 860, 580`}"
-		click-22="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-23="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-24="${120 + i*15 + 776}, ${339 + i*148}, 570, 860"
-		click-25="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-26="${339 + i*148}, ${120 + i*15 + 776}, 860, 580"
-		click-27="${340 + i*150}, ${445 + i*30}, 860, 650"
-		<!-- click-15="${340 + i*150}, ${445 + i*30 + 776}, 860, 650" -->
-		&gt;&lt;/line&gt;`).join("\n"));
-
-		document.getElementById("motivation-title").insertAdjacentHTML("afterend", new Array(1).fill().map((_, i) => `&lt;line class="no-slide-in2 vertbar" click="5-26"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="960" x2="960" y1="540" y2="540"
-		click-5="1020, 1210, 520, 520"
-		click-6="890, 700, 520, 520"
-		click-7="960, 960, -50000, -50000"
-		click-8="960, 960, -50000, -50000"
-		click-9="960, 960, -50000, -50000"
-		click-10="1020, 1210, 520, 520"
-		click-11="960, 960, -50000, -50000"
-		click-12="960, 960, -50000, -50000"
-		click-13="960, 960, -50000, -50000"
-		click-14="960, 960, -50000, -50000"
-		click-15="960, 960, -50000, -50000"
-		click-16="890, 700, 520, 520"
-		click-17="890, 700, 520, 520"
-		click-18="890, 700, 520, 520"
-		click-19="890, 700, 520, 520"
-		click-20="890, 700, 520, 520"
-		click-21="890, 700, 520, 520"
-		click-22="890, 700, 520, 520"
-		click-23="890, 700, 520, 520"
-		click-24="890, 700, 520, 520"
-		click-25="890, 700, 520, 520"
-		&gt;&lt;/line&gt;`).join("\n"));
-		</script>
-
-
-		<text class="h2" click="17-23" id="" x="800" y="560" text-anchor="middle" style="fill: red !important">X</text>
-
-		<script>
-			{
-			let iter = 0;
-			let iter2 = 0;
-			let y = 225+50+4.5*100-65-50-400;
-			let tmp = 0;
-
-
-			const bullets = {
-				0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;",
-				2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;",
-			};
-
-		const colors2 = new Map([
-			["cyan", "rgb(0, 255, 255)"],
-			["orange", "rgb(255, 177, 100)"],
-			["red", "rgb(255, 99, 132)"],
-			["green", "rgb(144, 238, 144)"],
-			["yellow", "rgb(255, 255, 102)"],
-			["pink", "rgb(255, 112, 255)"],
-			["blue", "rgb(70, 255, 180)"],
-			["pink", "rgb(255, 15, 180)"],
-			["gold", "rgb(255, 215, 20)"],
-
-			<!-- lime green: rgb(70, 255, 180) -->
-		]);
-
-		let click_offset = 1;
-
-		document.getElementById("motivation-title").insertAdjacentHTML("afterend", [
-				":Let's imagine we have a multi-threaded server",
-				"~:And a double-buffered cache system",
-		].map((x, i) => {
-			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
-			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + bullets[spaces.length]);
-			x = x.replaceAll(/:(.+?):{(.+?)\}/g, (_, color, content) => `&lt;tspan fill=\"${colors2.get(color)}\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
-
-			return x.slice(0, 2) === '--'
-						? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
-						: x[0] === '-'
-							? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${x.slice(2)}&lt;/text&gt;`
-							: `&lt;text click="${i + click_offset}" class="h4" x="30" y="${tmp=y,y+=65-10,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
-			}).join(""));
-		}
-		</script>
-	</g>
-
-	<g class="slide" id="writer-code" clicks="4">
-		<text class="h2" id="" x="980" y="100" text-anchor="middle">Cache-Writer Check</text>
-
-		<g click class="code" id="zig-code-1" x="50" y="150" width="1920" line-height="80" line-num-indent="80"
-		line-indent="100" hide-background lang="zig" steps="-3,2:5,7:4" do-not-move-mobile>
-		pub fn writer_begin_update(self: *@This()) ?struct { *T, *T } {
-			for (self.thread_phases) |t_phase| {
-				if (t_phase.phase.load(.acquire) != self.prev_phase) {
-					return null;
-				}
-			}
-			return .{
-				&self.buffer_data[prev_phase & 1].data,
-				&self.buffer_data[(prev_phase +% 1) & 1].data,
-			};
-		}
 		</g>
 	</g>
 
-	<g class="slide" id="vectorized-code" clicks="18">
-		<text class="h2" id="vectorizable-title" x="980" y="100" text-anchor="middle">We can vectorize that!</text>
+		<g class="slide" id="more-complicated">
+		<g class="code" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers lang="zig" steps="2:2,7:2,10:6">
+const Foo = struct {
+	mem1: []const u8,
+	mem2: []const u8,
 
-		<g click="1" class="code" id="asm-code-full" x="50" y="100" width="1920" line-height="80" line-num-indent="80"
-		line-indent="100" hide-background lang="asm" steps="160,7" do-not-move-mobile>
-		.LBB0_1:
-			bzhi    r8d, edx, ecx
-			cmp     ecx, 64
-			cmovae  r8d, edx
-			kmovd   k1, r8d
-			vmovdqa64       zmm3, zmm0
-			vpgatherdd      zmm3 {k1}, dword ptr [rax + 8*zmm2]
-			vpternlogd      zmm1, zmm3, zmm0, 246
-			add     rax, 1024
-			sub     ecx, 16
-			ja      .LBB0_1
-		</g>
+	pub fn init(
+		allocator: std.mem.Allocator,
+		payload1: []const u8,
+		payload2: []const u8,
+	) !@This() {
+		const mem1 = try allocator.dupe(u8, payload1);
+		const mem2 = try allocator.dupe(u8, payload2);
+		return .{
+			.mem1 = mem1,
+			.mem2 = mem2,
+		};
+	}
 
-		<g click="3" class="code" id="asm-code-partial" x="50" y="100" width="1920" line-height="80" line-num-indent="80"
-		line-indent="204" hide-background hide-line-numbers lang="asm">
-
-
-
-
-
-
-			vpgatherdd      zmm3 {k1}, dword ptr [rax + 8*zmm2]
-		</g>
-
-		<line class="no-slide-in2 vertbar" click="4-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="0" x2="0" y1="700" y2="700"
-		click-4="100, 250, 720, 670"
-		></line>
-
-		<text click="4-16" class="h3" id="" x="5" y="770" text-anchor="start">vector</text>
-
-		<line class="no-slide-in2 vertbar" click="5-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="300" x2="395" y1="820" y2="680"
-		click-5="250, 295, 820, 680"
-		></line>
-
-		<text click="5-16" class="h3" id="" x="150" y="870" text-anchor="start">packed</text>
-
-		<line class="no-slide-in2 vertbar" click="6-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="480" x2="480" y1="900" y2="900"
-		click-6="480, 480, 920, 675"
-		></line>
-
-		<text click="6-16" class="h3" id="" x="460" y="970" text-anchor="start">dword<tspan style="font-size: 60%;
-		baseline-shift: 10px;"> (indices=i32)</tspan></text>
-
-		<line class="no-slide-in2 vertbar" click="7-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="480" x2="480" y1="920" y2="675"
-		click-7="1050, 1500, 920, 675"
-		></line>
-
-
-
-
-
-		<line class="no-slide-in2 vertbar" click="8-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="650" x2="650" y1="820" y2="820"
-		click-8="650, 510, 820, 675"
-		></line>
-
-
-
-		<text click="8-16" class="h3" id="" x="550" y="870" text-anchor="start">dword<tspan style="font-size: 60%;
-		baseline-shift: 10px;"> (load size)</tspan></text>
-
-		<line class="no-slide-in2 vertbar" click="9-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="650" x2="510" y1="820" y2="675"
-		click-9="649, 1010, 820, 675"
-		></line>
-
-
-
-		<text click="10-16" class="h3" id="" x="900" y="420" text-anchor="start">pointer to an array</text>
-
-		<line class="no-slide-in2 vertbar" click="11-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="1100" x2="1100" y1="420" y2="420"
-		click-11="1100, 1300, 420, 600"
-		></line>
-
-		<text click="12-16" class="h3" id="" x="650" y="520" text-anchor="start">mask</text>
-
-		<line class="no-slide-in2 vertbar" click="13-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="730" x2="730" y1="520" y2="520"
-		click-13="730, 860, 520, 600"
-		></line>
-
-		<text click="14-16" class="h3" id="" x="50" y="570" text-anchor="start">destination</text>
-
-		<line class="no-slide-in2 vertbar" click="15-16"
-		stroke="rgb(0, 255, 255)" stroke-width="4"
-		marker-end="url(#arrowhead)"
-		x1="540" x2="540" y1="570" y2="570"
-		click-15="540, 660, 570, 616"
-		></line>
-
-		<g click="16-17" class="code" id="zig-equivalent" x="0" y="0" width="1920" line-height="80" line-num-indent="80"
-		line-indent="0" hide-background hide-line-numbers lang="zig">
-			fn vpgatherdd(
-				zmm3: @Vector(16, i32),
-				k1: @Vector(16, bool),
-				rax: [*]const i32,
-				zmm2: @Vector(16, i32),
-			) @Vector(16, i32) {
-				zmm3 = k1 ? @as(@Vector(16, *i32), @splat(rax) + zmm2).* : zmm3;
-				return zmm3;
-			}
-		</g>
-
-		<g click="17" class="code" id="zig-equivalent" x="0" y="0" width="1920" line-height="80" line-num-indent="80"
-		line-indent="0" hide-background hide-line-numbers lang="zig">
-			fn vpgatherdd(
-				ptr: usize,
-				offsets: @Vector(16, i32),
-				passthrough: @Vector(16, u32),
-				mask: @Vector(16, bool),
-				comptime comptime_offset: i32,
-				comptime comptime_mul: enum(u4) {
-					@"1" = 1,
-					@"2" = 2,
-					@"4" = 4,
-					@"8" = 8,
-				},
-			) @Vector(16, i32) {
-				var ret: @Vector(16, u32) = undefined;
-
-				inline for (0..16) |i|
-					ret[i] = if (!mask[i]) passthrough[i] else @atomicLoad(
-						u32,
-						@as(*u32, @ptrFromInt(
-							ptr +% @as(
-								usize,
-								@bitCast(
-									@as(i64, offsets[i]) * @intFromEnum(comptime_mul) + comptime_offset,
-								),
-							),
-						)),
-						.acquire,
-					);
-
-				return ret;
-			}
-		</g>
-
-		<script>
-			global_animations.push({
-				section: "vectorized-code",
-				selector: "#asm-code-partial",
-				slide_num: 3,
-				animation_duration: "5s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1, transform: "translate(0, 0)" },
-					40:  { transform: "translate(0, 0)" },
-					100: { opacity: 1, transform: "translate(0, 0px)" },
-				}
-			}, {
-				section: "vectorized-code",
-				selector: "#asm-code-full, #vectorizable-title",
-				slide_num: 3,
-				animation_duration: "2s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				}
-			}, {
-				section: "vectorized-code",
-				selector: "#asm-code-partial",
-				slide_num: 16,
-				animation_duration: "0.5s",
-				continuous: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				}
-			});
-		</script>
+	pub fn deinit(
+		self: @This(),
+		allocator: std.mem.Allocator,
+	) void {
+		allocator.free(self.mem1);
+		allocator.free(self.mem2);
+	}
+};
+</g>
 	</g>
 
-	<g class="slide" id="conclusory">
-		<text class="h2" id="conclusion-title" x="980" y="100" text-anchor="middle">Other variants</text>
+	<g class="slide" id="more-complicated-fixed">
+		<g class="code" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers lang="zig" steps="10:8">
+const Foo = struct {
+	mem1: []const u8,
+	mem2: []const u8,
 
-		<script>
-			{
-			let iter = 0;
-			let iter2 = 0;
-			let y = 225+50+4.5*100-65-50-400;
-			let tmp = 0;
+	pub fn init(
+		allocator: std.mem.Allocator,
+		payload1: []const u8,
+		payload2: []const u8,
+	) !@This() {
+		const mem1 = try allocator.dupe(u8, payload1);
+		errdefer allocator.free(mem1);
+		const mem2 = try allocator.dupe(u8, payload2);
+		errdefer allocator.free(mem2);
+		return .{
+			.mem1 = mem1,
+			.mem2 = mem2,
+		};
+	}
 
-
-			const bullets = {
-				0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;",
-				2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;",
-			};
-
-		const colors2 = new Map([
-			["cyan", "rgb(0, 255, 255)"],
-			["orange", "rgb(255, 177, 100)"],
-			["red", "rgb(255, 99, 132)"],
-			["green", "rgb(144, 238, 144)"],
-			["yellow", "rgb(255, 255, 102)"],
-			["pink", "rgb(255, 112, 255)"],
-			["blue", "rgb(70, 255, 180)"],
-			["pink", "rgb(255, 15, 180)"],
-			["gold", "rgb(255, 215, 20)"],
-
-			<!-- lime green: rgb(70, 255, 180) -->
-		]);
-
-		let click_offset = 1;
-
-		document.getElementById("conclusion-title").insertAdjacentHTML("afterend", [
-				":We have 4 possible combinations of ```gather``` instructions!",
-				"  :`vpgatherdd`, ``vpgatherdq``, `vpgatherqd`, ``vpgatherqq``",
-				":We have 4 possible combinations of ```scatter``` instructions!",
-				"  :We can use these to issue 8 or 16 stores at once!",
-				":`vpscatterdd`, ``vpscatterdq``, `vpscatterqd`, & ``vpscatterqq``",
-				"  :Unfortunately, these can't be used for atomic \"release\"",
-				"&nbsp;&nbsp;&nbsp;stores. But most stores are fair game!",
-		].map((x, i) => {
-			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
-			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + bullets[spaces.length]);
-			x = x.replaceAll(/:(.+?):{(.+?)\}/g, (_, color, content) => `&lt;tspan fill=\"${colors2.get(color)}\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
-
-			return x.slice(0, 2) === '--'
-						? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=5+50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
-						: x[0] === '-'
-							? `&lt;text click="${i + click_offset}" class="h4" x="80" y="${tmp=y,y+=5+50+10+30,y}" text-anchor="start"&gt;${x.slice(2)}&lt;/text&gt;`
-							: `&lt;text click="${i + click_offset}" class="h4" x="30" y="${tmp=y,y+=5+65-10,y}" text-anchor="start"&gt;${x}&lt;/text&gt;`
-			}).join(""));
-		}
-		</script>
+	pub fn deinit(
+		self: @This(),
+		allocator: std.mem.Allocator,
+	) void {
+		allocator.free(self.mem1);
+		allocator.free(self.mem2);
+	}
+};
+</g>
 	</g>
 
+
+	<g class="slide" id="fill-1">
+		<text class="h2" x="980" y="100" text-anchor="middle">The fill pattern</text>
+		<g class="code" click="1" x="0" y="200" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background
+		lang="zig" hide-line-numbers lang="zig" steps="2:2,25,26,15:4,19:2,46,47,48,49:2,51,26,28,5:9,11:2,25:4">
+const Foo = struct {
+	mem1: []const u8 = &.{},
+	mem2: []const u8 = &.{},
+
+	pub fn fill(
+		self: *@This(),
+		allocator: std.mem.Allocator,
+		payload1: []const u8,
+		payload2: []const u8,
+	) !void {
+		self.mem1 = try allocator.dupe(u8, payload1);
+		self.mem2 = try allocator.dupe(u8, payload2);
+	}
+
+	pub fn deinit(
+		self: @This(),
+		allocator: std.mem.Allocator,
+	) void {
+		allocator.free(self.mem1);
+		allocator.free(self.mem2);
+	}
+};
+
+{
+	const foo: Foo = .{};
+	defer foo.deinit();
+
+	try foo.fill();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// Free an array allocated with `alloc`.
+/// If memory has length 0, free is a no-op.
+/// To free a single item, see `destroy`.
+pub fn free(self: Allocator, memory: anytype) void {
+    const Slice = @typeInfo(@TypeOf(memory)).pointer;
+    const bytes = mem.sliceAsBytes(memory);
+    const bytes_len = bytes.len + if (Slice.sentinel() != null)
+		@sizeOf(Slice.child) else 0;
+    if (bytes_len == 0) return;
+    const non_const_ptr = @constCast(bytes.ptr);
+    @memset(non_const_ptr[0..bytes_len], undefined);
+    self.rawFree(
+		non_const_ptr[0..bytes_len],
+		.fromByteUnits(Slice.alignment),
+		@returnAddress(),
+	);
+}
+</g>
+	</g>
 	<g class="slide" id="end">
-		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing: 0.1px;">fin</text>
+		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing:kz
+		0.1px;">fin</text>
+
+
+<script>
+{
+	const bullets = {
+		0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	const semicolons = {
+		0: "&lt;tspan class=\"invis bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"invis bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"invis bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	const colors2 = new Map([
+		["cyan", "rgb(0, 255, 255)"],
+		["orange", "rgb(255, 177, 100)"],
+		["red-orange", "rgb(240, 86, 39)"],
+		["red", "rgb(255, 99, 132)"],
+		["green", "rgb(50, 255, 50)"],
+		["yellow", "rgb(255, 255, 102)"],
+		["pink", "rgb(255, 112, 255)"],
+		["blue", "rgb(70, 255, 180)"],
+		["pink", "rgb(255, 15, 180)"],
+		["gold", "rgb(255, 215, 20)"],
+		["white", "rgb(255, 255, 255)"],
+
+		<!-- lime green: rgb(70, 255, 180) -->
+	]);
+
+
+	for (const bulleted of document.getElementsByClassName("bullets")) {
+		let click_offset = 1;
+		let iter = 0;
+		let iter2 = 0;
+		let y = +bulleted.getAttribute('y') - 70;
+		let tmp = 0;
+
+
+		let lines = bulleted.innerHTML
+			.split('\n')
+			.filter(e => e.trim())
+			.flatMap(e => {
+				const sub_lines = e.split(';');
+				const first_line_prefix = sub_lines[0].match(/^ */)[0];
+				for (let i = 0; ++i < sub_lines.length;)
+					sub_lines[i] = first_line_prefix + ';' + sub_lines[i];
+				return sub_lines;
+			});
+
+		console.log(lines);
+
+		const unnecessary_whitespace = lines
+			.reduce((a, c) => Math.min(a, c.length - c.trimLeft().length), Number.POSITIVE_INFINITY);
+
+		function boop(x,y) {
+			console.log({x,y})
+			return colors2.get(x);
+		}
+
+		const my_lines = lines.map((x, i) => {
+			x = x.slice(unnecessary_whitespace);
+			const is_cont = x.match(/^ *;/);
+			console.log(is_cont ? 1 : 0, x);
+			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
+			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + bullets[spaces.length]);
+			x = x.replace(/^( *);/, (_, spaces) => "&nbsp;".repeat(spaces.length) + semicolons[spaces.length]);
+			x = x.replace(/^( *)/, (_, spaces) => "&nbsp;".repeat(spaces.length));
+			console.log('a', x);
+			x = x.replaceAll(/([^\\]):([)OopPD(])(?!\w)/g, (_, char, content) => char + `&lt;tspan style="letter-spacing: -32px" rotate="90" fill=\"${'cyan'}\"&gt;&lt;tspan style="baseline-shift: 42px;"&gt;:&lt;/tspan&gt;&lt;tspan style="baseline-shift: 22px;"&gt;${content}&lt;/tspan&gt;&lt;/tspan&gt;`);
+			console.log('b', x);
+			x = x.replaceAll(/([^\\]):(.+?):{(.+?)\}/g, (_, char, color, content) => char + `&lt;tspan fill=\"${boop(color, content)}\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll("naive", "naïve");
+			x = x.replaceAll("\\:", ":");
+
+			return `&lt;text click="${i + click_offset}" class="h4" x="30" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
+		}).join("");
+		console.log(my_lines);
+		bulleted.innerHTML = my_lines;
+	}
+
+	for (const codeblock of document.getElementsByClassName("code")) {
+		const steps = codeblock.getAttribute("steps") || codeblock.getAttribute("mini-steps");
+		if (steps) {
+			let slide = codeblock;
+			do slide = slide.parentNode; while (!slide.classList.contains("slide"));
+			slide.setAttribute('clicks', steps.split(',').length + 1);
+		}
+	}
+
+	for (const slide of document.getElementsByClassName("slide")) {
+		const title = slide.getAttribute('title')
+		if (title) {
+			slide.insertAdjacentHTML("afterbegin", `&lt;text class="h2" x="980" y="100" text-anchor="middle"&gt;${title}&lt;/text&gt;`);
+		}
+	}
+
+
+
+}
+</script>
 	</g>
 </svg>
 
@@ -1107,9 +964,10 @@
 	}
 </style>
 
+
 <script>
 	const code_snippets = new Map();
-	code_snippets.set("title", "HHID Cache in Zig\nby Niles Salter (validark.dev)");
+	code_snippets.set("title", "init vs fill\nby Niles Salter (validark.dev)");
 
 	function processRanges(ranges, joined_lines) {
 		return ranges
@@ -1161,7 +1019,7 @@
 			.replaceAll(" != ", " &ne; ")
 			.replaceAll(" &lt;= ", " &le; ")
 			.replaceAll(" &gt;= ", " &ge; ")
-			.replaceAll(" == ", " &Equal; ")
+			// .replaceAll(" == ", " &Equal; ")
 			.replaceAll("&lt;", "<")
 			.replaceAll("&gt;", ">");
 
@@ -1204,7 +1062,7 @@
 
 			for (const [regex, name] of [
 				[/(?<!\w)(usingnamespace|linksection|threadlocal|unreachable|addrspace|allowzero|nosuspend|anyframe|callconv|comptime|continue|errdefer|noinline|volatile|anytype|noalias|suspend|export|undefined|extern|inline|opaque|orelse|packed|false|true|null|resume|return|struct|switch|align|async|await|break|catch|const|defer|error|union|while|else|enum|test|and|asm|for|pub|try|var|fn|if|or)(?!\w)/g, "keyword"],
-				[/(?<!\w)(Carry|HHID|Allocator|IndexItem|FastDivider32|IpAddress|T)(?!\w+)/g, "struct-type"],
+				[/(?<!\w)(Carry|HHID|Foo|Bar|Allocator|IndexItem|FastDivider32|IpAddress|T)(?!\w+)/g, "struct-type"],
 				[/@\w+/g, "builtin"],
 				[/ +/g, "space"],
 				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&le;)|(?:&ge;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[+*-]?%|\.\.\.?|[:=><!+~?|^/-]|\.(?=\*)|(?<!\.)\*/ug, "symbol-1"],
@@ -1536,6 +1394,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				const num_clicks = is_overlay ? clicks.get(id_without_overlay) : parseInt(click_attr?.split(",").length > 1 ? click_attr.split(",").length + 1 : click_attr) ||
 					(1 + countClicks(child, { current_click_num: 0, max_click_num: 0 }).max_click_num);
 
+				console.log('a', num_clicks, child)
+
 				clicks.set(id_without_overlay, num_clicks);
 				const arr = slidesById.get(id_without_overlay) || [];
 				arr.push(child);
@@ -1698,6 +1558,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					mobile_full_screen_only: true,
 				});
 
+				console.log({section, slide_num, len: state_transitions.get(section).length })
 				state_transitions.get(section)[slide_num].push(() => {
 					const elem = document.querySelector(selector);
 					const styles = getComputedStyle(elem);
