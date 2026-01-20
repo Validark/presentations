@@ -455,7 +455,7 @@ Example impression timestamps:
                 : :red:{110}&nbsp;&nbsp;:green:{135}&nbsp;&nbsp;:yellow:{140}&nbsp;&nbsp;:pink:{162}&nbsp;&nbsp;:blue:{187}
 If we have a limit of :orange:{1 per minute}, we will have spaced these@out more.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:green:{170}&nbsp;&nbsp;:yellow:{235}&nbsp;&nbsp;:pink:{300}&nbsp;&nbsp;:blue:{372}
-This is going to go in our load balancer, therefore we need high@compression and high performance.
+This is going to go in our load balancer, therefore we need@high compression and high performance at the same time.
 		</g>
 	</g>
 
@@ -845,12 +845,13 @@ foo:
 	<g class="slide" id="division-4" title="Division Digression IV">
 		<g class="bullets" y="175">
 :We can do the calculations the compiler does when we are@given an update to our time limit!
-  :See :orange:{Integer Division by Constants: Optimal Bounds} by@Daniel Lemire, Colin Bartlett, & Owen Kaser
+  :See :yellow:{Integer Division by Constants: Optimal Bounds} by@Daniel Lemire, Colin Bartlett, & Owen Kaser
 :For our use case, we can do something even more efficient@and simpler!
-  :t / D is the same as t * (1 / D)
-  :t / D is the same as (t * (2^{52} / D)) / 2^{52}
+  ::pink:{t / D} is the same as :pink:{t * (1 / D)}
+  ::cyan:{t / D} is the same as :cyan:{(t * (2^{52} / D)) / 2^{52}}@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:orange:{^^^^^^ +1 for integers}
+    :Warning this technique is not sufficient precision for@all use cases. :orange:{Kids, don't try this at home!}
 :We have :cyan:{vpmadd52huq} which computes a 52-bit multiply,@then takes the upper 52 bits of the 104 bit result.
-  :We can use this instruction to do 8 divisions in 4 cycles@of latency. And we can start 2 per cycle on newer CPUs!
+  :We can use this to do 8 divisions per instruction, with@a 4 cycle latency and a throughput of 2 per cycle on@newer CPUs! In practice, we use 2 :cyan:{vpmadd52huq}'s to do@```16 divisions in 4 cycles!```
 		</g>
 	</g>
 
@@ -960,9 +961,9 @@ foo:
 			x = x.replace(/^( *)@/, (_, spaces) => "&nbsp;".repeat(spaces.length) + ((use_semis ? semicolons : {})[indentation] ?? ""));
 			x = x.replace(/^( *)/, (_, spaces) => "&nbsp;".repeat(spaces.length));
 			x = x.replaceAll(/([^\\]):([)OopPD(])(?!\w)/g, (_, char, content) => char + `&lt;tspan style="letter-spacing: -32px" rotate="90" fill=\"${'cyan'}\"&gt;&lt;tspan style="baseline-shift: 42px;"&gt;:&lt;/tspan&gt;&lt;tspan style="baseline-shift: 22px;"&gt;${content}&lt;/tspan&gt;&lt;/tspan&gt;`);
-			x = x.replaceAll(/([^\\]):(.+?):{(.+?)\}/g, (_, char, color, content) => char + `&lt;tspan fill=\"${boop(color, content)}\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/([^\\]):(.+?):{(.+?)\}/g, (_, char, color, content) => char + `&lt;tspan fill=\"${boop(color, content)}\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
