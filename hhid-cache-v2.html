@@ -950,11 +950,11 @@ fn popcount_bits(
 			let tmp = 0;
 
 		document.getElementById("mem-tradeoffs").insertAdjacentHTML("afterend", [
-				"-- Naive storage: 160&lt;tspan class=\"undies\"&gt;_&lt;/tspan&gt;101&lt;tspan class=\"undies\"&gt;_&lt;/tspan&gt;556 * 4 bytes = 640.4MB",
+				"-- Naive storage: 160M * 4 bytes = 640MB",
 				"-- Universe Idea: 2&lt;tspan class=\"super\"&gt;3&lt;tspan class=\"sub-space\"&gt; &lt;/tspan&gt;2&lt;/tspan&gt; bits = 536.9MB",
 				"-- &lt;tspan class=\"stroke-rain\"&gt;Elias Fano: 133.6MB&lt;/tspan&gt;",
 				"-- Information-theoretic lower bound: 123.3MB",
-					"- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log&lt;tspan class=\"sub\"&gt;2&lt;/tspan&gt;(2&lt;tspan class=\"super\"&gt;3&lt;tspan class=\"sub-space\"&gt; &lt;/tspan&gt;2&lt;/tspan&gt; nCr 160&lt;tspan class=\"undies\"&gt;_&lt;/tspan&gt;101&lt;tspan class=\"undies\"&gt;_&lt;/tspan&gt;556)"
+					"- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log&lt;tspan class=\"sub\"&gt;2&lt;/tspan&gt;(2&lt;tspan class=\"super\"&gt;3&lt;tspan class=\"sub-space\"&gt; &lt;/tspan&gt;2&lt;/tspan&gt; nCr 160M)"
 		].map((x, i) =>
 			x.slice(0, 2) === '--'
 				? `&lt;text click class="h4" x="80" y="${tmp=y,y+=50+10+30,y}" text-anchor="start"&gt;${["&nbsp;&nbsp;i", "&nbsp;ii", "iii", "&nbsp;iv"][iter2++]}. ${x.slice(2)}&lt;/text&gt;`
@@ -4195,12 +4195,11 @@ get_index_external:
 				section: "elias-code-overlay",
 				selector: "#third-nibbles-result",
 				slide_num: 80,
-				animation_delay: "3.5s",
+				animation_delay: "4s",
 				animation_duration: "1s",
 				continuous: true,
 				keyframes: {
 					0:     { opacity: 0, transform: "translateY(-35px)" },
-					20:    {opacity: 1 },
 					100:   { opacity: 1, transform: "translateY(0px)" },
 				}
 			}, {
