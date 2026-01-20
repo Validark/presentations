@@ -1414,7 +1414,7 @@ const next_positions = [
 	</g>
 
 	<g class="slide" id="elias-code" clicks="10">
-<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215,216,217,219,478,219,218:3,222,223:2,225,226,227:4,232:2,234,236:2,239,238:3,319,322,321:3,310:3,314,313:4,321:3,324:3,327,328,329:2,333,334,336,338,340:10,340:10,352,358,360:6,367:6,374:13,377:2,381:4,381:4,387,397,401,398,401,399,401,404,238:3,241,245,243:5,248,249,250:3,255,254:4,260:5,266:4,271:3,274,275:2,275:2,277,279:3,284,282:4,286,288,289,290,291,294,295,295,295,296,297,298,211,210:3">
+<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215,216,217,219,478:5,219,218:3,222,223:2,225,226,227:4,232:2,234,235,237,236:3,310,313,312:3,301:3,305,304:4,312:3,315:3,318,319,320:2,324,325,327,329,331:10,331:10,343,349,351:6,358:6,365:13,368:2,372:4,372:4,378,388,392,389,392,390,392,395,236:3,239,243,241:5,246,247,248:4,254,253:4,258:3,262:3,262:3,265,266:2,266:2,268,270:3,275,273:4,277,279,280,281,282,285,286,286,286,287,288:2,288:2,211,210:3">
 /// An HHID cache that maps u32's to u16's.
 /// If we get to the point where we have billions of IP addresses
 /// in this cache, we can switch this buffer to just be a flat array
@@ -1646,14 +1646,12 @@ pub fn get_index(self: @This(), ip_: caches.IpAddress) ?u32 {
 	else
 		prev_prefix_popcnt;
 
-	const selected_chunk = chunk_index +
+	const selected_chunk_idx = chunk_index +
 		@intFromBool(should_be_next_chunk);
 	const sel: u11 = @intCast(upper_bits - prefix_popcnt);
-
-    const top_bits_focus =
-		self.top_bits[selected_chunk * CHECKPOINT_BYTE_INTERVAL ..];
+	var top_bits_pos = selected_chunk_idx * CHECKPOINT_BYTE_INTERVAL;
     const prefix_sums = prefix_sum_popcounts(
-		@bitCast(top_bits_focus[0..CHECKPOINT_BYTE_INTERVAL].*)
+		@bitCast(self.top_bits[top_bits_pos..][0..CHECKPOINT_BYTE_INTERVAL].*)
 	);
     const mask = @as(@TypeOf(prefix_sums), @splat(sel)) < prefix_sums;
 
@@ -1664,29 +1662,22 @@ pub fn get_index(self: @This(), ip_: caches.IpAddress) ?u32 {
 	)[0];
 	const sel_within_u64 = sel - bits_skipped_over;
     const index_of_u64: u32 = @ctz(@as(u32, @bitCast(mask)));
-    const chunk_u64: u64 = @bitCast(
-		top_bits_focus[8 * index_of_u64 ..][0..8].*,
+	top_bits_pos += 8 * index_of_u64;
+	const chunk_u64: u64 = @bitCast(
+		self.top_bits[top_bits_pos..][0..8].*,
 	);
 
     const target_bit = pdep(
 		@as(u64, 1) << @intCast(sel_within_u64),
-		chunk_u64
+		chunk_u64,
 	);
 
+	const absolute_bit_pos = @ctz(target_bit) + 8 * top_bits_pos;
     // bottom_bits_idx is in [0, self.hhids.len]
-    const bottom_bits_idx: u32 = (index_of_u64 * 64) -
-		bits_skipped_over +
-		@popCount(~chunk_u64 & (target_bit -% 1)) +
-		CHECKPOINT_INTERVAL * selected_chunk -
-		prefix_popcnt;
+    const bottom_bits_idx: u32 = absolute_bit_pos - upper_bits;
 
-    // Preload the 1 or 2 cache lines the answer is going to be on.
-	// It's okay if this is out of bounds.
-    @prefetch(self.hhids.ptr + bottom_bits_idx, .{});
-    @prefetch(self.hhids.ptr + bottom_bits_idx + 15, .{});
-
-    const chunk_u64_2: u32 = @bitCast(
-		top_bits_focus[8 * index_of_u64 ..][8..][0..4].*
+	const chunk_u64_2: u32 = @bitCast(
+		self.top_bits[top_bits_pos..][8..][0..4].*
 	);
 	const shift_amt: u6 = @intCast(@clz(target_bit));
 	const b128: u128 = @bitCast([2]u64{ chunk_u64, chunk_u64_2 });
@@ -1694,11 +1685,11 @@ pub fn get_index(self: @This(), ip_: caches.IpAddress) ?u32 {
     const num_candidates: u32 = @ctz(candidate_low_bits); // [0, 16]
 
 	const prelim: u64 = @bitCast(
-		self.bottom_bits[bottom_bits_idx >> 1 ..][0..8].*
+		self.bottom_bits[bottom_bits_idx / 2 ..][0..8].*
 	);
 	const alt: u64 = @truncate(@as(u128, @bitCast([2]u64{
 		prelim,
-		self.bottom_bits[bottom_bits_idx >> 1 ..][8]
+		self.bottom_bits[bottom_bits_idx / 2 ..][8]
 	})) >> 4);
 	const bitstring = if (bottom_bits_idx & 1 == 0) prelim else alt;
 
@@ -1857,7 +1848,10 @@ const FastDivider32 = struct {
         .Debug, .ReleaseSafe => u6,
         .ReleaseFast, .ReleaseSmall => u8,
     } = 0,
-    a: u64 = 0,
+    a: switch (builtin.mode) {
+		.Debug, .ReleaseSafe => u1,
+		.ReleaseFast, .ReleaseSmall => u8,
+	} = 0,
     c: u64 = 0,
 
     divisor: switch (builtin.mode) {
@@ -1874,26 +1868,35 @@ const FastDivider32 = struct {
         return .{ .c = 0, .a = value, .r = 0 };
     }
 
-    pub fn init(divisor: u32) ?FastDivider32 {
-        if (divisor == 0) return null;
-        const log2_divisor = @clz(divisor);
-        const m = @as(u64, 1) << ~log2_divisor;
-        const c_floor = m / divisor;
-        const need_fallback =
+	pub fn init(divisor: u32) error{DivisionByZero}!@This() {
+		if (divisor == 0) return error.DivisionByZero;
+		const log2_divisor = @clz(divisor);
+		const m = @as(u64, 1) << ~log2_divisor;
+		const c_floor = m / divisor;
+		const need_fallback =
 			(divisor - (m % divisor) >= m / std.math.maxInt(u32) + 1);
-        const c = c_floor + @intFromBool(!need_fallback);
-        const is_power_2 = std.math.isPowerOfTwo(divisor);
+		const is_power_2 = std.math.isPowerOfTwo(divisor);
 
-        return .{
-            .c = if (is_power_2) 1 else c,
-            .a = if (need_fallback and !is_power_2) c else 0,
-            .r = @as(u6, if (is_power_2) 31 else 63) - log2_divisor,
-        };
-    }
+		var c: u64 = if (is_power_2) 1 else
+			c_floor + @intFromBool(!need_fallback);
 
-    pub fn quotient(self: FastDivider32, n: u32) u32 {
-		return @intCast((n * self.c + self.a) >> @truncate(self.r));
-    }
+		const r = (@as(u6, 63) >> @intFromBool(is_power_2)) -
+			log2_divisor - @as(u6, @intCast(@ctz(c)));
+
+		c >>= @intCast(@ctz(c));
+
+		return .{
+			.c = c,
+			.a = @intFromBool(need_fallback and !is_power_2),
+			.r = r,
+		};
+	}
+
+	pub fn quotient(self: @This(), n: u32) u32 {
+		return @intCast(
+			((@as(u64, n) + self.a) *% self.c) >> @truncate(self.r),
+		);
+	}
 };
 // --------------------------------------------------------------------------------
 
@@ -2537,7 +2540,7 @@ const FastDivider32 = struct {
 			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
 		</g> -->
 
-		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:1,131:2,133:3,136:4,136:4,136:4,140:2,142:2,144:3,147,148,149,150,151,152:3,152:3,152:3,155:0,155:4,155:4,159:0,159:3,159:3,159:3,162,162,162,162,162,162,162:2,162:2,162:2,162:2,164:2,166:0,166:2,168:2,170:2,170:2,170:2,170:2,172,173:2,173:2,175:2,175:2,177:2,177:2,179:0,179:0,179:2,181:2,183:2,185,186:2,188,189:2,189:3,192:10,202:2,204,205,206,206,207,208:3,211:2,211:2,213:2,215,216,217,218,219,220:4,220:4,220:4,224:2,226:2,228,229,231:2">
+		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:2,132:1,133:2,135:5,135:5,135:5,140:2,142:2,144:3,147,148,149,150,151:2,153,153,153,154:0,154:4,154:4,158:0,158:3,158:3,158:3,161,161,161,161,161,161,161:2,161:2,161:2,161:2,163:2,165:0,165:2,167:2,169:2,169:2,169:2,169:2,171,172:2,172:2,174:2,174:2,176:2,176:2,178:0,178:0,178:2,180:2,182:2,184,185:2,187:2,189:2,189:3,192:3,195,195,196,197,197,198,199:3,202,202:2,204:2,206,207,208,209,210,211:4,211:4,211:4,215:2,217:4,217:4,217:4,221:2">
 .LCPI0_0:
 	.byte   7
 	.byte   7
@@ -2668,36 +2671,35 @@ const FastDivider32 = struct {
 	.byte   7
 	.byte   120
 	.byte   7
-query:
-	mov     ebx, esi
-	mov     r9d, esi
-	shr     r9d, 4
-	mov     rdx, qword ptr [rdi + 72]; hhids
-	mov     r11, qword ptr [rdi]; top_bits
-	mov     r8, qword ptr [rdi + 16]; bottom_bits
-	imul    rbx, qword ptr [rdi + 56]
-	add     rbx, qword ptr [rdi + 48]
-	movzx   ecx, byte ptr [rdi + 64]
-	shrx    rcx, rbx, rcx
-	mov     r10, qword ptr [rdi + 32]; index
-	mov     rdi, qword ptr [r10 + 8*rcx]
-	mov     rcx, rdi
-	shr     rcx, 32
-	mov     r10d, edi
-	and     r10d, 2047
-	lea     r10d, [rcx + r10 + 1]
-	shr     edi, 11
-	cmp     r9d, r10d
-	cmovae  ecx, r10d
-	sbb     edi, -1
-	sub     r9d, ecx
-	mov     ebx, edi
-	shl     ebx, 8; multiplies by 256
-	lea     r10, [r11 + rbx]
-	vpopcntq        zmm1, zmmword ptr [r11 + rbx]
-	vpopcntq        zmm3, zmmword ptr [r11 + rbx + 64]
-	vpopcntq        zmm2, zmmword ptr [r11 + rbx + 128]
-	vpopcntq        zmm0, zmmword ptr [r11 + rbx + 192]
+get_index_external:
+	mov     eax, esi
+	mov     ecx, esi
+	shr     eax, 4
+	mov     r8, qword ptr [rdi]; top_bits
+	mov     r14, qword ptr [rdi + 16]; bottom_bits
+	movzx   edx, byte ptr [rdi + 57]
+	add     rdx, rcx
+	imul    rdx, qword ptr [rdi + 48]
+	movzx   r8d, byte ptr [rdi + 56]
+	shrx    rdx, rdx, r8
+	mov     rcx, qword ptr [rdi + 32]; index
+	mov     rcx, qword ptr [rcx + 8*rdx]
+	mov     rdx, rcx
+	shr     rdx, 32
+	mov     r8d, ecx
+	and     r8d, 2047
+	lea     r8d, [rdx + r8 + 1]
+	shr     ecx, 11
+	cmp     eax, r8d
+	cmovb   r8d, edx
+	sbb     ecx, -1
+	mov     edx, eax
+	sub     edx, r8d
+	shl     ecx, 8
+	vpopcntq        zmm0, zmmword ptr [r8 + rcx + 192]
+	vpopcntq        zmm1, zmmword ptr [r8 + rcx]
+	vpopcntq        zmm2, zmmword ptr [r8 + rcx + 128]
+	vpopcntq        zmm3, zmmword ptr [r8 + rcx + 64]
 	vpsllq  zmm3, zmm3, 8
 	vpsllq  zmm2, zmm2, 16
 	vpternlogq      zmm2, zmm3, zmm1, 254
@@ -2718,58 +2720,49 @@ query:
 	vpaddw  zmm0, zmm1, zmm0
 	vpslldq zmm1, zmm0, 8
 	vpaddw  zmm0, zmm1, zmm0
-	vpbroadcastw    zmm1, r9d
+	vpbroadcastw    zmm1, edx
 	vpcmpltuw       k1, zmm1, zmm0
 	valignq zmm1, zmm0, zmm3, 6
 	vpalignr        zmm0, zmm0, zmm1, 14
 	vpcompressw     zmm0 {k1} {z}, zmm0
-	vpextrw ebx, xmm0, 0
-	sub     r9d, ebx
-	kmovd   r11d, k1
-	tzcnt   r14d, r11d
-	mov     r11, qword ptr [r10 + 8*r14]
-	mov     r15d, 1
-	shlx    r9, r15, r9
-	pdep    r15, r9, r11
-	mov     r9d, r14d
-	shl     r9d, 6
-	lea     r12, [r15 - 1]
-	andn    r12, r11, r12
-	popcnt  r12, r12
-	shl     edi, 11
-	add     ecx, ebx
-	sub     edi, ecx
-	add     edi, r12d
-	add     r9d, edi
-	prefetcht0      byte ptr [rdx + 2*r9]
-	prefetcht0      byte ptr [rdx + 2*r9 + 30]
-	mov     r10d, dword ptr [r10 + 8*r14 + 8]
-	lzcnt   rcx, r15
-	shld    r10, r11, cl
-	tzcnt   ecx, r10d
-	mov     r10d, r9d
-	shr     r10d
-	mov     r11, qword ptr [r8 + r10]
-	movzx   r8d, byte ptr [r8 + r10 + 8]
-	shld    r8, r11, 60
-	test    dil, 1
-	cmove   r8, r11
+	vmovd   r10d, xmm0 ; vpextrw r10d, xmm0, 0
+	sub     edx, r10d
+	kmovd   r9d, k1
+	tzcnt   r9d, r9d
+	lea     r9, [rcx + 8*r9]
+	mov     r11, qword ptr [r8 + r9]; chunk_u64
+	mov     ecx, 1
+	shlx    rcx, rcx, rdx
+	pdep    rcx, rcx, r11
+	tzcnt   rdx, rcx
+	sub     edx, eax
+	lea     r12d, [rdx + 8*r9]
+	mov     r8d, dword ptr [r8 + r9 + 8]
+	lzcnt   rcx, rcx
+	shld    r8, r11, cl
+	tzcnt   eax, r8d
+	mov     r8d, r12d
+	shr     r8d
+	mov     r9, qword ptr [r14 + r8]
+	movzx   edi, byte ptr [r14 + r8 + 8]
+	shld    rdi, r9, 60
+	test    dl, 1
+	cmove   rdi, r9
 	and     esi, 15
-	movabs  rdi, 0x1111111111111111
-	imul    rdi, rsi
-	xor     rdi, r8
+	movabs  rdx, 0x1111111111111111
+	imul    rdx, rsi
+	xor     rdx, rdi
 	movabs  rsi, 0x8888888888888888
-	andn    r8, rsi, rdi
-	andn    rdi, rdi, rsi
-	sub     rsi, r8
-	and     rdi, rsi
-	tzcnt   rsi, rdi
-	shr     esi, 2
-	cmp     ecx, esi
-	jbe     .LBB0_3
-	add     r9d, esi
-	movzx   eax, word ptr [rdx + 2*r9]
-.LBB0_3:
+	andn    rdi, rsi, rdx
+	andn    rdx, rdx, rsi
+	sub     rsi, rdi
+	and     rdx, rsi
+	tzcnt   rdx, rdx
+	shr     edx, 2
+	add     r12d, edx
+	cmp     eax, edx
+	mov     rax, -1
+	cmova   rax, r12
 	vzeroupper
 	ret
 		</g>
@@ -2932,6 +2925,10 @@ query:
 		24px;letter-spacing:-5px">________________________________________________________________</text>
 
 
+		<text click="81" id="nibble-and-underline" class="h3" x="65" y="855" text-anchor="start" style="font-size:
+		24px;letter-spacing:-5px">________________________________________________________________</text>
+
+
 		<script>
 			const nums2 = [...nums, 695, 572, 590-3, 590-4, 590-8, 590-9, 715];
 
@@ -2999,6 +2996,11 @@ query:
 			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8).toString(2).padStart(4, '0').replace('0', '.')}&lt;/tspan&gt;`).join('')
 		}&lt;/tspan&gt;&lt;/text&gt;`);
 
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="80" id="first-nibbles-result-copy" class="h3" x="65" y="690" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${(((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8).toString(2).padStart(4, '0').replace('0', '.')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8).toString(2).padStart(4, '0').replace('0', '.')}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
 
 		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="80" id="third-8s" class="h3" x="65" y="760" text-anchor="start" style="font-size: 24px;
 		letter-spacing: -5px"&gt;${
@@ -3010,6 +3012,126 @@ query:
 		letter-spacing: -5px"&gt;${[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${(0x8 - (((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8)).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')}&lt;tspan&gt;${
 			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${(0x8 - (((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8)).toString(2).padStart(4, '0')}&lt;/tspan&gt;`).join('')
 		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+
+
+		document.getElementById("nibble-workspace").insertAdjacentHTML("afterend", `&lt;text click="81" id="final-nibbles-result" class="h3" x="65" y="885" text-anchor="start" style="font-size: 24px;
+		letter-spacing: -5px"&gt;${
+			[766].map((e, i) => `&lt;tspan ${""} fill="${colors2[0]}"&gt;${"...."}&lt;/tspan&gt;`).join('')
+			}&lt;tspan&gt;${
+			nums2.slice(0, -1).map((e, i) => `&lt;tspan fill="${colors2[(i + 5) % colors2.length]}"&gt;${((0x8 & ~((e ^ nums2.slice(10, 11)[0]) & 0xF)) & (0x8 - (((e ^ nums2.slice(10, 11)[0]) & 0xF) & ~0x8))).toString(2).padStart(4, '0').replaceAll('0', ".")}&lt;/tspan&gt;`).join('')
+		}&lt;/tspan&gt;&lt;/text&gt;`);
+
+		const nibble_workspace = document.getElementById("nibble-workspace");
+		nibble_workspace.insertAdjacentHTML("afterbegin", `&lt;text click="76" id="mully" class="h3" x="35" y="585" text-anchor="start" style="font-size: 24px;	letter-spacing: -5px"&gt;*&lt;/text&gt;`);
+
+		Array.prototype.push.apply(global_animations, [
+			{
+				section: "elias-code-overlay",
+				selector: "#mully",
+				slide_num: 76,
+				animation_duration: "1s",
+				animation_delay: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { "transform": "translateX(50px)", opacity: 0 },
+					100:   { "transform": "translateX(0px)", opacity: 1 },
+				}
+			},
+		]);
+
+		for (let i = 0; i < 16; i++) {
+			nibble_workspace.insertAdjacentHTML("afterbegin", `&lt;text click="76" id="addy-${i}" class="h3" x="35" y="${620 + 25*i}" text-anchor="start" style="font-size: 24px;	letter-spacing: -5px"&gt;+&lt;/text&gt;`);
+
+			Array.prototype.push.apply(global_animations, [
+				{
+					section: "elias-code-overlay",
+					selector: `#addy-${i}`,
+					slide_num: 76,
+					animation_duration: "1s",
+					animation_delay: `${4.5 + i*0.05}s`,
+					continuous: true,
+					keyframes: {
+						0:     { "transform": "translateX(50px)", opacity: 0 },
+						100:   { "transform": "translateX(0px)", opacity: 1 },
+					}
+				},
+			]);
+		}
+
+		nibble_workspace.insertAdjacentHTML("afterend", `&lt;text click="77" id="xorr" class="h3" x="35" y="560" text-anchor="start" style="font-size: 24px;	letter-spacing: -5px"&gt;^&lt;/text&gt;`);
+
+		Array.prototype.push.apply(global_animations, [
+			{
+				section: "elias-code-overlay",
+				selector: "#xorr",
+				slide_num: 77,
+				animation_duration: "1s",
+				animation_delay: "3s",
+				continuous: true,
+				keyframes: {
+					0:     { "transform": "translateX(50px)", opacity: 0 },
+					100:   { "transform": "translateX(0px)", opacity: 1 },
+				}
+			},
+		]);
+
+		for (let i = 0; i < 2; i++) {
+			nibble_workspace.insertAdjacentHTML("afterend", `&lt;text click="77" id="andn-${i}" class="h3" x="59" y="${[655,970][i]}" text-anchor="end" style="font-size: 24px;letter-spacing: 0px"&gt;&~&lt;/text&gt;`);
+
+			Array.prototype.push.apply(global_animations, [
+				{
+					section: "elias-code-overlay",
+					selector: `#andn-${i}`,
+					slide_num: 79,
+					animation_duration: "1s",
+					animation_delay: "3s",
+					continuous: true,
+					keyframes: {
+						0:     { "transform": "translateX(50px)", opacity: 0 },
+						100:   { "transform": "translateX(0px)", opacity: 1 },
+					}
+				},
+			]);
+		}
+
+		for (let i = 0; i < 1; i++) {
+			nibble_workspace.insertAdjacentHTML("afterend", `&lt;text click="77" id="subb-${i}" class="h3" x="59" y="${[790][i]}" text-anchor="end" style="font-size: 24px;letter-spacing: 0px"&gt;-&lt;/text&gt;`);
+
+			Array.prototype.push.apply(global_animations, [
+				{
+					section: "elias-code-overlay",
+					selector: `#subb-${i}`,
+					slide_num: 80,
+					animation_duration: "1s",
+					animation_delay: "3s",
+					continuous: true,
+					keyframes: {
+						0:     { "transform": "translateX(50px)", opacity: 0 },
+						100:   { "transform": "translateX(0px)", opacity: 1 },
+					}
+				},
+			]);
+		}
+
+		for (let i = 0; i < 1; i++) {
+			nibble_workspace.insertAdjacentHTML("afterend", `&lt;text click="77" id="andd-${i}" class="h3" x="59" y="${[850][i]}" text-anchor="end" style="font-size: 24px;letter-spacing: 0px"&gt;&&lt;/text&gt;`);
+
+			Array.prototype.push.apply(global_animations, [
+				{
+					section: "elias-code-overlay",
+					selector: `#andd-${i}`,
+					slide_num: 81,
+					animation_duration: "1s",
+					animation_delay: "3s",
+					continuous: true,
+					keyframes: {
+						0:     { "transform": "translateX(50px)", opacity: 0 },
+						100:   { "transform": "translateX(0px)", opacity: 1 },
+					}
+				},
+			]);
+		}
 
 		</script>
 		<style>
@@ -4034,7 +4156,7 @@ query:
 				}
 			}, {
 				section: "elias-code-overlay",
-				selector: "#first-nibbles-result",
+				selector: "#first-nibbles-result-copy",
 				slide_num: 80,
 				animation_delay: "0s",
 				animation_duration: "1s",
@@ -4092,7 +4214,36 @@ query:
 					0:     { opacity: 1, transform: "translateY(0px)" },
 					100:   { opacity: 1, transform: "translateY(-155px)" },
 				}
+			},
+			{
+				section: "elias-code-overlay",
+				selector: "#nibble-and-underline",
+				slide_num: 81,
+				animation_delay: "2s",
+				animation_duration: "1.5s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateX(1215px)", "letter-spacing": "-24px" },
+					20:    {opacity: 1 },
+					100:   { opacity: 1, transform: "translateX(0)", "letter-spacing": "-5px" },
+				}
+			},
+
+			{
+				section: "elias-code-overlay",
+				selector: "#final-nibbles-result",
+				slide_num: 81,
+				animation_delay: "4s",
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translateY(-50px)" },
+					100:   { opacity: 1, transform: "translateY(0px)" },
+				}
 			}
+
+
+
 		]);
 
 		<!-- chunk_u64_clone_unhide;
@@ -4193,7 +4344,7 @@ query:
 		baseline-shift: -14px;
 	}
 
-	.code-struct-type {
+	.code-struct-type, .code-register-k {
 		fill: rgb(255, 184, 104);
 		font-style: italic;
 	}
@@ -4502,6 +4653,7 @@ query:
 				[/ +/g, "space"],
 				[/\+/g, "symbol-1"],
 				[/\*/g, "star"],
+				[/(?<!\w)(?:k[01234567])(?!\w)/g, "register-k"],
 				[/(?<!\w)(?:[re]?[abcd]x|[abcd][hl]|[er]?[sb]p|[er]?[ds]i|r[89][bwd]?|r1[0-5][bwd]?|[xyz]mm[0-9]|zmm[12][0-9]|[xy]mm1[0-5]|zmm3[01]|rip)(?!\w)/g, "register"],
 				// [/[:=]/g, "symbol-1"],
 				[/.LBB\d+_\d+/g, "block-label"],
