@@ -357,9 +357,9 @@
       <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(255, 112, 255)"/>
     </marker>
   </defs>
-		<text class="h1 title-line" x="965" y="200" fill="#F7A41D" text-anchor="middle">expansion</text>
-		<text class="h1 title-line" x="965" y="350" fill="#F7A41D" text-anchor="middle">&</text>
-		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">compaction</text>
+		<text class="h1 title-line" x="965" y="200" fill="#F7A41D" text-anchor="middle">Frequency</text>
+		<text class="h1 title-line" x="965" y="350" fill="#F7A41D" text-anchor="middle">Capping</text>
+		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">& Compression</text>
 
 		<g class="title-line">
 			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">in &nbsp;&nbsp;&nbsp;</text>
@@ -465,7 +465,7 @@
 			});
 		</script>
 	</g>
-
+<!--
 	<g class="slide" id="expansion-intro" title="expansion" clicks="7">
 		<g class="bullets" y="800">
 ~We have several general-purpose expansion instructions:
@@ -778,232 +778,6 @@
 		}</script>
 	</g>
 
-	<g class="slide" id="concatenation" title="" clicks="4">
-		<g id="concatenation-inner" style="transform: translateY(150px)" >
-
-		</g>
-		<g class="bullets" y="50" x="100">
-~#:orange:[vpexpandb] :cyan:[zmm0] :white:[{]&thinsp;:green:[k1]&thinsp;:white:[},] :cyan:[zmm1]
-		</g>
-		<script>{
-			const bits1 = new Array(16).fill().map((_, i) => +(i >= 8));
-			const bits2 = new Array(16).fill().map((_, i) => String.fromCharCode('a'.charCodeAt() + (15 - i)));
-			const bits3 = new Array(16).fill().map((_, i) => String.fromCharCode('A'.charCodeAt() + (15 - i)));
-
-			const process_bits = (x, b, i) => x.map(e => e === '.' ? `&lt;tspan class="appearing_holes"&gt;.&lt;/tspan&gt;` : e ? `&lt;tspan fill="${[...colors2][i === 0 ? 5 : 4 + b][1]}"&gt;${e}&lt;/tspan&gt;` : `&lt;tspan fill="${[...colors2][4][1]}"&gt;${e}&lt;/tspan&gt;`);
-
-			for (let i = 0; i < 3; i++)
-				document.getElementById("concatenation-inner").insertAdjacentHTML("afterbegin", `&lt;text class="h2" ${i === 1 ? 'id="lower-letters"' : ""} x="960" y="${[400, 700, 850][i]}" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;"&gt;${process_bits([bits1.map(e => 1 - e), bits2, bits3][i], i === 2, i).join('')}&lt;/text&gt;`);
-
-			const unos = bits1.map((e, i) => [e, 15 - i]).filter(e => e[0]);
-			unos.reverse();
-
-			const dos = bits1.map((e, i) => [e, 15 - i]).filter(e => !e[0]);
-			dos.reverse();
-
-			{
-				let i = 0;
-				for (; i < unos.length; i++) {
-					for (let j = 0; j < 2; j++) {
-						const COL = ["rgb(255, 177, 100)", "rgb(0, 255, 255)"][j];
-							document.getElementById("concatenation-inner").insertAdjacentHTML("afterbegin", i < dos.length ? `&lt;line click="1-4" class="no-slide-in2${j ? " blue-step" : " orange-step"}" x1="${1710 - i * 100}" x2="${1710 - i * 100}" y1="590" y2="590"
-						stroke="${COL}" stroke-width="5"
-						click-1="${1710 - i * 100}, ${1710 - 100 * (unos[i][1])}, 590, 410"
-						click-2="${1710 - i * 100}, ${1710 - 100 * (dos[i][1])}, 740, 410"
-						marker-end="url(#arrowhead${j ? "" : "-orange"})"
-						&gt;&lt;/line&gt;` : `&lt;line click="1-2" class="no-slide-in2${j ? " blue-step" : " orange-step"}" x1="${1710 - i * 100}" x2="${1710 - i * 100}" y1="590" y2="590"
-						stroke="${COL}" stroke-width="5"
-						marker-end="url(#arrowhead${j ? "" : "-orange"})"
-						&gt;&lt;/line&gt;`);
-					}
-				}
-
-				for (; i < dos.length; i++) {
-					for (let j = 0; j < 2; j++)
-						document.getElementById("concatenation-inner").insertAdjacentHTML("afterbegin", `&lt;line click="2-5" class="no-slide-in2${j ? " blue-step" : " orange-step"}" x1="${1710 - i * 100}" x2="${1710 - 100 * (dos[i][1])}" y1="740" y2="410"
-					stroke="${["rgb(0, 255, 255)", "rgb(255, 177, 100)"][j]}" stroke-width="5"
-					click-2="${1710 - i * 100}, ${1710 - 100 * (dos[i][1])}, 740, 410"
-					marker-end="url(#arrowhead${j ? "" : "-orange"})"
-					&gt;&lt;/line&gt;`);
-				}
-			}
-
-			const starting_padding = 16 - unos.length;
-			for (var other_start_padding = 0; other_start_padding < bits1.length; other_start_padding++) {
-				if (bits1[other_start_padding]) break;
-			}
-
-			function spacey(a, b) {
-				for (var i = 0; i < a.length && !a[i]; i++);
-				let result = [];
-				let j = 0;
-				for (; i < a.length; i++) {
-					if (a[i] === 1) {
-						result.push(b[j++]);
-					} else {
-						result.push('.');
-					}
-				}
-				return result;
-			}
-
-
-			let letter = 'a'.charCodeAt() + unos.length - 1;
-
-			const process_bits2 = x => x.map(e => e === '.' ? `&lt;tspan class="appearing_holes"&gt;&nbsp;&lt;/tspan&gt;` : `&lt;tspan fill="${[...colors2][4][1]}"&gt;${String.fromCharCode(letter--)}&lt;/tspan&gt;`);
-			const process_bits3 = x => x.map(e => e === '.' ? `&lt;tspan class="appearing_holes"&gt;&nbsp;&lt;/tspan&gt;` : `&lt;tspan fill="${[...colors2][5][1]}"&gt;${e}&lt;/tspan&gt;`);
-
-			const goop = process_bits2(spacey(bits1, bits2.slice(16 - unos.length))).join('');
-
-			letter = 'a'.charCodeAt() + unos.length - 1;
-
-			let starting_padding_letters = "";
-			for (let i = 0; i < starting_padding; i++)
-				starting_padding_letters = String.fromCharCode(++letter) + starting_padding_letters;
-
-			document.getElementById("concatenation-inner").insertAdjacentHTML("afterbegin", `&lt;text id="spread-1" click="1" class="h2" x="960" y="${250}" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;"&gt;&lt;tspan class="disappearing-spaces" fill="${[...colors2][4][1]}"&gt;${starting_padding_letters}&lt;/tspan&gt;${`&lt;tspan class="appearing_holes"&gt;&nbsp;&lt;/tspan&gt;`.repeat(other_start_padding)}${goop}&lt;/text&gt;`);
-
-			let loo = 'H'.charCodeAt()
-			const dod = bits1.map(e => e ? '.' : String.fromCharCode(loo--));
-
-			document.getElementById("concatenation-inner").insertAdjacentHTML("afterbegin", `&lt;text id="spread-2" click="2" class="h2" x="960" y="${100}" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;"&gt;&lt;tspan class="disappearing-spaces" fill="${[...colors2][5][1]}"&gt;${new Array(8).fill().map((_, i) => String.fromCharCode("P".charCodeAt() - i)).join('')}&lt;/tspan&gt;${process_bits3(dod).join('')}&lt;/text&gt;`);
-
-			global_animations.push({
-				section: "concatenation",
-				selector: ".disappearing-spaces",
-				slide_num: 1,
-				animation_delay: `1s`,
-				animation_duration: "3s",
-				keyframes: {
-					0:   { "letter-spacing": "0.1px", opacity: 1 },
-					100: { "letter-spacing": "-1em", opacity: 0 },
-				},
-				continuous: true,
-			}, {
-				section: "concatenation",
-				selector: ".appearing_holes",
-				slide_num: 1,
-				animation_delay: `1s`,
-				animation_duration: "3s",
-				keyframes: {
-					0:   { "letter-spacing": "-1em", opacity: 0 },
-					100: { "letter-spacing": "0.1px", opacity: 1 },
-				},
-				continuous: true,
-			}, {
-				section: "concatenation",
-				selector: ".orange-step",
-				slide_num: 1,
-				animation_delay: `0s`,
-				animation_duration: "0.35s",
-				linear: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				},
-				backward_only: true,
-			}, {
-				section: "concatenation",
-				selector: ".blue-step",
-				slide_num: 1,
-				animation_delay: `0s`,
-				animation_duration: "0.35s",
-				linear: true,
-				keyframes: {
-					0:   { opacity: 0 },
-					100: { opacity: 1 },
-				},
-				backward_only: true,
-			}, {
-				section: "concatenation",
-				selector: ".orange-step",
-				slide_num: 1,
-				animation_delay: `0s`,
-				animation_duration: "0s",
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				},
-				forward_only: true,
-			}, {
-				section: "concatenation",
-				selector: ".blue-step",
-				slide_num: 1,
-				animation_delay: `0s`,
-				animation_duration: "0s",
-				keyframes: {
-					0:   { opacity: 0 },
-					100: { opacity: 1 },
-				},
-				forward_only: true,
-			}, {
-				section: "concatenation",
-				selector: ".orange-step",
-				slide_num: 2,
-				animation_delay: `0s`,
-				animation_duration: "0.35s",
-				linear: true,
-				keyframes: {
-					0:   { opacity: 0 },
-					100: { opacity: 1 },
-				},
-				continuous: true,
-			}, {
-				section: "concatenation",
-				selector: ".blue-step",
-				slide_num: 2,
-				animation_delay: `0s`,
-				animation_duration: "0.35s",
-				linear: true,
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0 },
-				},
-				continuous: true,
-			}, {
-				section: "concatenation",
-				selector: "#lower-letters",
-				slide_num: 2,
-				animation_delay: `0s`,
-				animation_duration: "2s",
-				keyframes: {
-					0:   { opacity: 1 },
-					100: { opacity: 0.2 },
-				},
-				continuous: true,
-				ease: "cubic-bezier(0, 1, 0, 1)",
-			}, {
-				section: "concatenation",
-				selector: "#spread-2",
-				slide_num: 2,
-				animation_delay: `3s`,
-				animation_duration: "2s",
-				keyframes: {
-					0:   { transform: "translateY(0)" },
-					100: { transform: "translateY(150px)" },
-				},
-				continuous: true,
-			});
-
-
-		}</script>
-	</g>
-
-	<g class="slide" id="other-expanders" title="expansion III" clicks="13">
-		<g class="bullets" y="175">
-We also have several special-purpose expansion instructions:
-::orange:[vpmovm2{b,w,d,q}] :cyan:[zmm0], :green:[k1]
-  :spreads each bit of :green:[k1] to {8,16,32,64} bit values.@Each result element will be all 1's or all 0's, matching@the corresponding bit of :green:[k1].
-    ::white:{:AT:select(u8, }:green:{k1}:white:{, :AT:splat(0xFF), :AT:splat(0))}
-::orange:[vmovdqu{8,16,32,64}] :cyan:[zmm0] :white:[{]&thinsp;:green:[k1]&thinsp;:white:[}] :white:[{]&thinsp;:green:[z]&thinsp;:white:[},] :cyan:[zmm1]
-    ::white:{:AT:select(u32, }:green:{k1}:white:{,} :cyan:{y}:white:{, :AT:splat(0))}
-::orange:[vmovdqu{8,16,32,64}] :cyan:[zmm0] :white:[{]&thinsp;:green:[k1]&thinsp;:white:[},] :cyan:[zmm1]
-    ::white:{:AT:select(u16, }:green:{k1}:white:{,} :cyan:{y}:white:{,} :cyan:{z}:white:{)}
-::orange:[vpblendm{b,w,d,q}] :cyan:[zmm2] :white:[{]&thinsp;:green:[k1]&thinsp;:white:[},] :cyan:[zmm1]:white:[,] :cyan:[zmm0]
-    ::white:{:AT:select(u64, }:green:{k1}:white:{,} :cyan:{y}:white:{,} :cyan:{z}:white:{)}
-		</g>
-	</g>
-
 <g class="slide" id="pext" title="compaction" clicks="7">
 		<g class="bullets" y="800">
 ~We have several general-purpose compaction instructions:
@@ -1096,8 +870,179 @@ We also have several special-purpose expansion instructions:
 				continuous: true,
 			});
 		}</script>
+	</g> -->
+
+	<g class="slide" id="varint" title="Integer Encoding">
+		<g class="bullets" y="200">
+There are several variable-byte integer encodings:
+  ::yellow:[varint-SU]:mini:[:red:{ (1972) Program design for retrospective searches on large data bases, L. H. THIEL & H. S. HEAPS}]@&nbsp;&nbsp;:cyan:[:v:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:v:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:v: continuation]@&nbsp;&nbsp;:cyan:[0]:orange:[1000110]:cyan:[1]:orange:[0101010]:cyan:[1]:orange:[0010100]@&nbsp;&nbsp;&nbsp;:orange:[:^::^::^::^::^::^::^: :^::^::^::^::^::^::^: :^::^::^::^::^::^::^: payload]
+    :Not my favorite strategy because you have metadata@interleaved with data, so you have to do an operation@equivalent to :orange:[pext] to isolate the payload.
+  ::yellow:[varint-GU]:mini:[:red:{ (2011) Stepanov AA, Gangolli AR, Rose DE, Ernst RJ, Oberoi PS. SIMD-based decoding of posting lists}]@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[:v::v::v: continuation]@&nbsp;&nbsp;:orange:[101100011001010100010100]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[011]@&nbsp;&nbsp;:orange:[:^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^: payload]
+  ::yellow:[varint-GB]:mini:[:red:{ (2011) Stepanov AA, Gangolli AR, Rose DE, Ernst RJ, Oberoi PS. SIMD-based decoding of posting lists}]@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[:v::v: 2-bit length]@&nbsp;&nbsp;:orange:[101100011001010100010100]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[01]@&nbsp;&nbsp;:orange:[:^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^::^: payload]
+    :This one is favored because the number of metadata bits@is always 2 (or some chosen :pink:[n])
+
+		</g>
+
+
+		<g class="hovery" click="2">
+			<rect x="353" y="250" width="497" height="50"></rect>
+			<text class="h4" x="354.45" y="290" text-anchor="start"><tspan class="fill-rain">SU (Split Unary)</tspan></text>
+		</g>
+
+		<g class="hovery" click="9" style="transform: translateY(385px) !important">
+			<rect x="353" y="250" width="552" height="50"></rect>
+			<text class="h4" x="354.45" y="290" text-anchor="start"><tspan class="fill-rain">GU (Grouped Unary)</tspan></text>
+		</g>
+
+		<g class="hovery" click="13" style="transform: translateY(600px) !important">
+			<rect x="353" y="250" width="580" height="50"></rect>
+			<text class="h4" x="354.45" y="290" text-anchor="start"><tspan class="fill-rain">GB (Grouped Binary)</tspan></text>
+		</g>
+
+
+
+		<style>
+			.hovery text {
+				fill: rgba(255, 255, 255, 0);
+			}
+			.hovery:hover text {
+				fill: yellow;
+			}
+
+			<!-- .hovery text {
+				fill: green;
+			} -->
+
+			.hovery rect {
+				fill: rgba(255, 255, 255, 0);
+			}
+			.hovery:hover rect {
+				fill: black;
+			}
+
+			.hovery:hover .fill-rain {
+				fill: yellow;
+				/* animation: fillHue 1s linear infinite !important; */
+			}
+
+			@keyframes fillHue {
+				0%   { fill: hsl(0,   100%, 50%); }   /* red */
+				25%  { fill: hsl(90,  100%, 50%); }   /* green */
+				50%  { fill: hsl(180, 100%, 50%); }   /* cyan */
+				75%  { fill: hsl(270, 100%, 50%); }   /* purple */
+				100% { fill: hsl(360, 100%, 50%); }   /* back to red */
+			}
+		</style>
 	</g>
 
+	<!-- <g class="slide" id="varint-GB-decode" clicks="2">
+		<g class="code" id="varint-GB-1" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="1,7">
+fn decompressor(lens_2_bits_each: @Vector(64, u8), bytes: []const u8, output: []u8, comptime T: type) void {
+    // Currently disabled "optimization" that allows us to use the iota vector as the first `indices` vector for
+    // extracting u64's from a @Vector(8, u64). The iota vector is used for a lot of stuff so it might reduce how many
+    // vectors we need to load from memory.
+    const USE_ASCENDING_VEC = false;
+    const mapper_to = switch (T) {
+        Timestamp,
+        LineItemOrCampaignId,
+        LineItemId,
+        CampaignId,
+        => [4]u8{ 0b0000, 0b0001, 0b0011, (1 << @divExact(@bitSizeOf(T), 8)) - 1 },
+        else => @compileError("Invalid type"),
+    };
+
+    const signed = switch (T) {
+        Timestamp => false,
+        LineItemOrCampaignId,
+        LineItemId,
+        CampaignId,
+        => true,
+        else => @compileError("Invalid type"),
+    };
+
+    comptime var mapper: @Vector(16, u8) = @splat(0);
+    inline for (0..16) |i| mapper[i] = (mapper_to[i >> 2] << 4) | mapper_to[@as(u2, @truncate(i))];
+    const reversed_mapper: @Vector(16, u8) = @bitCast(@bitReverse(@as(@Vector(32, u4), @bitCast(mapper))));
+
+    const msb = simd.msb_vec();
+
+    const shuffle_vectors: [2]@Vector(64, i8) = comptime blk: {
+        @setEvalBranchQuota(100000);
+        const interleave_properly = std.simd.interlace(.{ std.simd.iota(i32, 64), ~std.simd.iota(i32, 64) });
+
+        const interleaved_order: @Vector(64, i8) = @bitCast(std.simd.deinterlace(8, std.simd.iota(i8, 64)));
+        const interleaved_inner: @Vector(64, i8) = @bitCast([8]@Vector(8, i8){
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 0 * 8, 8), 0),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 1 * 8, 8), 1),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 2 * 8, 8), 2),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 3 * 8, 8), 3),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 4 * 8, 8), 4),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 5 * 8, 8), 5),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 6 * 8, 8), 6),
+            std.simd.rotateElementsRight(std.simd.extract(interleaved_order, 7 * 8, 8), 7),
+        });
+
+        const chosen_interleaving = if (USE_ASCENDING_VEC) interleaved_inner else interleaved_order;
+
+        const double_wide_interleaved_order: @Vector(128, i8) = std.simd.join(
+            chosen_interleaving,
+            chosen_interleaving + @as(@Vector(64, i8), @splat(64)),
+        );
+
+        // `super_interleaved_order` interleaves the bytes such that `simd.shufbitqmb` can be used to move the
+        // bitstrings over to mask registers, 64 bits at a time.
+        const super_interleaved_order = @shuffle(i8, interleave_properly, @Vector(0, i8){}, double_wide_interleaved_order);
+
+        { // Prove at compile time that we are getting the bits out in the right order
+            var expected = std.simd.iota(u8, 8);
+            const mapped_to_masks_order = std.simd.deinterlace(2, std.simd.iota(u8, 128));
+            var indices = if (USE_ASCENDING_VEC) std.simd.iota(u8, 64) else std.simd.repeat(64, std.simd.iota(u8, 8));
+            for (@as([2]@Vector(64, i8), @bitCast(@shuffle(u8, mapped_to_masks_order[0], mapped_to_masks_order[1], super_interleaved_order)))) |source| {
+                for (0..8) |_| {
+                    const got: @Vector(8, u8) = @bitCast(simd.shufbitqmb(source, indices));
+                    if (std.simd.countTrues(expected == got) != 8)
+                        @compileError(std.fmt.comptimePrint("{} <- expected\n{} <- got", .{ expected, got }));
+                    indices += @splat(8);
+                    expected += @splat(8);
+                }
+            }
+        }
+        break :blk @bitCast(super_interleaved_order);
+    };
+
+    var cur = bytes;
+    var out = output;
+    var carry: @Vector(16, u32) = -%~std.simd.iota(u32, 16);
+    const lens_2_bits_each_shifted = @as(@Vector(64, u8), @bitCast(@as(@Vector(8, u64), @bitCast(lens_2_bits_each)) >> @splat(4)));
+    inline for (shuffle_vectors) |shuffle_vector| {
+        const source_bits = @shuffle(u8, lens_2_bits_each, lens_2_bits_each_shifted, shuffle_vector);
+        const source = simd.shufb(if (signed) reversed_mapper else mapper, ~msb & source_bits);
+        var indices = if (USE_ASCENDING_VEC) std.simd.iota(u8, 64) else std.simd.repeat(64, std.simd.iota(u8, 8));
+        for (0..8) |_| {
+            const expand_mask: u64 = @bitCast(simd.shufbitqmb(source, indices));
+            var vec: @Vector(16, u32) = @bitCast(simd.expandb_z(cur[0..64].*, expand_mask));
+
+            if (signed)
+                vec = simd.srav(vec, @popCount(@as(@Vector(16, u32), @bitCast(simd.inv_movm2b(expand_mask)))));
+
+            vec +%= std.simd.shiftElementsRight(vec, 1, 0);
+            vec +%= std.simd.shiftElementsRight(vec, 2, 0);
+            vec +%= std.simd.shiftElementsRight(vec, 4, 0);
+            // Not adding the carry until afterwards increases ILP because we can execute the expensive shifts from multiple
+            // iterations simultaneously
+            vec = std.simd.shiftElementsRight(vec, 8, 0) +% simd.add_asm(vec, carry);
+            out[0..64].* = @bitCast(vec);
+            out = out[64..];
+            cur = cur[@popCount(expand_mask)..];
+            if (cur.len == 0) return;
+            // LLVM does a really unfortunate re-association by default, so we force the smart order via inline assembly.
+            carry = simd.add_asm(@shuffle(u32, vec, @Vector(0, u32){}, [1]i8{15} ** 16), -%~std.simd.iota(u32, 16));
+            indices +%= @splat(8);
+        }
+    }
+}
+		</g>
+	</g> -->
 
 	<g class="slide" id="end">
 		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;">fin</text>
@@ -1215,6 +1160,245 @@ We also have several special-purpose expansion instructions:
 
 <svg id="overlay" style="overflow: hidden; width: 100%;" y="5000" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
 
+	<g class="slide" id="varint-GB-decode-overlay" clicks="2">
+		<rect id="varint-GB-decode-backdrop" click="1-87" x="1215" y="490" height="1250" width="2020" style="fill: #100020F8;"/>
+
+
+		<!-- <g class="code" click="10" x="10" y="470" width="1920" line-height="60" font-size="50px" letter-spacing="-3.5px" hide-background lang="zig" hide-line-numbers>
+			ip: u32 = 3647664517
+			upper_bits: u28 = 227979032
+			prev_prefix_popcnt: u32 = 227978495
+			next_prefix_popcnt: u32 = 227978495 + 1337 + 1
+			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
+		</g> -->
+
+		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="2,4">
+.LCPI0_0:
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   0
+	.byte   8
+	.byte   16
+	.byte   24
+	.byte   32
+	.byte   40
+	.byte   48
+	.byte   56
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   1
+	.byte   9
+	.byte   17
+	.byte   25
+	.byte   33
+	.byte   41
+	.byte   49
+	.byte   57
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   2
+	.byte   10
+	.byte   18
+	.byte   26
+	.byte   34
+	.byte   42
+	.byte   50
+	.byte   58
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+.LCPI0_1:
+	.byte   0
+	.byte   7
+	.byte   8
+	.byte   7
+	.byte   16
+	.byte   7
+	.byte   24
+	.byte   7
+	.byte   32
+	.byte   7
+	.byte   40
+	.byte   7
+	.byte   48
+	.byte   7
+	.byte   56
+	.byte   7
+	.byte   1
+	.byte   7
+	.byte   9
+	.byte   7
+	.byte   17
+	.byte   7
+	.byte   25
+	.byte   7
+	.byte   33
+	.byte   7
+	.byte   41
+	.byte   7
+	.byte   49
+	.byte   7
+	.byte   57
+	.byte   7
+	.byte   2
+	.byte   7
+	.byte   10
+	.byte   7
+	.byte   18
+	.byte   7
+	.byte   26
+	.byte   7
+	.byte   34
+	.byte   7
+	.byte   42
+	.byte   7
+	.byte   50
+	.byte   7
+	.byte   58
+	.byte   7
+	.byte   64
+	.byte   7
+	.byte   72
+	.byte   7
+	.byte   80
+	.byte   7
+	.byte   88
+	.byte   7
+	.byte   96
+	.byte   7
+	.byte   104
+	.byte   7
+	.byte   112
+	.byte   7
+	.byte   120
+	.byte   7
+get_index_external:
+	mov     eax, esi
+	mov     ecx, esi
+	shr     eax, 4
+	mov     r8, qword ptr [rdi]; top_bits
+	mov     r14, qword ptr [rdi + 16]; bottom_bits
+	movzx   edx, byte ptr [rdi + 57]
+	add     rdx, rcx
+	imul    rdx, qword ptr [rdi + 48]
+	movzx   r8d, byte ptr [rdi + 56]
+	shrx    rdx, rdx, r8
+	mov     rcx, qword ptr [rdi + 32]; index
+	mov     rcx, qword ptr [rcx + 8*rdx]
+	mov     rdx, rcx
+	shr     rdx, 32
+	mov     r8d, ecx
+	and     r8d, 2047
+	lea     r8d, [rdx + r8 + 1]
+	shr     ecx, 11
+	cmp     eax, r8d
+	cmovb   r8d, edx
+	sbb     ecx, -1
+	mov     edx, eax
+	sub     edx, r8d
+	shl     ecx, 8
+	vpopcntq        zmm0, zmmword ptr [r8 + rcx + 192]
+	vpopcntq        zmm1, zmmword ptr [r8 + rcx]
+	vpopcntq        zmm2, zmmword ptr [r8 + rcx + 128]
+	vpopcntq        zmm3, zmmword ptr [r8 + rcx + 64]
+	vpsllq  zmm3, zmm3, 8
+	vpsllq  zmm2, zmm2, 16
+	vpternlogq      zmm2, zmm3, zmm1, 254
+	vmovdqa64       zmm1, zmmword ptr [rip + .LCPI0_0]
+	vpermb  zmm1, zmm1, zmm2
+	vpxor   xmm3, xmm3, xmm3
+	vpsadbw zmm1, zmm1, zmm3
+	vshufi64x2      zmm4, zmm1, zmm1, 144
+	vpaddq  zmm4, zmm1, zmm4
+	vinserti64x4    zmm1, zmm3, ymm1, 1
+	vpaddq  zmm1, zmm4, zmm1
+	vmovdqa64       zmm4, zmmword ptr [rip + .LCPI0_1]
+	vpermi2b        zmm4, zmm2, zmm0
+	vpaddw  zmm0, zmm4, zmm1
+	vpslldq zmm1, zmm0, 2
+	vpaddw  zmm0, zmm1, zmm0
+	vpslldq zmm1, zmm0, 4
+	vpaddw  zmm0, zmm1, zmm0
+	vpslldq zmm1, zmm0, 8
+	vpaddw  zmm0, zmm1, zmm0
+	vpbroadcastw    zmm1, edx
+	vpcmpltuw       k1, zmm1, zmm0
+	valignq zmm1, zmm0, zmm3, 6
+	vpalignr        zmm0, zmm0, zmm1, 14
+	vpcompressw     zmm0 {k1} {z}, zmm0
+	vmovd   r10d, xmm0 ; vpextrw r10d, xmm0, 0
+	sub     edx, r10d
+	kmovd   r9d, k1
+	tzcnt   r9d, r9d
+	lea     r9, [rcx + 8*r9]
+	mov     r11, qword ptr [r8 + r9]; chunk_u64
+	mov     ecx, 1
+	shlx    rcx, rcx, rdx
+	pdep    rcx, rcx, r11
+	tzcnt   rdx, rcx
+	sub     edx, eax
+	lea     r12d, [rdx + 8*r9]
+	mov     r8d, dword ptr [r8 + r9 + 8]
+	lzcnt   rcx, rcx
+	shld    r8, r11, cl
+	tzcnt   eax, r8d
+	mov     r8d, r12d
+	shr     r8d
+	mov     r9, qword ptr [r14 + r8]
+	movzx   edi, byte ptr [r14 + r8 + 8]
+	shld    rdi, r9, 60
+	test    dl, 1
+	cmove   rdi, r9
+	and     esi, 15
+	movabs  rdx, 0x1111111111111111
+	imul    rdx, rsi
+	xor     rdx, rdi
+	movabs  rsi, 0x8888888888888888
+	andn    rdi, rsi, rdx
+	andn    rdx, rdx, rsi
+	sub     rsi, rdi
+	and     rdx, rsi
+	tzcnt   rdx, rdx
+	shr     edx, 2
+	add     r12d, edx
+	cmp     eax, edx
+	mov     rax, -1
+	cmova   rax, r12
+	vzeroupper
+	ret
+		</g>
+	</g>
 </svg>
 
 <style>
