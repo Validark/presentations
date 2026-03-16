@@ -75,18 +75,18 @@
 
 
 		@keyframes unhide {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
 			100% { transform: translateY(0); stroke: rgba(255, 255, 255, 0) }
 		}
 
 		@keyframes unhide-highlighted {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
-			100% { transform: translateY(0); stroke: rgba(0, 255, 255, 1); stroke-width: 2px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
+			100% { transform: translateY(0); stroke: rgba(0, 255, 255, 1); stroke-width: 0px; }
 		}
 
 		@keyframes unhide-highlighted-blue {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
-			100% { transform: translateY(0); stroke: rgb(255, 177, 100); stroke-width: 2px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
+			100% { transform: translateY(0); stroke: rgb(255, 177, 100); stroke-width: 0px; }
 		}
 
 		@keyframes unhide-slide {
@@ -296,6 +296,19 @@
 .invis {
 	opacity: 0;
 }
+
+.rightside-up-caret {
+	baseline-shift: 5px;
+}
+
+.upside-down-caret {
+	baseline-shift: -24px;
+}
+
+.mini {
+	font-size: 45%;
+	baseline-shift: 8px;
+}
 </style>
 
 
@@ -454,16 +467,13 @@ Customers can set limits for how often each :cyan:{IPv4 address}@can be shown an
 Example impression timestamps:
                 : :red:{110}&nbsp;&nbsp;:green:{135}&nbsp;&nbsp;:yellow:{140}&nbsp;&nbsp;:pink:{162}&nbsp;&nbsp;:blue:{187}
 If we have a limit of :orange:{1 per minute}, we will have spaced these@out more.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:green:{170}&nbsp;&nbsp;:yellow:{235}&nbsp;&nbsp;:pink:{300}&nbsp;&nbsp;:blue:{372}
-This is going to go in our load balancer, therefore we need@high compression and high performance at the same time.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:blue:{187}&nbsp;&nbsp;:pink:{250}&nbsp;&nbsp;:yellow:{312}&nbsp;&nbsp;:green:{386}
 		</g>
 	</g>
 
-	<g class="slide" id="solution-1" title="Basic Solution" clicks="13">
-		<g id="sol-bullets" class="bullets" y="175">
-We can solve this problem by storing :orange:{N} timestamps:
-  :When a timestamp goes out of range on the left side, we@can drop it.
-
+	<g class="slide" id="solution-1" title="Stream visualization" clicks="13">
+		<g click="0" id="sol-bullets" class="bullets" y="175">
+We see timestamps stream in as a series of increasing@integers
 		</g>
 
 		<g id="num_slider"></g>
@@ -473,13 +483,13 @@ We can solve this problem by storing :orange:{N} timestamps:
 			const cs = [...colors2.values()];
 
 			for (const n of [110, 170, 235, 300, 372, 422, 476, 522, 766, 812, 844, 855, 922, 950]) {
-				document.getElementById("num_slider").insertAdjacentHTML("afterbegin", `&lt;text id="nummy-${i}" click="4" class="h3" x="${500 + 200 * i}" style="fill:${cs[i % cs.length]}" y="450" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
+				document.getElementById("num_slider").insertAdjacentHTML("afterbegin", `&lt;text id="nummy-${i}" click="2" class="h3" x="${500 + 200 * i}" style="fill:${cs[i % cs.length]}" y="450" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
 
 				if (i > 5) {
 					global_animations.push({
 						section: "solution-1",
 						selector: `#nummy-${i}`,
-						slide_num: i - 1,
+						slide_num: i - 3,
 						animation_delay: `0s`,
 						animation_duration: "10s",
 						continuous: true,
@@ -494,7 +504,7 @@ We can solve this problem by storing :orange:{N} timestamps:
 				global_animations.push({
 					section: "solution-1",
 					selector: `#nummy-${i}`,
-					slide_num: 5 + i,
+					slide_num: 3 + i,
 					animation_delay: `0s`,
 					animation_duration: "10s",
 					continuous: true,
@@ -508,7 +518,7 @@ We can solve this problem by storing :orange:{N} timestamps:
 				global_animations.push({
 					section: "solution-1",
 					selector: `#num_slider`,
-					slide_num: 4 + i,
+					slide_num: 2 + i,
 					animation_delay: `0s`,
 					animation_duration: i ? "10s" : "0s",
 					ease: "cubic-bezier(0, 1, 0, 1)",
@@ -533,9 +543,9 @@ We can solve this problem by storing :orange:{N} timestamps:
 		}</script>
 	</g>
 
-	<g class="slide" id="bucketing" title="Buckets solution" clicks="37">
+	<g class="slide" id="bucketing" title="Buckets solution" clicks="29">
 
-		<text class="h3" x="160" y="600" text-anchor="start" click="2">timestamp * 15 / 150 % 16</text>
+		<text class="h3" x="160" y="600" text-anchor="start" click="2">timestamp / 10 % 16</text>
 
 		<g id="num_slider_2"></g>
 
@@ -574,7 +584,7 @@ We can solve this problem by storing :orange:{N} timestamps:
 
 			let prev_box_id = 0;
 
-			for (const n of [0, 2, 6, 8, 11, 17, 24, 27, 28, 29, 45, 48, 49, 50, 51, 53, 55, 58, 70, 72, 123, 152, 159, 160, 215, 422, 444, 445, 450, 462, 466, 471, 475, 479]) {
+			for (const n of [0, 2, 6, 8, 11, 17, 24, 27, 28, 29, 45, 48, 49, 50, 51, 53, 55, 58, 70, 72, 123, 152, 159, 160, 215, 422]) {
 				document.getElementById("num_slider_2").insertAdjacentHTML("afterbegin", `&lt;text id="anummy-${i}" click="3" class="h3" x="${900 + 200 * i}" style="fill:${cs[i % cs.length]}" y="700" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
 
 				const cur_box_id = Math.floor(n / 10);
@@ -700,11 +710,11 @@ We can solve this problem by storing :orange:{N} timestamps:
 	</g>
 
 	<g class="slide" id="division-1" title="Division Digression I">
-		<text class="h3" x="160" y="600" text-anchor="start">timestamp * 15 / 150 % 16</text>
-		<text class="h4" x="160" y="640" text-anchor="start" click="1">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</text>
+		<text class="h3" x="160" y="600" text-anchor="start">timestamp / 10 % 16</text>
+		<text class="h4" x="160" y="640" text-anchor="start" click="1">^^^^^^^^^^^^^^^^^^^^^^^^^^^</text>
 		<text class="h4" x="750" y="680" text-anchor="start" click="1">How do we perform this calculation??</text>
 
-		<text class="h4" x="160" y="750" text-anchor="start" click="2">(((timestamp << 4) - timestamp) / 150) & 15</text>
+		<text class="h4" x="160" y="750" text-anchor="start" click="2">(timestamp / 10) & 15</text>
 	</g>
 
 	<g class="slide" id="division-2" title="Division Digression II">
@@ -780,76 +790,86 @@ foo:
 		<g class="code" x="-75" y="150" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers>
 const V = @Vector(8, u32);
 
-export fn foo(timestamp: u32) V {
+export fn foo(timestamp: u32) @Vector(8, u64) {
     return @as(V, @splat(timestamp)) /
-		@as(V, .{
-			300,
-			86400,
-			7*86400,
-			30*86400,
-			60*86400,
-			90*86400,
-			180*86400,
-			365*86400
-		});
+        @as(V, .{
+            58,
+            1372,
+            41143,
+            499200,
+            58,
+            1372,
+            41143,
+            499200,
+        });
 }
 		</g>
 <g class="code" x="-75" y="1400" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background hide-line-numbers lang="asm">
 .LCPI0_0:
-	.long   3257812231
-	.zero   4
-	.long   3474999713
-	.zero   4
-	.long   2316666475
-	.zero   4
-	.long   1142465659
-	.zero   4
+	.long   0
+	.long   0
+	.long   0
+	.long   9
+	.long   0
+	.long   0
+	.long   0
+	.long   9
 .LCPI0_1:
-	.long   458129845
-	.long   3257812231
-	.long   1861606989
-	.long   3474999713
-	.long   3474999713
-	.long   2316666475
-	.long   2316666475
-	.long   1142465659
+	.long   2369637129
+	.long   3205573259
+	.long   3420690965
+	.long   4405095
+	.long   2369637129
+	.long   3205573259
+	.long   3420690965
+	.long   4405095
+.LCPI0_2:
+	.long   3205573259
+	.zero   4
+	.long   4405095
+	.zero   4
+	.long   3205573259
+	.zero   4
+	.long   4405095
+	.zero   4
 .LCPI0_3:
+	.long   1
+	.long   9
+	.long   3
+	.long   11
 	.long   5
-	.long   16
-	.long   18
-	.long   21
-	.long   22
-	.long   22
-	.long   23
-	.long   23
+	.long   13
+	.long   7
+	.long   15
 .LCPI0_4:
-	.byte   1
-	.byte   9
-	.byte   3
-	.byte   11
-	.byte   5
-	.byte   13
-	.byte   7
-	.byte   15
+	.long   5
+	.long   10
+	.long   15
+	.long   0
+	.long   5
+	.long   10
+	.long   15
+	.long   0
 foo:
 	vpbroadcastd    ymm0, edi
-	vpmuludq        ymm1, ymm0, ymmword ptr [rip + .LCPI0_0]
-	vpmuludq        ymm0, ymm0, ymmword ptr [rip + .LCPI0_1]
-	vpmovsxbd       ymm2, qword ptr [rip + .LCPI0_4]
-	vpermi2d        ymm2, ymm0, ymm1
-	vpsrlvd ymm0, ymm2, ymmword ptr [rip + .LCPI0_3]
+	vpsrlvd ymm0, ymm0, ymmword ptr [rip + .LCPI0_0]
+	vmovdqa ymm2, ymmword ptr [rip + .LCPI0_3]
+	vpmuludq        ymm1, ymm0, ymmword ptr [rip + .LCPI0_1]
+	vpshufd ymm0, ymm0, 245
+	vpmuludq        ymm0, ymm0, ymmword ptr [rip + .LCPI0_2]
+	vpermi2d        ymm2, ymm1, ymm0
+	vpsrlvd ymm0, ymm2, ymmword ptr [rip + .LCPI0_4]
+	vpmovzxdq       zmm0, ymm0
 	ret
 </g>
 	</g>
 
 	<g class="slide" id="division-4" title="Division Digression IV">
 		<g class="bullets" y="175">
-:We can do the calculations the compiler does when we are@given an update to our time limit!
-  :See :yellow:{Integer Division by Constants: Optimal Bounds} by@Daniel Lemire, Colin Bartlett, & Owen Kaser
 :For our use case, we can do something even more efficient@and simpler!
   ::pink:{t / D} is the same as :pink:{t * (1 / D)}
   ::cyan:{t / D} is the same as :cyan:{(t * (2^{52} / D)) / 2^{52}}@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:orange:{^^^^^^ +1 for integers}
-    :Warning this technique is not sufficient precision for@all use cases. :orange:{Kids, don't try this at home!}
+    :Warning, this technique is not sufficient precision for@all use cases. :orange:{Kids, don't try this at home!}
 :We have :cyan:{vpmadd52huq} which computes a 52-bit multiply,@then takes the upper 52 bits of the 104 bit result.
   :We can use this to do 8 divisions per instruction, with@a 4 cycle latency and a throughput of 2 per cycle on@newer CPUs! In practice, we use 2 :cyan:{vpmadd52huq}'s to do@```16 divisions in 4 cycles!```
 		</g>
@@ -916,6 +936,7 @@ foo:
 		let iter = 0;
 		let iter2 = 0;
 		let y = +bulleted.getAttribute('y') - 70;
+		let x_axis = +bulleted.getAttribute('x');
 		let tmp = 0;
 
 
@@ -935,9 +956,9 @@ foo:
 			.reduce((a, c) => Math.min(a, c.length - c.trimRight().length), Number.POSITIVE_INFINITY);
 
 		function boop(x,y) {
-			return colors2.get(x);
+			const thing = colors2.get(x);
+			return thing ? `fill="${thing}"` : `class="${x}"`
 		}
-
 
 		let indentation;
 		let using_semis;
@@ -950,21 +971,33 @@ foo:
 			const use_semis = is_cont && using_semis;
 			x = x.replace(/^\$\$\$/, "");
 			x = x.slice(unnecessary_whitespace);
-			x = x.replaceAll(/^~/g, (_, spaces) => (click_offset++, ""));
+			x = x.replaceAll(/^(~+)/g, (_, x) => (click_offset += x.length, ""));
 			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + (bullets[spaces.length] ?? ""));
 			x = x.replace(/^( *)@/, (_, spaces) => "&nbsp;".repeat(spaces.length) + ((use_semis ? semicolons : {})[indentation] ?? ""));
 			x = x.replace(/^( *)/, (_, spaces) => "&nbsp;".repeat(spaces.length));
 			x = x.replaceAll(/([^\\]):([)OopPD(])(?!\w)/g, (_, char, content) => char + `&lt;tspan style="letter-spacing: -32px" rotate="90" fill=\"${'cyan'}\"&gt;&lt;tspan style="baseline-shift: 42px;"&gt;:&lt;/tspan&gt;&lt;tspan style="baseline-shift: 22px;"&gt;${content}&lt;/tspan&gt;&lt;/tspan&gt;`);
 			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
-			x = x.replaceAll(/([^\\]):(.+?):{(.+?)\}/g, (_, char, color, content) => char + `&lt;tspan fill=\"${boop(color, content)}\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/([^\\]):AT:/g, (_, char, color, content) => char + `@`);
+			x = x.replace(/^#/, '');
+			x = x.replace(/:v:/g, 'ˇ');
+			x = x.replace(/ˇ/gu, '&lt;tspan class="upside-down-caret"&gt;ˇ&lt;/tspan&gt;')
+			x = x.replace(/:\^:/g, '&lt;tspan class="rightside-up-caret"&gt;^&lt;/tspan&gt;')
+
+
+
+
+			x = x.replaceAll(/:([^:]+?):\[([^\]]+?)\]/g, (_, color, content) => `&lt;tspan ${boop(color, content)}&gt;${content}&lt;/tspan&gt;`);
+
+			x = x.replaceAll(/:([^:]+?):\{([^\}]+?)\}/g, (_, color, content) => `&lt;tspan ${boop(color, content)}&gt;${content}&lt;/tspan&gt;`);
+
 			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"stroke-rain\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll("naive", "naïve");
 			x = x.replaceAll("\\:", ":");
 
-			return `&lt;text click="${i + click_offset}" class="h4" x="30" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
+			return `&lt;text click="${i + click_offset}" class="h4" x="${x_axis + 30}" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
 		}).join("");
 		bulleted.innerHTML = my_lines;
 	}
@@ -995,6 +1028,246 @@ foo:
 </svg>
 
 <svg id="overlay" style="overflow: hidden; width: 100%;" y="5000" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
+
+	<g class="slide" id="varint-GB-decode-overlay" clicks="2">
+		<rect id="varint-GB-decode-backdrop" click="1-87" x="1215" y="490" height="1250" width="2020" style="fill: #100020F8;"/>
+
+
+		<!-- <g class="code" click="10" x="10" y="470" width="1920" line-height="60" font-size="50px" letter-spacing="-3.5px" hide-background lang="zig" hide-line-numbers>
+			ip: u32 = 3647664517
+			upper_bits: u28 = 227979032
+			prev_prefix_popcnt: u32 = 227978495
+			next_prefix_popcnt: u32 = 227978495 + 1337 + 1
+			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
+		</g> -->
+
+		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="2,4">
+.LCPI0_0:
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   0
+	.byte   8
+	.byte   16
+	.byte   24
+	.byte   32
+	.byte   40
+	.byte   48
+	.byte   56
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   1
+	.byte   9
+	.byte   17
+	.byte   25
+	.byte   33
+	.byte   41
+	.byte   49
+	.byte   57
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   2
+	.byte   10
+	.byte   18
+	.byte   26
+	.byte   34
+	.byte   42
+	.byte   50
+	.byte   58
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+	.byte   7
+.LCPI0_1:
+	.byte   0
+	.byte   7
+	.byte   8
+	.byte   7
+	.byte   16
+	.byte   7
+	.byte   24
+	.byte   7
+	.byte   32
+	.byte   7
+	.byte   40
+	.byte   7
+	.byte   48
+	.byte   7
+	.byte   56
+	.byte   7
+	.byte   1
+	.byte   7
+	.byte   9
+	.byte   7
+	.byte   17
+	.byte   7
+	.byte   25
+	.byte   7
+	.byte   33
+	.byte   7
+	.byte   41
+	.byte   7
+	.byte   49
+	.byte   7
+	.byte   57
+	.byte   7
+	.byte   2
+	.byte   7
+	.byte   10
+	.byte   7
+	.byte   18
+	.byte   7
+	.byte   26
+	.byte   7
+	.byte   34
+	.byte   7
+	.byte   42
+	.byte   7
+	.byte   50
+	.byte   7
+	.byte   58
+	.byte   7
+	.byte   64
+	.byte   7
+	.byte   72
+	.byte   7
+	.byte   80
+	.byte   7
+	.byte   88
+	.byte   7
+	.byte   96
+	.byte   7
+	.byte   104
+	.byte   7
+	.byte   112
+	.byte   7
+	.byte   120
+	.byte   7
+get_index_external:
+	mov     eax, esi
+	mov     ecx, esi
+	shr     eax, 4
+	mov     r8, qword ptr [rdi]; top_bits
+	mov     r14, qword ptr [rdi + 16]; bottom_bits
+	movzx   edx, byte ptr [rdi + 57]
+	add     rdx, rcx
+	imul    rdx, qword ptr [rdi + 48]
+	movzx   r8d, byte ptr [rdi + 56]
+	shrx    rdx, rdx, r8
+	mov     rcx, qword ptr [rdi + 32]; index
+	mov     rcx, qword ptr [rcx + 8*rdx]
+	mov     rdx, rcx
+	shr     rdx, 32
+	mov     r8d, ecx
+	and     r8d, 2047
+	lea     r8d, [rdx + r8 + 1]
+	shr     ecx, 11
+	cmp     eax, r8d
+	cmovb   r8d, edx
+	sbb     ecx, -1
+	mov     edx, eax
+	sub     edx, r8d
+	shl     ecx, 8
+	vpopcntq        zmm0, zmmword ptr [r8 + rcx + 192]
+	vpopcntq        zmm1, zmmword ptr [r8 + rcx]
+	vpopcntq        zmm2, zmmword ptr [r8 + rcx + 128]
+	vpopcntq        zmm3, zmmword ptr [r8 + rcx + 64]
+	vpsllq  zmm3, zmm3, 8
+	vpsllq  zmm2, zmm2, 16
+	vpternlogq      zmm2, zmm3, zmm1, 254
+	vmovdqa64       zmm1, zmmword ptr [rip + .LCPI0_0]
+	vpermb  zmm1, zmm1, zmm2
+	vpxor   xmm3, xmm3, xmm3
+	vpsadbw zmm1, zmm1, zmm3
+	vshufi64x2      zmm4, zmm1, zmm1, 144
+	vpaddq  zmm4, zmm1, zmm4
+	vinserti64x4    zmm1, zmm3, ymm1, 1
+	vpaddq  zmm1, zmm4, zmm1
+	vmovdqa64       zmm4, zmmword ptr [rip + .LCPI0_1]
+	vpermi2b        zmm4, zmm2, zmm0
+	vpaddw  zmm0, zmm4, zmm1
+	vpslldq zmm1, zmm0, 2
+	vpaddw  zmm0, zmm1, zmm0
+	vpslldq zmm1, zmm0, 4
+	vpaddw  zmm0, zmm1, zmm0
+	vpslldq zmm1, zmm0, 8
+	vpaddw  zmm0, zmm1, zmm0
+	vpbroadcastw    zmm1, edx
+	vpcmpltuw       k1, zmm1, zmm0
+	valignq zmm1, zmm0, zmm3, 6
+	vpalignr        zmm0, zmm0, zmm1, 14
+	vpcompressw     zmm0 {k1} {z}, zmm0
+	vmovd   r10d, xmm0 ; vpextrw r10d, xmm0, 0
+	sub     edx, r10d
+	kmovd   r9d, k1
+	tzcnt   r9d, r9d
+	lea     r9, [rcx + 8*r9]
+	mov     r11, qword ptr [r8 + r9]; chunk_u64
+	mov     ecx, 1
+	shlx    rcx, rcx, rdx
+	pdep    rcx, rcx, r11
+	tzcnt   rdx, rcx
+	sub     edx, eax
+	lea     r12d, [rdx + 8*r9]
+	mov     r8d, dword ptr [r8 + r9 + 8]
+	lzcnt   rcx, rcx
+	shld    r8, r11, cl
+	tzcnt   eax, r8d
+	mov     r8d, r12d
+	shr     r8d
+	mov     r9, qword ptr [r14 + r8]
+	movzx   edi, byte ptr [r14 + r8 + 8]
+	shld    rdi, r9, 60
+	test    dl, 1
+	cmove   rdi, r9
+	and     esi, 15
+	movabs  rdx, 0x1111111111111111
+	imul    rdx, rsi
+	xor     rdx, rdi
+	movabs  rsi, 0x8888888888888888
+	andn    rdi, rsi, rdx
+	andn    rdx, rdx, rsi
+	sub     rsi, rdi
+	and     rdx, rsi
+	tzcnt   rdx, rdx
+	shr     edx, 2
+	add     r12d, edx
+	cmp     eax, edx
+	mov     rax, -1
+	cmova   rax, r12
+	vzeroupper
+	ret
+		</g>
+	</g>
 </svg>
 
 <style>
@@ -1452,8 +1725,8 @@ foo:
 	const container = document.getElementById("container");
 	const overlay = document.getElementById("overlay");
 	const slide_elements = [...container.children];
+	const overlay_elements_raw = slide_elements.map(e => document.getElementById(e.id + "-overlay"));
 	const overlay_elements = slide_elements.map(e => document.getElementById(e.id + "-overlay") || (() => {
-		// console.log(e);
 		overlay.insertAdjacentHTML("beforeend", `<g class="slide" id="${e.id}-overlay"></g>`)
 		return document.getElementById(`${e.id}-overlay`);
 	})());
@@ -1495,44 +1768,50 @@ function springTween(line, from, to, opts = {}) {
 
   const stiffness = opts.stiffness ?? STIFFNESS_DEFAULT;   // spring strength (per second)
   const damping   = opts.damping   ?? DAMPING_DEFAULT;    // damping (per second)
+  const delay   = opts.delay   ?? 0;    // damping (per second)
 
   const my_thread_id = my_thread.id;
   let lastTime = null;
 
   function animate(timestamp) {
-    if (lastTime === null) lastTime = timestamp;
+    if (lastTime === null) lastTime = timestamp + delay * 1000;
+	let done = false;
+	if (timestamp >= lastTime) {
+		const deltaMs = timestamp - lastTime;
+		const dt = deltaMs / 500;       // convert to seconds
+		lastTime = timestamp;
 
-    const deltaMs = timestamp - lastTime;
-    const dt = deltaMs / 500;       // convert to seconds
-    lastTime = timestamp;
+		done = true;
 
-    let done = true;
+		if (my_thread_id === my_thread.id) {
+			line.setAttribute("opacity", 1);
+			for (let key in state) {
+				// displacement
+				const dist = to[key] - state[key];
 
-    if (my_thread_id === my_thread.id) {
-      for (let key in state) {
+				// spring force (Hooke's law) scaled by dt
+				const springForce = dist * stiffness;
 
-        // displacement
-        const dist = to[key] - state[key];
+				// damping force scaled by velocity
+				const dampingForce = velocity[key] * damping;
 
-        // spring force (Hooke's law) scaled by dt
-        const springForce = dist * stiffness;
+				// acceleration
+				const accel = springForce - dampingForce;
 
-        // damping force scaled by velocity
-        const dampingForce = velocity[key] * damping;
+				// integrate velocity & position
+				velocity[key] += accel * dt;
+				state[key] += velocity[key] * dt;
 
-        // acceleration
-        const accel = springForce - dampingForce;
-
-        // integrate velocity & position
-        velocity[key] += accel * dt;
-        state[key] += velocity[key] * dt;
-
-        // check if still moving noticeably
-        if (Math.abs(dist) > 0.1 || Math.abs(velocity[key]) > 0.01) {
-          done = false;
-        }
-      }
-    }
+				// check if still moving noticeably
+				if (Math.abs(dist) > 0.1 || Math.abs(velocity[key]) > 0.01) {
+					done = false;
+				}
+			}
+		}
+	} else {
+		if (my_thread_id === my_thread.id)
+  			line.setAttribute("opacity", 0);
+	}
 
     if (done) {
       applyState(line, to);
@@ -1542,7 +1821,11 @@ function springTween(line, from, to, opts = {}) {
     }
   }
 
-  requestAnimationFrame(animate);
+  if (from.x1 !== to.x1 ||
+  	  from.x2 !== to.x2 ||
+  	  from.y1 !== to.y1 ||
+  	  from.y2 !== to.y2)
+  	requestAnimationFrame(animate);
 }
 
 
@@ -1585,11 +1868,13 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 
 					//console.log({map});
 					const thread_incrementers = new Set();
+					let incr = 0;
 
 					for (const [i, data] of map.entries()) {
 						if (data) {
 							const damping = data.damping ?? grandchild.getAttribute("damping") ?? DAMPING_DEFAULT;
 							const stiffness = data.stiffness ?? grandchild.getAttribute("stiffness") ?? STIFFNESS_DEFAULT;
+							const delay = 2 !== ++incr ? 0 : +(data.delay ?? grandchild.getAttribute("delay") ?? "0");
 							const [x1, x2, y1=250, y2=429-50] = data;
 							// console.log({x1, x2,y1,y2});
 							thread_incrementers.add(i);
@@ -1608,7 +1893,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 										x2: +x2,
 										y2: +y2,
 									},
-									{ stiffness, damping });
+									{ stiffness, damping, delay });
 							});
 						}
 					}
@@ -1644,7 +1929,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 
 				if (click2) {
 					child_state_transitions[click2]?.push(hide_slide);
-					child_state_transitions[click2 - 1].push(unhide_slide);
+					child_state_transitions[click2 - 1]?.push(unhide_slide);
 				}
 			}
 			current_click_num = recursivelyHandleChildren(child_state_transitions, grandchild, current_click_num);
@@ -1688,7 +1973,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				if (!is_overlay) state_transitions.set(id, child_state_transitions);
 
 				child_state_transitions[0].push(() => {
-					child.removeAttribute("hidden")
+					if (!is_overlay || overlay_elements_raw[i]) child.removeAttribute("hidden");
+					if (is_overlay && !overlay_elements_raw[i]) overlay.setAttribute("hidden", "");
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 					if (!is_overlay)
@@ -1696,7 +1982,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				});
 
 				child_state_transitions[num_clicks - 1].push(() => {
-					child.removeAttribute("hidden")
+					if (!is_overlay || overlay_elements_raw[i]) child.removeAttribute("hidden");
+					if (is_overlay && !overlay_elements_raw[i]) overlay.setAttribute("hidden", "");
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 				});
@@ -1865,7 +2152,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					scrollElementOffsetAnimated(document.querySelector(selectors_arr[i]),
 								// offset from top
 								70,
-								5000, sections_arr[i]);
+								1000, sections_arr[i]);
 				});
 		}
 
