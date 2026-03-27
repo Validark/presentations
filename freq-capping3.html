@@ -322,12 +322,12 @@
 			["red-orange", "rgb(240, 86, 39)"],
 			["blue", "rgb(0, 100, 255)"],
 			["yellow", "rgb(255, 255, 102)"],
+			["dark-green", "rgb(18, 188, 16)"],
 			["green", "rgb(50, 255, 50)"],
-			["cyan", "rgb(0, 255, 255)"],
 			["orange", "rgb(255, 177, 100)"],
 			["pink", "rgb(255, 112, 255)"],
+			["cyan", "rgb(0, 255, 255)"],
 			["white", "rgb(255, 255, 255)"],
-			["dark-green", "rgb(18, 188, 16)"],
 			["gold", "rgb(255, 215, 20)"],
 			["red", "rgb(255, 99, 132)"],
 
@@ -543,8 +543,7 @@ We see timestamps stream in as a series of increasing@integers
 		}</script>
 	</g>
 
-	<g class="slide" id="bucketing" title="Buckets solution" clicks="29">
-
+	<g class="slide" id="bucketing" title="Buckets solution" clicks="30">
 		<text class="h3" x="160" y="600" text-anchor="start" click="2">timestamp / 10 % 16</text>
 
 		<g id="num_slider_2"></g>
@@ -584,7 +583,7 @@ We see timestamps stream in as a series of increasing@integers
 
 			let prev_box_id = 0;
 
-			for (const n of [0, 2, 6, 8, 11, 17, 24, 27, 28, 29, 45, 48, 49, 50, 51, 53, 55, 58, 70, 72, 123, 152, 159, 160, 215, 422]) {
+			for (const n of [0, 2, 6, 8, 11, 17, 24, 27, 28, 29, 45, 48, 49, 50, 51, 53, 55, 58, 70, 72, 123, 152, 159, 160, 169, 215, 422]) {
 				document.getElementById("num_slider_2").insertAdjacentHTML("afterbegin", `&lt;text id="anummy-${i}" click="3" class="h3" x="${900 + 200 * i}" style="fill:${cs[i % cs.length]}" y="700" text-anchor="middle"&gt;${n}&lt;/text&gt;`);
 
 				const cur_box_id = Math.floor(n / 10);
@@ -657,7 +656,7 @@ We see timestamps stream in as a series of increasing@integers
 						}
 					});
 				}
-				console.log('done');
+				<!-- console.log('done'); -->
 				prev_box_id = cur_box_id;
 
 
@@ -708,7 +707,7 @@ We see timestamps stream in as a series of increasing@integers
 
 		}</script>
 	</g>
-
+<!--
 	<g class="slide" id="division-1" title="Division Digression I">
 		<text class="h3" x="160" y="600" text-anchor="start">timestamp / 10 % 16</text>
 		<text class="h4" x="160" y="640" text-anchor="start" click="1">^^^^^^^^^^^^^^^^^^^^^^^^^^^</text>
@@ -873,8 +872,8 @@ foo:
 :We have :cyan:{vpmadd52huq} which computes a 52-bit multiply,@then takes the upper 52 bits of the 104 bit result.
   :We can use this to do 8 divisions per instruction, with@a 4 cycle latency and a throughput of 2 per cycle on@newer CPUs! In practice, we use 2 :cyan:{vpmadd52huq}'s to do@```16 divisions in 4 cycles!```
 		</g>
-	</g>
-
+	</g> -->
+<!--
 	<g class="slide" id="bit-manip">
 		<g class="code" x="-75" y="20" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" hide-line-numbers steps="1,2,3,4,5,6,9,8:4,8:4,8:4,8:4">
 		const V = @Vector(8, u64);
@@ -893,24 +892,187 @@ foo:
 		<text class="h3" x="460" y="1100" text-anchor="start" click="8-9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1111111111110000</text>
 		<text class="h3" x="460" y="1100" text-anchor="start" click="9">rotl(1111111111110000, 5)</text>
 		<text class="h3" x="460" y="1175" text-anchor="start" click="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1111111000011111</text>
+	</g> -->
+
+	<g class="slide" id="interleaving" title="Time flies like an arrow">
+		<text class="h2" x="980" y="180" text-anchor="middle">fruit flies like a banana</text>
+		<script>{
+			const X = 0;
+			let q = 0;
+			let offset = 0;
+			const H = 98-68;
+			const H2 = 100-68;
+			const strs = [];
+			const p = [[], [], [], []];
+			const DATA = [{
+				R: 11,
+				D: 8*4*4*1.4 + 2,
+				S: 8*4*4*1.4,
+				c: "rgb(255, 112, 255)"
+			}, {
+				R: 16,
+				D: 8*4*4 + 2,
+				S: 8*4*4,
+				c: "rgb(0, 255, 255)"
+			}, {
+				R: 59,
+				D: 8*4 + 2,
+				S: 8*4,
+				c: "rgb(255, 177, 100)"
+			}, {
+				R: 197,
+				D: 10,
+				S: 8,
+				c: "hsl(265, 89%, 78%)"
+			}];
+			for (const {R, D, S, c} of DATA) {
+				strs.push(`&lt;g&gt;${new Array(R).fill().map((_, i) => {
+					const x1 = X + D * i;
+					const x2 = x1 + S;
+					p[q][i] = [x1, x2]
+					return `&lt;path id="boxx-${q}-${i}" class="box" style="opacity: 1" d="M ${X + D * i} ${offset + 400} h ${S} v ${H} h -${S} Z" /&gt;`;
+				}).join("\n")}&lt;/g&gt;`);
+				offset += H2;
+				q++;
+			}
+			<!-- console.log(p); -->
+			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", `&lt;rect id="scan-line" y="380" height="${offset+20-2+20}" width="2" fill="red" &gt;&lt;/rect&gt;`);
+			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", strs.join(''));
+
+			{
+				const duration = 60 * 1000;
+				const scan_line = document.getElementById("scan-line");
+				const layers = new Array(4).fill().map((_, j) => new Array(DATA[j].R).fill().map((_, i) => document.getElementById(`boxx-${j}-${i}`)));
+				let ps
+				let startTime;
+
+				function restart() {
+					startTime = 0;
+					ps = new Array(4).fill(0);
+					for (let j = 0; j < 4; j++) {
+						for (const item of layers[j]) {
+							item.setAttribute("fill", DATA[j].c);
+						}
+					}
+				}
+
+				restart();
+
+				function step(timestamp) {
+					if (container.getAttribute("slide") !== "interleaving") {
+						restart()
+						return;
+					}
+					if (!startTime) startTime = timestamp;
+					const elapsed = timestamp - startTime;
+
+
+					const x_pos = 820 + elapsed * 0.01;
+					//const x_pos = -20 + elapsed * 0.1;
+					scan_line.setAttribute("x", x_pos);
+
+					for (let j = 0; j < 4; j++) {
+						for (; x_pos >= p[j][ps[j]][1] + 0; ps[j]++);
+						let i = 0;
+						const psj = ps[j];
+
+						for (i = 0; i < 5 && psj - i >= 0; i++)
+							layers[j][psj - i].setAttribute("fill", "rgb(240, 86, 39)");
+
+						for (; psj - i >= 0; i++)
+							layers[j][psj - i].setAttribute("fill", DATA[j].c);
+					}
+
+					requestAnimationFrame(step);
+				}
+
+
+				post_processes.push(() => {
+					state_transitions.set("interleaving", [[() => {
+						restart();
+						requestAnimationFrame(step);
+					}]]);
+				})
+			}
+		}</script>
 	</g>
 
-	<g class="slide" id="interleaving" title="Doing it with SIMD">
-		<script>{
-			const R = 64;
-			const D = 29;
-			const S = D * 16 / 18;
+	<g class="slide" id="structure-overview" title="Structure overview">
+		<g class="bullets" y="175">
+Per IPv4 address, we want to track impressions at the@campaign and line item levels. To do so, we employ structures@optimized for different amounts of data.
+		</g>
 
-			const X = 30;
+		<g class="bullets" x="100" y="680" click="4">
+ ::orange:[Large] - Have buckets of counts per line item
+		</g>
 
-			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", `&lt;g id="non-interleaved-boxes" click&gt;${new Array(8*64).fill().map((_, i) => {
-				return `&lt;path class="box" fill="${[...colors2.values()][Math.floor(i / R)]}" d="M ${X + D * (i % R)} ${300 + (D * Math.floor(i / R))} h ${S} v ${S} h -${S} Z" /&gt;`;
-			}).join("\n")}&lt;/g&gt;`);
+<g class="bullets" x="100" y="600" click="5">
+ ::pink:[Medium] - The subject of a future demo
+		</g>
 
-			document.getElementById("non-interleaved-boxes").insertAdjacentHTML("afterbegin", `&lt;g click&gt;${new Array(8*64).fill().map((_, i) => {
-				return `&lt;path class="box" fill="${[...colors2.values()][Math.floor(i / 8 % 8)]}" d="M ${X + D * (i % R)} ${600 + (D * Math.floor(i / R))} h ${S} v ${S} h -${S} Z" /&gt;`;
-			}).join("\n")}&lt;/g&gt;`);
-		}</script>
+		<g class="bullets" x="100" y="350" click="6">
+ ::red:[Mini] - In lieu of a pointer, we just store timestamp &@line-item-id uncompressed
+ ::cyan:[Small] - Store timestamps as bytes by campaign, and store@line-item-id's as bytes in an associated array
+ 		</g>
+	</g>
+
+
+	<g class="slide" id="timestamp-anatomy" title="Anatomy of a timestamp">
+		<g class="bullets" y="175">
+A timestamp is a byte comprised of two parts:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[2-bit layer :v::v:]@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[10]:orange:[011011]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:orange:[:^::^::^::^::^::^: bucket]
+		</g>
+
+		<rect class="layer-outline" x="3" y="485" height="5" width="1914" fill="rgb(255, 112, 255)" stroke-width="4"></rect>
+		<rect class="layer-outline" x="3" y="535" height="5" width="1914" fill="rgb(255, 99, 132)" stroke-width="4"></rect>
+		<rect class="layer-outline" x="3" y="585" height="5" width="1914" fill="rgb(0, 255, 255)" stroke-width="4"></rect>
+		<rect class="layer-outline" x="3" y="635" height="5" width="1914" fill="rgb(50, 255, 50)" stroke-width="4"></rect>
+
+		<g class="bullets" id="L1" x="-28" y="475" click="5">
+		:pink:[00]:orange:[011011]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:pink:[00]:orange:[000101]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		</g>
+
+		<g class="bullets" id="L2" x="-28" y="475" click="5">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:red:[01]:orange:[011100]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		</g>
+
+		<g class="bullets" id="L3" x="-28" y="475" click="5">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[10]:orange:[000101]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:cyan:[10]:orange:[000101]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		</g>
+
+		<g class="bullets" id="L4" x="-28" y="475" click="5">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:green:[11]:orange:[000101]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:green:[11]:orange:[000101]
+		</g>
+
+
+		<script>
+			for (let i = 0; i < 4; i++)
+				global_animations.push({
+					section: "timestamp-anatomy",
+					selector: `#L${i + 1}`,
+					slide_num: 5,
+					animation_delay: `4.5s`,
+					animation_duration: "2s",
+					continuous: true,
+					keyframes: {
+						0:   { transform: `translateY(75px)` },
+						100: { transform: `translateY(${i * 50}px)` },
+					}
+				})
+
+			global_animations.push({
+				section: "timestamp-anatomy",
+				selector: `.layer-outline`,
+				slide_num: 5,
+				animation_delay: `5s`,
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:   { opacity: 0 },
+					100: { opacity: 1 },
+				}
+			})
+		</script>
 	</g>
 
 	<g class="slide" id="end">
@@ -932,7 +1094,8 @@ foo:
 	};
 
 	for (const bulleted of document.getElementsByClassName("bullets")) {
-		let click_offset = 1;
+
+		let click_offset = +(bulleted.getAttribute("click") ?? 1);
 		let iter = 0;
 		let iter2 = 0;
 		let y = +bulleted.getAttribute('y') - 70;
@@ -996,7 +1159,7 @@ foo:
 			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll("naive", "naïve");
 			x = x.replaceAll("\\:", ":");
-
+console.log("click_offset", click_offset);
 			return `&lt;text click="${i + click_offset}" class="h4" x="${x_axis + 30}" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
 		}).join("");
 		bulleted.innerHTML = my_lines;
@@ -1969,7 +2132,17 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				arr.push(child);
 				slidesById.set(id_without_overlay, arr);
 
-				const child_state_transitions = is_overlay ? state_transitions.get(id_without_overlay) : new Array(num_clicks).fill(0).map(() => []);
+				const child_state_transitions = state_transitions.get(id_without_overlay) ?? [];
+				if (!is_overlay) {
+					// while (child_state_transitions.length < num_clicks)
+					// 	child_state_transitions.push([]);
+
+					for (let j = 0; j < num_clicks; j++)
+						child_state_transitions[j] ??= [];
+
+				}
+
+				// const child_state_transitions = is_overlay ? state_transitions.get(id_without_overlay) : new Array(num_clicks).fill(0).map(() => []);
 				if (!is_overlay) state_transitions.set(id, child_state_transitions);
 
 				child_state_transitions[0].push(() => {
