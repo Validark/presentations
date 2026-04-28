@@ -352,13 +352,13 @@
       <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(255, 177, 100)"/>
     </marker>
   </defs>
-		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">Frequency</text>
-		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">Capping</text>
+		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">AVX-512</text>
+		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">Palate</text>
 
 		<g class="title-line">
-			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">in &nbsp;&nbsp;&nbsp;</text>
+			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">Cleanse</text>
 
-			<svg id="zig-logo" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 154 140" height="280" width="280" x="965" y="500">
+			<!-- <svg id="zig-logo" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 154 140" height="280" width="280" x="965" y="500">
 				<g fill="#F7A41D">
 					<g id="logo-left-side">
 						<polygon points="46,22 28,44 19,30"></polygon>
@@ -378,12 +378,12 @@
 						<polygon points="125,95 130,110 106,117"></polygon>
 					</g>
 				</g>
-			</svg>
+			</svg> -->
 		</g>
 
-		<text class="h2" id="by-line-1" x="960" y="875" text-anchor="middle">by Niles Salter</text>
+		<text class="h2" id="by-line-1" x="960" y="875" text-anchor="middle">(and data structures)</text>
 		<text class="h3" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="stroke: rgb(0, 255, 255);
-		stroke-width: 2px">https://validark.dev</tspan></text>
+		stroke-width: 2px">f r e q u e n c y&nbsp;&nbsp;c a p p i n g</tspan></text>
 
 		<script>
 			const EXTRA_DELAY = 0.25;
@@ -460,17 +460,17 @@
 		</script>
 	</g>
 
-	<g class="slide" id="intro" title="The problem">
+	<g class="slide" id="intro" title="The goal">
 		<g class="bullets" y="175">
 Customers can set limits for how often each :cyan:{IPv4 address}@can be shown an :orange:{impression}. E.g.:
  &nbsp;&nbsp;&nbsp;i. &nbsp;&nbsp;1 per minute@&nbsp;&nbsp;ii. &nbsp;10 per hour@&nbsp;iii. 100 per week
-Example impression timestamps:
+<!-- Example impression timestamps:
                 : :red:{110}&nbsp;&nbsp;:green:{135}&nbsp;&nbsp;:yellow:{140}&nbsp;&nbsp;:pink:{162}&nbsp;&nbsp;:blue:{187}
-If we have a limit of :orange:{1 per minute}, we will have spaced these@out more.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:blue:{187}&nbsp;&nbsp;:pink:{250}&nbsp;&nbsp;:yellow:{312}&nbsp;&nbsp;:green:{386}
+If we have a limit of :orange:{1 per minute}, we want to space these@out more.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                 :red:{110}&nbsp;&nbsp;:blue:{187}&nbsp;&nbsp;:pink:{250}&nbsp;&nbsp;:yellow:{312}&nbsp;&nbsp;:green:{386} -->
 		</g>
 	</g>
-
+<!--
 	<g class="slide" id="solution-1" title="Stream visualization" clicks="13">
 		<g click="0" id="sol-bullets" class="bullets" y="175">
 We see timestamps stream in as a series of increasing@integers
@@ -531,17 +531,17 @@ We see timestamps stream in as a series of increasing@integers
 
 				++i;
 			}
-			<!-- bullet_post_processes.push(() => {
-				const p = document.getElementById("sol-bullets");
-				const x = p.children[3];
-				let i = 0;
-				for (const y of x.children) {
-					const id = y.id = "noodley_" + i++;
-
-				}
-			}) -->
 		}</script>
-	</g>
+	</g> -->
+	<!-- bullet_post_processes.push(() => {
+		const p = document.getElementById("sol-bullets");
+		const x = p.children[3];
+		let i = 0;
+		for (const y of x.children) {
+			const id = y.id = "noodley_" + i++;
+
+		}
+	}) -->
 
 	<g class="slide" id="bucketing" title="Buckets solution" clicks="30">
 		<text class="h3" x="160" y="600" text-anchor="start" click="2">timestamp / 10 % 16</text>
@@ -894,109 +894,6 @@ foo:
 		<text class="h3" x="460" y="1175" text-anchor="start" click="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1111111000011111</text>
 	</g> -->
 
-	<g class="slide" id="interleaving" title="Time flies like an arrow">
-		<text class="h2" x="980" y="180" text-anchor="middle">fruit flies like a banana</text>
-		<script>{
-			const X = 0;
-			let q = 0;
-			let offset = 0;
-			const H = 98-68;
-			const H2 = 100-68;
-			const strs = [];
-			const p = [[], [], [], []];
-			const DATA = [{
-				R: 11,
-				D: 8*4*4*1.4 + 2,
-				S: 8*4*4*1.4,
-				c: "rgb(255, 112, 255)"
-			}, {
-				R: 16,
-				D: 8*4*4 + 2,
-				S: 8*4*4,
-				c: "rgb(0, 255, 255)"
-			}, {
-				R: 59,
-				D: 8*4 + 2,
-				S: 8*4,
-				c: "rgb(255, 177, 100)"
-			}, {
-				R: 197,
-				D: 10,
-				S: 8,
-				c: "hsl(265, 89%, 78%)"
-			}];
-			for (const {R, D, S, c} of DATA) {
-				strs.push(`&lt;g&gt;${new Array(R).fill().map((_, i) => {
-					const x1 = X + D * i;
-					const x2 = x1 + S;
-					p[q][i] = [x1, x2]
-					return `&lt;path id="boxx-${q}-${i}" class="box" style="opacity: 1" d="M ${X + D * i} ${offset + 400} h ${S} v ${H} h -${S} Z" /&gt;`;
-				}).join("\n")}&lt;/g&gt;`);
-				offset += H2;
-				q++;
-			}
-			<!-- console.log(p); -->
-			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", `&lt;rect id="scan-line" y="380" height="${offset+20-2+20}" width="2" fill="red" &gt;&lt;/rect&gt;`);
-			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", strs.join(''));
-
-			{
-				const duration = 60 * 1000;
-				const scan_line = document.getElementById("scan-line");
-				const layers = new Array(4).fill().map((_, j) => new Array(DATA[j].R).fill().map((_, i) => document.getElementById(`boxx-${j}-${i}`)));
-				let ps
-				let startTime;
-
-				function restart() {
-					startTime = 0;
-					ps = new Array(4).fill(0);
-					for (let j = 0; j < 4; j++) {
-						for (const item of layers[j]) {
-							item.setAttribute("fill", DATA[j].c);
-						}
-					}
-				}
-
-				restart();
-
-				function step(timestamp) {
-					if (container.getAttribute("slide") !== "interleaving") {
-						restart()
-						return;
-					}
-					if (!startTime) startTime = timestamp;
-					const elapsed = timestamp - startTime;
-
-
-					const x_pos = 820 + elapsed * 0.01;
-					//const x_pos = -20 + elapsed * 0.1;
-					scan_line.setAttribute("x", x_pos);
-
-					for (let j = 0; j < 4; j++) {
-						for (; x_pos >= p[j][ps[j]][1] + 0; ps[j]++);
-						let i = 0;
-						const psj = ps[j];
-
-						for (i = 0; i < 5 && psj - i >= 0; i++)
-							layers[j][psj - i].setAttribute("fill", "rgb(240, 86, 39)");
-
-						for (; psj - i >= 0; i++)
-							layers[j][psj - i].setAttribute("fill", DATA[j].c);
-					}
-
-					requestAnimationFrame(step);
-				}
-
-
-				post_processes.push(() => {
-					state_transitions.set("interleaving", [[() => {
-						restart();
-						requestAnimationFrame(step);
-					}]]);
-				})
-			}
-		}</script>
-	</g>
-
 	<g class="slide" id="structure-overview" title="Structure overview">
 		<g class="bullets" y="175">
 Per IPv4 address, we want to track impressions at the@campaign and line item levels. To do so, we employ structures@optimized for different amounts of data.
@@ -1074,6 +971,133 @@ A timestamp is a byte comprised of two parts:
 			})
 		</script>
 	</g>
+
+		<g class="slide" id="interleaving" title="Time flies like an arrow">
+		<text id="fruit-flies" class="h2" x="980" y="180" text-anchor="middle">fruit flies like a banana</text>
+		<script>
+			global_animations.push({
+				section: "interleaving",
+				selector: `#fruit-flies`,
+				slide_num: 0,
+				animation_delay: `10s`,
+				animation_duration: ".5s",
+				continuous: true,
+				keyframes: {
+					0:   { opacity: 0 },
+					100: { opacity: 1 },
+				}
+			})
+		</script>
+		<script>{
+			const X = 0;
+			let q = 0;
+			let offset = 0;
+			const H = 98-68;
+			const H2 = 100-68;
+			const strs = [];
+			const p = [[], [], [], []];
+			const DATA = [{
+				R: 20,
+				D: 240,
+				S: 238,
+				c: "rgb(255, 112, 255)"
+			}, {
+				R: 20,
+				D: 120,
+				S: 118,
+				c: "rgb(0, 255, 255)"
+			}, {
+				R: 70,
+				D: 30,
+				S: 28,
+				c: "rgb(255, 177, 100)"
+			}, {
+				R: 230,
+				D: 10,
+				S: 8,
+				c: "hsl(265, 89%, 78%)"
+			}];
+			for (const {R, D, S, c} of DATA) {
+				strs.push(`&lt;g&gt;${new Array(R).fill().map((_, i) => {
+					const x1 = X + D * i;
+					const x2 = x1 + S;
+					p[q][i] = [x1, x2]
+					return `&lt;path id="boxx-${q}-${i}" class="box" style="opacity: 1" d="M ${X + D * i} ${offset + 400} h ${S} v ${H} h -${S} Z" /&gt;`;
+				}).join("\n")}&lt;/g&gt;`);
+				offset += H2;
+				q++;
+			}
+			<!-- console.log(p); -->
+			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", `&lt;rect id="scan-line" y="380" height="${offset+20-2+20}" width="2" fill="red" &gt;&lt;/rect&gt;`);
+			document.getElementById("interleaving").insertAdjacentHTML("afterbegin", strs.join(''));
+
+			{
+				const duration = 60 * 1000;
+				const scan_line = document.getElementById("scan-line");
+				const layers = new Array(4).fill().map((_, j) => new Array(DATA[j].R).fill().map((_, i) => document.getElementById(`boxx-${j}-${i}`)));
+				let ps
+				let startTime;
+
+				function restart() {
+					startTime = 0;
+					ps = new Array(4).fill(0);
+					for (let j = 0; j < 4; j++) {
+						for (const item of layers[j]) {
+							item.setAttribute("fill", DATA[j].c);
+						}
+					}
+				}
+
+				restart();
+
+				function step(timestamp) {
+					if (container.getAttribute("slide") !== "interleaving") {
+						restart()
+						return;
+					}
+					if (!startTime) startTime = timestamp;
+					const elapsed = timestamp - startTime;
+
+
+					const x_pos = 820 + elapsed * 0.01;
+					//const x_pos = -20 + elapsed * 0.1;
+					scan_line.setAttribute("x", x_pos);
+
+					for (let j = 0; j < 4; j++) {
+						for (; x_pos >= p[j][ps[j]][1] + 0; ps[j]++);
+						let i = 0;
+						const psj = ps[j];
+
+						for (i = 0; i < 5 && psj - i >= 0; i++)
+							layers[j][psj - i].setAttribute("fill", "rgb(240, 86, 39)");
+
+						for (; psj - i >= 0; i++)
+							layers[j][psj - i].setAttribute("fill", DATA[j].c);
+					}
+
+					requestAnimationFrame(step);
+				}
+
+
+				post_processes.push(() => {
+					state_transitions.set("interleaving", [[() => {
+						restart();
+						requestAnimationFrame(step);
+					}]]);
+				})
+			}
+		}</script>
+	</g>
+
+	<!-- <g class="slide" id="tree" clicks="18:12,25:7,31:3,44:5,55,1">
+		<g class="code" id="phase-1-code" x="0" y="0" width="1920" line-height="40" line-number-font-size="30px" line-number-letter-spacing="-3px" font-size="30px" letter-spacing="-2.25px"  line-num-indent="80" line-indent="100" hide-background lang="zig" steps="1:6,8:6,15:9,24:2,27,29:2,32:6,41,44,46:3,50:6,58:2,70,71,71,73:2,76,77,78,79,83:6,90:6,97:6,120:6,127:15">
+
+		</g>
+	<script>
+		document.getElementById("tree").setAttribute("clicks", document.getElementById("phase-1-code").getAttribute("steps"));
+	</script>
+	</g> -->
+
 
 	<g class="slide" id="end">
 		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;">fin</text>
@@ -1159,7 +1183,7 @@ A timestamp is a byte comprised of two parts:
 			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
 			x = x.replaceAll("naive", "naïve");
 			x = x.replaceAll("\\:", ":");
-console.log("click_offset", click_offset);
+
 			return `&lt;text click="${i + click_offset}" class="h4" x="${x_axis + 30}" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
 		}).join("");
 		bulleted.innerHTML = my_lines;
@@ -1191,244 +1215,157 @@ console.log("click_offset", click_offset);
 </svg>
 
 <svg id="overlay" style="overflow: hidden; width: 100%;" y="5000" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<g class="slide" id="tree-overlay" clicks="26">
+	<script>
+		document.getElementById("tree-overlay").setAttribute("clicks", document.getElementById("phase-1-code").getAttribute("steps"));
+	</script>
+	<g id="overleigh">
+		<rect id="backdrop" x="1215" y="490" height="1250" width="2020" style="fill: #100020D8;">
+			<!--  #100020D8 -->
+		</rect>
+		<text class="h3" x="1220" y="560" style="font-size: 22px"><tspan id="disappearin-ones">111111</tspan><tspan id="disappearin-ones-2">11111111</tspan>111111111111111111<tspan id="appearin-dots">......</tspan><tspan id="appearin-ones-2">11111111</tspan></text>
 
-	<g class="slide" id="varint-GB-decode-overlay" clicks="2">
-		<rect id="varint-GB-decode-backdrop" click="1-87" x="1215" y="490" height="1250" width="2020" style="fill: #100020F8;"/>
+		<text id="result-1" class="h3" x="1220" y="560" style="font-size: 22px"><tspan class="invis">111111111111111</tspan>111.....<tspan class="invis">.11111111</tspan></text>
+		<text id="result-2" class="h3" x="1220" y="560" style="font-size: 22px"><tspan class="invis">1</tspan>11111111<tspan class="invis">111111111......11111111</tspan></text>
+		<text id="result-3" class="h3" x="1220" y="560" style="font-size: 22px"><tspan class="invis">1111111111111</tspan>11111...<tspan class="invis">...11111111</tspan></text>
+
+		<!-- c: "rgb(255, 112, 255)"
+		c: "rgb(0, 255, 255)"
+		c: "rgb(255, 177, 100)"
+		c: "hsl(265, 89%, 78%)" -->
 
 
-		<!-- <g class="code" click="10" x="10" y="470" width="1920" line-height="60" font-size="50px" letter-spacing="-3.5px" hide-background lang="zig" hide-line-numbers>
-			ip: u32 = 3647664517
-			upper_bits: u28 = 227979032
-			prev_prefix_popcnt: u32 = 227978495
-			next_prefix_popcnt: u32 = 227978495 + 1337 + 1
-			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
-		</g> -->
+		<text click="18" class="h3" x="1220" y="660" style="font-size: 22px"><tspan fill="rgb(0, 255, 255)">01</tspan><tspan fill="rgb(255, 177, 100)">001001</tspan></text>
+		<text click="18" class="h3" x="1420" y="660" style="font-size: 22px"><tspan fill="rgb(255, 112, 255)">00</tspan><tspan fill="rgb(255, 177, 100)">010111</tspan></text>
+		<text click="18" class="h3" x="1620" y="660" style="font-size: 22px"><tspan fill="rgb(50, 255, 50)">11</tspan><tspan fill="rgb(255, 177, 100)">001011</tspan></text>
+		<script>
+			{
+		const X = 1220;
+		let q = 0;
+		let offset = 100;
+		const H = 98-68;
+		const H2 = 100-68;
+		const strs = [];
+		const p = [[], [], [], []];
+		const WIDTH = 19;
+		const DATA = [{
+			R: 32,
+			D: WIDTH + 2,
+			S: WIDTH,
+			c: "rgb(255, 112, 255)"
+		}];
+		for (const {R, D, S, c} of DATA) {
+			strs.push(`&lt;g&gt;${new Array(R).fill().map((_, i) => {
+				const x1 = X + D * i;
+				const x2 = x1 + S;
+				p[q][i] = [x1, x2]
+				return `&lt;path class="box" style="opacity: 1" fill="${c}" d="M ${X + D * i} ${offset + 400} h ${S} v ${H} h -${S} Z" /&gt;`;
+			}).join("\n")}&lt;/g&gt;`);
+			offset += H2;
+			q++;
+		}
 
-		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="2,4">
-.LCPI0_0:
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   0
-	.byte   8
-	.byte   16
-	.byte   24
-	.byte   32
-	.byte   40
-	.byte   48
-	.byte   56
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   1
-	.byte   9
-	.byte   17
-	.byte   25
-	.byte   33
-	.byte   41
-	.byte   49
-	.byte   57
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   2
-	.byte   10
-	.byte   18
-	.byte   26
-	.byte   34
-	.byte   42
-	.byte   50
-	.byte   58
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-	.byte   7
-.LCPI0_1:
-	.byte   0
-	.byte   7
-	.byte   8
-	.byte   7
-	.byte   16
-	.byte   7
-	.byte   24
-	.byte   7
-	.byte   32
-	.byte   7
-	.byte   40
-	.byte   7
-	.byte   48
-	.byte   7
-	.byte   56
-	.byte   7
-	.byte   1
-	.byte   7
-	.byte   9
-	.byte   7
-	.byte   17
-	.byte   7
-	.byte   25
-	.byte   7
-	.byte   33
-	.byte   7
-	.byte   41
-	.byte   7
-	.byte   49
-	.byte   7
-	.byte   57
-	.byte   7
-	.byte   2
-	.byte   7
-	.byte   10
-	.byte   7
-	.byte   18
-	.byte   7
-	.byte   26
-	.byte   7
-	.byte   34
-	.byte   7
-	.byte   42
-	.byte   7
-	.byte   50
-	.byte   7
-	.byte   58
-	.byte   7
-	.byte   64
-	.byte   7
-	.byte   72
-	.byte   7
-	.byte   80
-	.byte   7
-	.byte   88
-	.byte   7
-	.byte   96
-	.byte   7
-	.byte   104
-	.byte   7
-	.byte   112
-	.byte   7
-	.byte   120
-	.byte   7
-get_index_external:
-	mov     eax, esi
-	mov     ecx, esi
-	shr     eax, 4
-	mov     r8, qword ptr [rdi]; top_bits
-	mov     r14, qword ptr [rdi + 16]; bottom_bits
-	movzx   edx, byte ptr [rdi + 57]
-	add     rdx, rcx
-	imul    rdx, qword ptr [rdi + 48]
-	movzx   r8d, byte ptr [rdi + 56]
-	shrx    rdx, rdx, r8
-	mov     rcx, qword ptr [rdi + 32]; index
-	mov     rcx, qword ptr [rcx + 8*rdx]
-	mov     rdx, rcx
-	shr     rdx, 32
-	mov     r8d, ecx
-	and     r8d, 2047
-	lea     r8d, [rdx + r8 + 1]
-	shr     ecx, 11
-	cmp     eax, r8d
-	cmovb   r8d, edx
-	sbb     ecx, -1
-	mov     edx, eax
-	sub     edx, r8d
-	shl     ecx, 8
-	vpopcntq        zmm0, zmmword ptr [r8 + rcx + 192]
-	vpopcntq        zmm1, zmmword ptr [r8 + rcx]
-	vpopcntq        zmm2, zmmword ptr [r8 + rcx + 128]
-	vpopcntq        zmm3, zmmword ptr [r8 + rcx + 64]
-	vpsllq  zmm3, zmm3, 8
-	vpsllq  zmm2, zmm2, 16
-	vpternlogq      zmm2, zmm3, zmm1, 254
-	vmovdqa64       zmm1, zmmword ptr [rip + .LCPI0_0]
-	vpermb  zmm1, zmm1, zmm2
-	vpxor   xmm3, xmm3, xmm3
-	vpsadbw zmm1, zmm1, zmm3
-	vshufi64x2      zmm4, zmm1, zmm1, 144
-	vpaddq  zmm4, zmm1, zmm4
-	vinserti64x4    zmm1, zmm3, ymm1, 1
-	vpaddq  zmm1, zmm4, zmm1
-	vmovdqa64       zmm4, zmmword ptr [rip + .LCPI0_1]
-	vpermi2b        zmm4, zmm2, zmm0
-	vpaddw  zmm0, zmm4, zmm1
-	vpslldq zmm1, zmm0, 2
-	vpaddw  zmm0, zmm1, zmm0
-	vpslldq zmm1, zmm0, 4
-	vpaddw  zmm0, zmm1, zmm0
-	vpslldq zmm1, zmm0, 8
-	vpaddw  zmm0, zmm1, zmm0
-	vpbroadcastw    zmm1, edx
-	vpcmpltuw       k1, zmm1, zmm0
-	valignq zmm1, zmm0, zmm3, 6
-	vpalignr        zmm0, zmm0, zmm1, 14
-	vpcompressw     zmm0 {k1} {z}, zmm0
-	vmovd   r10d, xmm0 ; vpextrw r10d, xmm0, 0
-	sub     edx, r10d
-	kmovd   r9d, k1
-	tzcnt   r9d, r9d
-	lea     r9, [rcx + 8*r9]
-	mov     r11, qword ptr [r8 + r9]; chunk_u64
-	mov     ecx, 1
-	shlx    rcx, rcx, rdx
-	pdep    rcx, rcx, r11
-	tzcnt   rdx, rcx
-	sub     edx, eax
-	lea     r12d, [rdx + 8*r9]
-	mov     r8d, dword ptr [r8 + r9 + 8]
-	lzcnt   rcx, rcx
-	shld    r8, r11, cl
-	tzcnt   eax, r8d
-	mov     r8d, r12d
-	shr     r8d
-	mov     r9, qword ptr [r14 + r8]
-	movzx   edi, byte ptr [r14 + r8 + 8]
-	shld    rdi, r9, 60
-	test    dl, 1
-	cmove   rdi, r9
-	and     esi, 15
-	movabs  rdx, 0x1111111111111111
-	imul    rdx, rsi
-	xor     rdx, rdi
-	movabs  rsi, 0x8888888888888888
-	andn    rdi, rsi, rdx
-	andn    rdx, rdx, rsi
-	sub     rsi, rdi
-	and     rdx, rsi
-	tzcnt   rdx, rdx
-	shr     edx, 2
-	add     r12d, edx
-	cmp     eax, edx
-	mov     rax, -1
-	cmova   rax, r12
-	vzeroupper
-	ret
+
+		document.getElementById("backdrop").insertAdjacentHTML("afterend", strs.join(''));
+
+			global_animations.push({
+				section: "tree-overlay",
+				selector: `#disappearin-ones`,
+				slide_num: 14,
+				animation_delay: `0s`,
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:   { opacity: 1, "letter-spacing": "-1px" },
+					100: { opacity: 0, "letter-spacing": "-1em" },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#appearin-dots`,
+				slide_num: 14,
+				animation_delay: `0s`,
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0: { opacity: 0, "letter-spacing": "-1em" },
+					100:   { opacity: 1, "letter-spacing": "-1px" },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#disappearin-ones-2`,
+				slide_num: 15,
+				animation_delay: `0s`,
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0:   { opacity: 1, "letter-spacing": "-1px" },
+					100: { opacity: 0, "letter-spacing": "-1em" },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#appearin-ones-2`,
+				slide_num: 15,
+				animation_delay: `0s`,
+				animation_duration: "2s",
+				continuous: true,
+				keyframes: {
+					0: { opacity: 0, "letter-spacing": "-1em" },
+					100:   { opacity: 1, "letter-spacing": "-1px" },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#result-1`,
+				slide_num: 19,
+				animation_delay: `0s`,
+				animation_duration: "4s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translate(0, 0)" },
+					10:    { opacity: 1, fill: "rgb(0, 255, 255)" },
+					100:   { opacity: 1, transform: "translate(-315px, 140px)", fill: "rgb(0, 255, 255)"  },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#result-2`,
+				slide_num: 19,
+				animation_delay: `0s`,
+				animation_duration: "4s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translate(0, 0)" },
+					10:    { opacity: 1, fill: "rgb(255, 112, 255)" },
+					100:   { opacity: 1, transform: "translate(179px, 140px)", fill: "rgb(255, 112, 255)"  },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#result-3`,
+				slide_num: 19,
+				animation_delay: `0s`,
+				animation_duration: "4s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translate(0, 0)" },
+					10:    { opacity: 1, fill: "rgb(50, 255, 50)" },
+					100:   { opacity: 1, transform: "translate(128px, 140px)", fill: "rgb(50, 255, 50)"  },
+				}
+			}, {
+				section: "tree-overlay",
+				selector: `#overleigh`,
+				slide_num: 13,
+				animation_delay: `0s`,
+				animation_duration: "1s",
+				continuous: true,
+				keyframes: {
+					0:     { opacity: 0, transform: "translate(800px, 0)" },
+					100:   { opacity: 1, transform: "translate(0, 0)"  },
+				}
+			}
+
+			)
+			}
+
+
+		</script>
 		</g>
 	</g>
 </svg>
@@ -1537,10 +1474,6 @@ get_index_external:
 
 	.bits, .bits .code-type {
 		font-style: normal;
-	}
-
-	.line-number {
-		font-size: 45px;
 	}
 
 	.label {
@@ -1783,7 +1716,7 @@ get_index_external:
 
 			for (const [regex, name] of [
 				[/(?<!\w)(usingnamespace|linksection|threadlocal|unreachable|addrspace|allowzero|nosuspend|anyframe|callconv|comptime|continue|errdefer|noinline|volatile|anytype|noalias|suspend|export|undefined|extern|inline|opaque|orelse|packed|false|true|null|resume|return|struct|switch|align|async|await|break|catch|const|defer|error|union|while|else|enum|test|and|asm|for|pub|try|var|fn|if|or)(?!\w)/g, "keyword"],
-				[/(?<!\w)(Carry|HHID|Foo|Bar|Allocator|IndexItem|FastDivider32|IpAddress|V|T)(?!\w+)/g, "struct-type"],
+				[/(?<!\w)(Carry|HHID|Foo|Bar|Allocator|IndexItem|FastDivider32|IpAddress|V|T|V64u8|V8u64)(?!\w+)/g, "struct-type"],
 				[/@\w+/g, "builtin"],
 				[/ +/g, "space"],
 				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&le;)|(?:&ge;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[+*-]?%|\.\.\.?|[:=><!+~?|^/-]|\.(?=\*)|(?<!\.)\*/ug, "symbol-1"],
@@ -1889,6 +1822,7 @@ get_index_external:
 	const overlay = document.getElementById("overlay");
 	const slide_elements = [...container.children];
 	const overlay_elements_raw = slide_elements.map(e => document.getElementById(e.id + "-overlay"));
+	console.log(overlay_elements_raw);
 	const overlay_elements = slide_elements.map(e => document.getElementById(e.id + "-overlay") || (() => {
 		overlay.insertAdjacentHTML("beforeend", `<g class="slide" id="${e.id}-overlay"></g>`)
 		return document.getElementById(`${e.id}-overlay`);
@@ -2122,6 +2056,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				child.setAttribute("hidden", "");
 				const id = child.getAttribute("id");
 				if (id === null) throw new Error("Please add an ID to slide " + i + ` (after the slide with an id of "${elements[i - 1].id}")`);
+				console.log(is_overlay, i, id, child);
 				const id_without_overlay = id.replace("-overlay", "");
 				const click_attr = child.getAttribute("clicks");
 				const num_clicks = is_overlay ? clicks.get(id_without_overlay) : parseInt(click_attr?.split(",").length > 1 ? click_attr.split(",").length + 1 : click_attr) ||
@@ -2146,8 +2081,16 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				if (!is_overlay) state_transitions.set(id, child_state_transitions);
 
 				child_state_transitions[0].push(() => {
-					if (!is_overlay || overlay_elements_raw[i]) child.removeAttribute("hidden");
-					if (is_overlay && !overlay_elements_raw[i]) overlay.setAttribute("hidden", "");
+					if (!is_overlay || overlay_elements_raw[i]) {
+						child.removeAttribute("hidden");
+						if (is_overlay) {
+							overlay.removeAttribute("hidden");
+						}
+					}
+					if (is_overlay && !overlay_elements_raw[i]) {
+						overlay.setAttribute("hidden", "");
+						console.log("hiding overlay", i)
+					};
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 					if (!is_overlay)
@@ -2155,8 +2098,16 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				});
 
 				child_state_transitions[num_clicks - 1].push(() => {
-					if (!is_overlay || overlay_elements_raw[i]) child.removeAttribute("hidden");
-					if (is_overlay && !overlay_elements_raw[i]) overlay.setAttribute("hidden", "");
+					if (!is_overlay || overlay_elements_raw[i]) {
+						child.removeAttribute("hidden");
+						if (is_overlay) {
+							overlay.removeAttribute("hidden");
+						}
+					}
+					if (is_overlay && !overlay_elements_raw[i]) {
+						overlay.setAttribute("hidden", "");
+						console.log("hiding overlay", i)
+					};
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 				});
@@ -2355,6 +2306,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 
 		const line_num_indent = +codeblock.getAttribute("line-num-indent");
 		const hide_line_numbers = codeblock.hasAttribute("hide-line-numbers");
+		const line_number_font_size = codeblock.getAttribute("line-number-font-size");
+		const line_number_letter_spacing = codeblock.getAttribute("line-number-letter-spacing");
 
 		const line_indent = +codeblock.getAttribute("line-indent");
 		let slide = codeblock;
@@ -2376,7 +2329,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 			innerHTML += lines.map((e, i) => `<text class="line-of-code" line-no="${i-1}" x="${x + line_indent}" y="${y + (line_height*(i+1))}">${e}</text>`).join('\n');
 
 			if (!hide_line_numbers)
-				innerHTML += lines.map((_, i) => `<text class="line-number" x="${x + line_num_indent}" y="${y + (line_height*(i+1)) - 1}" text-anchor="end">${i + 1}</text>`);
+				innerHTML += lines.map((_, i) => `<text class="line-number" style="font-size: ${line_number_font_size ?? "45px"}; letter-spacing: ${line_number_letter_spacing ?? "-1px"}" x="${x + line_num_indent}" y="${y + (line_height*(i+1)) - 1}" text-anchor="end">${i + 1}</text>`);
 
 			const extra_height = y + (line_height*(lines.length));
 			const [body] = document.getElementsByTagName("body");
