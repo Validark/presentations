@@ -2154,7 +2154,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 					if (!is_overlay)
-						container.setAttribute("viewBox", `0 0 1920 ${pane_heights.get(id) || 1080}`);
+						container.setAttribute("viewBox", `0 0 1920 ${pane_heights.get(id) || 1200}`);
 				});
 
 				child_state_transitions[num_clicks - 1].push(() => {
