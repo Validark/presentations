@@ -26,7 +26,7 @@
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) text:not(.highlighted):not(.highlighted-blue),
 		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) tspan:not(.highlighted):not(.highlighted-blue)
 		{
-			animation: unhide 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 
@@ -39,7 +39,7 @@
 		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
 		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
 		{
-			animation: unhide-highlighted 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) > [click]:not([hidden]) text.highlighted-blue,
@@ -52,42 +52,42 @@
 		g.slide:not([hidden]) g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
 		g.slide > g > text > tspan > tspan.highlighted-blue
 		{
-			animation: unhide-highlighted-blue 1s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+			animation: unhide-highlighted-blue 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
 		}
 
 		g.slide:not([hidden]) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide:not(.no-slide-in):not(.no-slide-in2) {
-			animation: unhide-slide 1s ease 0s 1 forwards;
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in {
-			animation: no-unhide-slide 1s ease 0s 1 forwards;
+			animation: no-unhide-slide 0.5s ease 0s 1 forwards;
 		}
 
 		.unhide-slide.no-slide-in2 {
-			animation: no-unhide-slide2 1s ease 0s 1 forwards;
+			animation: no-unhide-slide2 0.5s ease 0s 1 forwards;
 		}
 
 		.hide-slide {
-			animation: hide-slide 1s ease 0s 1 forwards;
+			animation: hide-slide 0.5s ease 0s 1 forwards;
 		}
 
 
 		@keyframes unhide {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 0); stroke-width: 1px; }
 			100% { transform: translateY(0); stroke: rgba(255, 255, 255, 0) }
 		}
 
 		@keyframes unhide-highlighted {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 0); stroke-width: 1px; }
 			100% { transform: translateY(0); stroke: rgba(0, 255, 255, 1); stroke-width: 2px; }
 		}
 
 		@keyframes unhide-highlighted-blue {
-			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 5px; }
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 0); stroke-width: 1px; }
 			100% { transform: translateY(0); stroke: rgb(255, 177, 100); stroke-width: 2px; }
 		}
 
@@ -1415,7 +1415,10 @@ const next_positions = [
 	</g>
 
 	<g class="slide" id="elias-code" clicks="10">
-<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-height="80" line-num-indent="80" line-indent="100" hide-background lang="zig" steps="210,211,214,215,216,217,219,478:5,219,218:3,222,223:2,225,226,227:4,232:2,234,235,237,236:3,310,313,312:3,301:3,305,304:4,312:3,315:3,318,319,320:2,324,325,327,329,331:10,331:10,343,349,351:6,358:6,365:13,368:2,372:4,372:4,378,388,392,389,392,390,392,395,236:3,239,243,241:5,246,247,248:4,254,253:4,258:3,262:3,262:3,265,266:2,266:2,268,270:3,275,273:4,277,279,280,281,282,285,286,286,286,287,288:2,288:2,211,210:3">
+<g class="code" id="elias-code-block" x="0" y="0" width="1920" line-num-indent="80" line-indent="100"
+line-height="50" font-size="40px"
+letter-spacing="-3px"
+hide-background lang="zig" steps="210,211,214,215,216,217,219,478:5,219,218:3,222,223:2,225,226,227:4,232:2,234,235,237,236:3,310,313,312:3,301:3,305,304:4,312:3,315:3,318,319,320:2,324,325,327,329,331:10,331:10,343,349,351:6,358:6,365:13,368:2,372:4,372:4,378,388,392,389,392,390,392,395,236:3,239,243,241:5,246,247,248:4,254,253:4,258:3,262:3,262:3,265,266:2,266:2,268,270:3,275,273:4,277,279,280,281,282,285,286,286,286,287,288:2,288:2,211,210:3">
 /// An HHID cache that maps u32's to u16's.
 /// If we get to the point where we have billions of IP addresses
 /// in this cache, we can switch this buffer to just be a flat array
@@ -1923,7 +1926,7 @@ const FastDivider32 = struct {
 
 <svg id="overlay" style="overflow: hidden; width: 100%;" y="5000" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
 	<g class="slide" id="tree-overlay">
-		<rect id="backdrop" click="1-29" x="0" y="475" height="1250" width="22000" style="fill: #100020F8;"/>
+		<rect id="backdrop" click="1-29" x="0" y="475" height="1250" width="19200" style="fill: #100020F8;"/>
 
 		<g id="clear-me-pls">
 			<text id="bitsos" click="16" class="h3" x="12" y="619" text-anchor="start" style="letter-spacing: 14px">&nbsp;<tspan class="highlighted">111111111111</tspan>00000000000000000000</text>
@@ -2541,7 +2544,7 @@ const FastDivider32 = struct {
 			should_be_next_chunk: bool = 227979032 >= 227978495 + 1337 + 1
 		</g> -->
 
-		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:2,132:1,133:2,135:5,135:5,135:5,140:2,142:2,144:3,147,148,149,150,151:2,153,153,153,154:0,154:4,154:4,158:0,158:3,158:3,158:3,161,161,161,161,161,161,161:2,161:2,161:2,161:2,163:2,165:0,165:2,167:2,169:2,169:2,169:2,169:2,171,172:2,172:2,174:2,174:2,176:2,176:2,178:0,178:0,178:2,180:2,182:2,184,185:2,187:2,189:2,189:3,192:3,195,195,196,197,197,198,199:3,202,202:2,204:2,206,207,208,209,210,211:4,211:4,211:4,215:2,217:4,217:4,217:4,221:2">
+		<g class="code" click="1" x="1215" y="490" width="1920" line-height="40" font-size="30px" letter-spacing="-2.25px" hide-background lang="asm" hide-line-numbers mini-steps="130.5:0,130.5:0,130.5:0,130:2,132:1,133:2,135:5,135:5,135:5,140:2,142:2,144:3,147,148,149,150,151:2,153,153,153,154:0,154:4,154:4,158:0,158:3,158:3,158:3,161,161,161,161,161,161,161:2,161:2,161:2,161:2,163:2,165:0,165:2,167:2,169:2,169:2,169:2,169:2,171,172:2,172:2,174:2,174:2,176:2,176:2,178:0,178:0,178:2,180:2,182:2,184,185:2,187:2,189:2,189:3,192:3,195,195,196,197,197,198,199:3,202,202:2,204:2,206,207,208,209,210,211:2,213,214,215:2,217:4,217:4,217:4,221:2">
 .LCPI0_0:
 	.byte   7
 	.byte   7
@@ -4385,10 +4388,6 @@ get_index_external:
 		font-style: normal;
 	}
 
-	.line-number {
-		font-size: 45px;
-	}
-
 	.label {
 		font-size: 40px;
 		baseline-shift: 10px;
@@ -4579,7 +4578,7 @@ get_index_external:
 			.replaceAll(" != ", " &ne; ")
 			.replaceAll(" &lt;= ", " &le; ")
 			.replaceAll(" &gt;= ", " &ge; ")
-			.replaceAll(" == ", " &Equal; ")
+			// .replaceAll(" == ", " &Equal; ")
 			.replaceAll("&lt;", "<")
 			.replaceAll("&gt;", ">");
 
@@ -4927,7 +4926,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					if (i > 0) elements[i - 1].setAttribute("hidden", "")
 					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
 					if (!is_overlay)
-						container.setAttribute("viewBox", `0 0 1920 ${pane_heights.get(id) || 1080}`);
+						container.setAttribute("viewBox", `0 0 1920 ${pane_heights.get(id) || 1200}`);
 				});
 
 				child_state_transitions[num_clicks - 1].push(() => {
@@ -5171,6 +5170,11 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 					${font_size && `font-size: ${font_size};`}
 					${letter_spacing && `letter-spacing: ${letter_spacing};`}
 				}
+
+				#${codeblock_id} text.line-number {
+					${font_size && `font-size: ${font_size};`}
+					${letter_spacing && `letter-spacing: ${letter_spacing};`}
+				}
 				</style>
 				`);
 			}
@@ -5313,7 +5317,7 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 		}
 
 		if (steps) {
-			codeblock.insertAdjacentHTML("afterbegin", `<rect id="${codeblock_id}-rect" width="1950" fill="purple" style="opacity: 0.6"></rect>`)
+			codeblock.insertAdjacentHTML("afterbegin", `<rect id="${codeblock_id}-rect" width="19200" fill="purple" style="opacity: 0.6"></rect>`)
 			let last = 0;
 			let last_height = "0px";
 			let last_y = "0px";
