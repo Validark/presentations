@@ -5164,6 +5164,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 			}
 
 			if (font_size || letter_spacing) {
+				const [, font_size_num, font_size_unit] = font_size.match(/^(\d+)(\D+)$/) || [];
+				const [, letter_spacing_num, letter_spacing_unit] = letter_spacing.match(/^(-?\d+)(\D+)$/) || [];
 				body.insertAdjacentHTML("beforeend", `
 				<style>
 				#${codeblock_id} text.line-of-code {
@@ -5172,8 +5174,8 @@ const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
 				}
 
 				#${codeblock_id} text.line-number {
-					${font_size && `font-size: ${font_size};`}
-					${letter_spacing && `letter-spacing: ${letter_spacing};`}
+					${font_size && `font-size: ${font_size_num * 0.8}${font_size_unit};`}
+					${letter_spacing && `letter-spacing: ${letter_spacing_num * 1.25}${letter_spacing_unit};`}
 				}
 				</style>
 				`);
