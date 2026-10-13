@@ -1,0 +1,4808 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<title>IPv4 Parsing</title>
+	<link rel="stylesheet" type="text/css" href="./fonts/Iosevka/Iosevka.css">
+	<style>
+		[hidden] {
+		  display: none;
+		}
+
+		g.slide:not([hidden]) > .h2:first-child:not(.code),
+		g.slide:not([hidden]) > [click]:not([hidden]):not(.no-slide-in):not(.no-slide-in2):not(.code),
+		g.slide:not([hidden]) > [click]:not([hidden]):not(.code) text:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > [click]:not([hidden]):not(.code) tspan:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg):not(.code) text:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg):not(.code) tspan:not(.highlighted):not(.highlighted-blue),
+
+		g.slide:not([hidden]) > g:not(.no-slide-in) > .h2:first-child:not(.code),
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]):not(.no-slide-in):not(.no-slide-in2):not(.code),
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]):not(.code) text:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]):not(.code) tspan:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) text:not(.highlighted):not(.highlighted-blue),
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg):not(.code) tspan:not(.highlighted):not(.highlighted-blue)
+		{
+			animation: unhide 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+		}
+
+
+		g.slide:not([hidden]) > [click]:not([hidden]) text.highlighted,
+		g.slide:not([hidden]) > [click]:not([hidden]) tspan.highlighted,
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) text.highlighted,
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) tspan.highlighted,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted
+		{
+			animation: unhide-highlighted 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+		}
+
+		g.slide:not([hidden]) > [click]:not([hidden]) text.highlighted-blue,
+		g.slide:not([hidden]) > [click]:not([hidden]) tspan.highlighted-blue,
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) text.highlighted-blue,
+		g.slide:not([hidden]) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) text.highlighted-blue,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > [click]:not([hidden]) tspan.highlighted-blue,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) text.highlighted-blue,
+		g.slide:not([hidden]) > g:not(.no-slide-in) > :first-child:not([hidden]):not(svg) tspan.highlighted-blue,
+		g.slide > g > text > tspan > tspan.highlighted-blue
+		{
+			animation: unhide-highlighted-blue 0.5s cubic-bezier(0, 0, 0.53, 1) 0s 1 forwards;
+		}
+
+		g.slide:not([hidden]) {
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
+		}
+
+		.unhide-slide:not(.no-slide-in):not(.no-slide-in2) {
+			animation: unhide-slide 0.5s ease 0s 1 forwards;
+		}
+
+		.unhide-slide.no-slide-in {
+			animation: no-unhide-slide 0.5s ease 0s 1 forwards;
+		}
+
+		.unhide-slide.no-slide-in2 {
+			animation: no-unhide-slide2 0.5s ease 0s 1 forwards;
+		}
+
+		.hide-slide {
+			animation: hide-slide 0.5s ease 0s 1 forwards;
+		}
+
+
+		@keyframes unhide {
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
+			100% { transform: translateY(0); stroke: rgba(255, 255, 255, 0) }
+		}
+
+		@keyframes unhide-highlighted {
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
+			100% { transform: translateY(0); stroke: rgba(0, 255, 255, 1); stroke-width: 0px; }
+		}
+
+		@keyframes unhide-highlighted-blue {
+			0%   { transform: translateY(-60px); stroke: rgba(255, 255, 255, 1); stroke-width: 0px; }
+			100% { transform: translateY(0); stroke: rgb(255, 177, 100); stroke-width: 0px; }
+		}
+
+		@keyframes unhide-slide {
+			from   { transform: translateY(-60px); }
+		}
+
+		@keyframes no-unhide-slide {
+			from   { transform: translateY(60px); }
+		}
+
+		@keyframes no-unhide-slide2 {
+			/* from   { transform: translate(150px, -550px) rotate(45deg); } */
+		}
+
+		@keyframes hide-slide {
+			to   { transform: translateY(-60px); opacity: 0; }
+		}
+
+		g.slide#title {
+			animation: unhide-svg 10s cubic-bezier(0, 1, 0, 1) 0s 1 forwards !important;
+		}
+
+		@keyframes unhide-svg {
+			0%   { transform: scale(0) translate(1100px, 1600px); }
+			100% { transform: scale(1) translate(0, 0); }
+		}
+
+		@font-face {
+			font-family: 'Press Start 2P';
+			src: url('./fonts/Press_Start_2P/PressStart2P-Regular.ttf') format('truetype');
+			font-weight: 400;
+			font-style: normal;
+			font-display: block;
+		}
+
+		@font-face {
+			font-family: 'Ysabeau Office';
+			src: url('./fonts/Ysabeau_Office/static/YsabeauOffice-Regular.ttf') format('truetype');
+			font-weight: 400;
+			font-style: normal;
+			font-display: block;
+		}
+
+		@font-face {
+			font-family: 'Ysabeau Office';
+			src: url('./fonts/Ysabeau_Office/static/YsabeauOffice-Medium.ttf') format('truetype');
+			font-weight: 500;
+			font-style: normal;
+			font-display: block;
+		}
+
+		* {
+			padding: 0;
+			margin: 0;
+			box-sizing: border-box;
+		}
+
+		html, body, #container, #overlay {
+			height: 100%;
+			width: 100%;
+			font-size: 12pt
+		}
+
+		.h1, .h2, .h3, .h4 {
+			font-family: "Press Start 2P";
+			/* font-family: Iosevka; */
+			color: hsl(265, 89%, 78%);
+			text-align: center;
+			line-height: 1.25;
+			letter-spacing: -2px;
+		}
+
+		.h2, .h3, .h4 {
+			fill: hsl(265, 89%, 78%);
+		}
+
+		h1, .h1 {
+			font-size: 9.6rem;
+		}
+
+		h2, .h2 {
+			font-size: 5.1rem;
+		}
+
+		.h3 {
+			font-size: 3.3rem;
+		}
+
+		.h4 {
+			font-size: 2.4rem;
+		}
+
+		#container, #overlay {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background-color: #000
+			/* animation: container-background 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s 1 forwards; */
+		}
+
+		#overlay {
+			position: fixed;
+			background: none;
+		}
+
+		@keyframes container-background {
+			0% { background-color: hsl(231, 15%, 18%) }
+			100%   { background-color: #000 }
+		}
+
+		/* .slide {
+			padding-top: 1in;
+			padding-bottom: 1in;
+			padding-left: 1in;
+			padding-right: 1in;
+		} */
+
+		ol, ul, p, pre {
+			font-size: 2.5rem;
+			color: #F8F8F2;
+			font-family: "Press Start 2P";
+			/* font-family: Iosevka; */
+			line-height: 1.25;
+			letter-spacing: -2px;
+		}
+
+		ol, ul, p {
+			margin-left: 4rem;
+		}
+
+		.slide > p,
+		.slide > ul,
+		.slide > ol {
+			margin-top: 1rem;
+		}
+
+		ol ol {
+			list-style-type: lower-alpha;
+		}
+
+		a {
+			color:aqua
+		}
+	</style>
+
+
+<style>
+
+.stroke-rain {
+	stroke: hsl(0, 100%, 50%);
+	animation: strokeHue 2s linear infinite !important;
+}
+
+@keyframes strokeHue {
+	0%   { stroke: hsl(0,   100%, 50%); }   /* red */
+	25%  { stroke: hsl(90,  100%, 50%); }   /* green */
+	50%  { stroke: hsl(180, 100%, 50%); }   /* cyan */
+	75%  { stroke: hsl(270, 100%, 50%); }   /* purple */
+	100% { stroke: hsl(360, 100%, 50%); }   /* back to red */
+}
+
+.fill-rain {
+	fill: hsl(0, 100%, 50%);
+	animation: fillHue 2s linear infinite !important;
+}
+
+@keyframes fillHue {
+	0%   { fill: hsl(0,   100%, 50%); }   /* red */
+	25%  { fill: hsl(90,  100%, 50%); }   /* green */
+	50%  { fill: hsl(180, 100%, 50%); }   /* cyan */
+	75%  { fill: hsl(270, 100%, 50%); }   /* purple */
+	100% { fill: hsl(360, 100%, 50%); }   /* back to red */
+}
+
+.larr {
+	/* letter-spacing: -16px; */
+	letter-spacing: 0;
+}
+
+.sub {
+	font-size: 60%;
+	baseline-shift: -10px;
+	/* letter-spacing: -8px; */
+}
+
+.super {
+	font-size: 60%;
+	baseline-shift: 20px;
+	/* letter-spacing: -8px; */
+}
+
+.sub-space {
+	letter-spacing: -11px;
+}
+
+.undies {
+	font-size: 80%;
+}
+
+.floor {
+	font-size: 150%;
+	baseline-shift: 3px;
+}
+
+.ceil {
+	baseline-shift: 13px;
+}
+
+.hidey-ones {
+	opacity: 0;
+}
+
+.bullet {
+	font-size: 112.5%;
+	baseline-shift: 0px;
+	letter-spacing: -8px;
+}
+
+.bullet-dot {
+	font-size: 150%;
+	baseline-shift: 0.15em;
+	letter-spacing: -8px;
+}
+
+.bullet-dot-rot {
+	font-size: 150%;
+	baseline-shift: 0px;
+    letter-spacing: -21px;
+	transform: rotate(45deg)
+}
+
+.invis {
+	opacity: 0;
+}
+
+.rightside-up-caret {
+	baseline-shift: 5px;
+}
+
+.upside-down-caret {
+	baseline-shift: -24px;
+}
+
+.mini {
+	font-size: 45%;
+	baseline-shift: 8px;
+}
+
+.Iosevka {
+	font-family: Iosevka;
+}
+
+._24 { font-size: 24pt; }
+._10 { font-size: 10pt; }
+
+</style>
+
+
+	<script>
+	    const global_animations = [];
+		const global_scrolls = [];
+		const state_transitions = new Map();
+		const post_processes = [];
+		const bullet_post_processes = [];
+		const colors2 = new Map([
+			["red-orange", "rgb(240, 86, 39)"],
+			["blue", "rgb(0, 100, 255)"],
+			["yellow", "rgb(255, 255, 102)"],
+			["green", "rgb(50, 255, 50)"],
+			["orange", "rgb(255, 177, 100)"],
+			["pink", "rgb(255, 112, 255)"],
+			["cyan", "rgb(0, 255, 255)"],
+			["white", "rgb(255, 255, 255)"],
+			["gold", "rgb(255, 215, 20)"],
+			["red", "rgb(255, 99, 132)"],
+			["dark-green", "rgb(18, 188, 16)"],
+
+			//<!-- lime green: rgb(70, 255, 180) -->
+		]);
+	</script>
+</head>
+
+<body style="padding-bottom: 0px; padding-right: 0px">
+
+<svg id="container" viewBox="0 0 1920 1200" version="1.1" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet">
+	<g class="slide" id="pre-title"></g>
+	<g class="slide" id="title">
+		  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+            refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(0, 255, 255)"/>
+    </marker>
+
+	<marker id="arrowhead-mini" markerWidth="10" markerHeight="7"
+            refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(0, 255, 255)"/>
+    </marker>
+
+	<marker id="arrowhead-orange" markerWidth="10" markerHeight="7"
+            refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" stroke="rgb(255, 177, 100)"/>
+    </marker>
+  </defs>
+		<text class="h1 title-line" x="965" y="300" fill="#F7A41D" text-anchor="middle">AVX-512</text>
+		<text class="h1 title-line" x="965" y="500" fill="#F7A41D" text-anchor="middle">IPv4</text>
+
+		<g class="title-line">
+			<text class="h1" x="965" y="700" fill="#F7A41D" text-anchor="middle">Parsing</text>
+
+			<!-- <svg id="zig-logo" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 154 140" height="280" width="280" x="965" y="500">
+				<g fill="#F7A41D">
+					<g id="logo-left-side">
+						<polygon points="46,22 28,44 19,30"></polygon>
+						<polygon points="46,22 33,33 28,44 22,44 22,95 31,95 20,100 12,117 0,117 0,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="31,95 12,117 4,106"></polygon>
+					</g>
+					<g id="logo-middle">
+						<polygon points="56,22 62,36 37,44"></polygon>
+						<polygon points="56,22 111,22 111,44 37,44 56,32" shape-rendering="crispEdges"></polygon>
+						<polygon points="116,95 97,117 90,104"></polygon>
+						<polygon points="116,95 100,104 97,117 42,117 42,95" shape-rendering="crispEdges"></polygon>
+						<polygon points="150,0 52,117 3,140 101,22"></polygon>
+					</g>
+					<g id="logo-right-side">
+						<polygon points="141,22 140,40 122,45"></polygon>
+						<polygon points="153,22 153,117 106,117 120,105 125,95 131,95 131,45 122,45 132,36 141,22" shape-rendering="crispEdges"></polygon>
+						<polygon points="125,95 130,110 106,117"></polygon>
+					</g>
+				</g>
+			</svg> -->
+		</g>
+
+		<text class="h2" id="by-line-1" x="960" y="875" text-anchor="middle">from scratch</text>
+		<text class="h3" id="by-line-2" x="960" y="975" text-anchor="middle"><tspan style="fill: rgb(0, 255, 255);
+		stroke-width: 2px">by Niles Salter</tspan></text>
+
+		<script>
+			const EXTRA_DELAY = 0.25;
+
+			global_animations.push({
+				section: "title",
+				selector: ".title-line, #zig-logo",
+				slide_num: 0,
+				animation_delay: `${0 + EXTRA_DELAY}s`,
+				animation_duration: "5s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { "letter-spacing": "-1em", opacity: 0, transform: "scale(0.25) translate(140rem, 50rem)", "font-size": "1rem" },
+					30:  { opacity: 1, "font-size": "8rem" },
+					100: { "letter-spacing": "-1px", opacity: 1, transform: "scale(1) translate(0, 0)", "font-size": "8rem" },
+				}
+			}, {
+				section: "title",
+				selector: ".title-line > text",
+				slide_num: 0,
+				animation_delay: `${0 + EXTRA_DELAY}s`,
+				animation_duration: "3s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { "letter-spacing": "-1em" },
+					100: { "letter-spacing": "-1px" },
+				}
+			}, {
+				section: "title",
+				selector: "#by-line-1, #by-line-2",
+				slide_num: 0,
+				animation_delay: `${2 + EXTRA_DELAY}s`,
+				animation_duration: "5s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { "letter-spacing": "-1em", opacity: 0 },
+					25:  { opacity: 1 },
+					100: { "letter-spacing": "-7px", opacity: 1 },
+				}
+			}, {
+				section: "title",
+				selector: "#logo-left-side",
+				slide_num: 0,
+				animation_delay: `${0 + EXTRA_DELAY}s`,
+				animation_duration: "5s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { transform: "scaleX(0) translateX(75px)" },
+					100: { transform: "scaleX(1) translateX(0)" },
+				}
+			}, {
+				section: "title",
+				selector: "#logo-right-side",
+				slide_num: 0,
+				animation_delay: `${0 + EXTRA_DELAY}s`,
+				animation_duration: "5s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { transform: "scaleX(0) translateX(-75px)" },
+					100: { transform: "scaleX(1) translateX(0)" },
+				}
+			}, {
+				section: "title",
+				selector: "#logo-middle",
+				slide_num: 0,
+				animation_delay: `${0 + EXTRA_DELAY}s`,
+				animation_duration: "5s",
+				ease: "cubic-bezier(0, 1, 0, 1)",
+				keyframes: {
+					0:   { transform: "scaleX(0) translateX(0)" },
+					100: { transform: "scaleX(1) translateX(0)" },
+				}
+			});
+		</script>
+	</g>
+
+	<g class="slide" id="problem" title="The problem">
+		<g class="bullets" y="175">
+We want to map %cyan%{IPv4} strings to %white%<[>4%white%<]>%pink%{u8}'s (or %pink%{u32}'s)@so they're compressed and fixed-length:
+%yellow%{"0.0.0.0"} %pink%{=>} %white%<[>4%white%<]>%pink%{u8}%white%<{> 0%white%{,} 0%white%{,} 0%white%{,} 0 %white%<}>
+%yellow%{"123.45.6.78"} %pink%{=>} %white%<[>4%white%<]>%pink%{u8}%white%<{> 123%white%{,} 45%white%{,} 6%white%{,} 78 %white%<}>
+</g>
+
+		<text click="5" id="title2" class="h2" x="980" y="510" text-anchor="middle">Algorithm outline</text>
+		<g class="bullets" y="555">
+~~~~~%white%{1. Load string into 16 byte vector}
+%white%{2. Dot-separated octets => separate 4-byte lanes}
+  :4-byte lanes because each octet is up to 3 chars
+%white%{3. Within each lane, convert string to byte}
+  :Convert each char to its numeric value (%white%{c - '0'})
+  :Multiply hundred's place by 100, ten's place by@10, and add them both to the one's place.
+    :We have "dot product" instructions for this!!
+%white%{4. Reduce each lane back to a byte}
+</g>
+	</g>
+
+	<g class="slide" id="assembly-1">
+		<g id="parse_ip_asm" class="code" x="-75" y="0" width="1920" line-height="30" font-size="20px" line-num-indent="0" line-indent="100" hide-background hide-line-numbers rect-width="650" letter-spacing="-1px" lang="asm" steps="26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51">
+.LCPI0_1:;;neg
+        .zero   16,208
+.LCPI0_2:;;dword_index
+        .long   2147614976
+        .long   2147680769
+        .long   2147746562
+        .long   2147812355
+        .long   2147878148
+        .long   2147943941
+        .long   2148009734
+        .long   2148075527
+        .long   2148141320
+        .long   2148207113
+        .long   2148272906
+        .long   2148338699
+        .long   2148404492
+        .long   2148470285
+        .long   2148536078
+        .long   2148601871
+.LCPI0_5:;;ascii
+        .byte   46
+.LCPI0_3:;;dec
+        .long   174325760
+.LCPI0_4:
+        .long   1
+parse_ip:
+        mov          eax, 0x7FFF
+        bzhi         eax, eax, esi
+        vpbroadcastb xmm0, byte ptr [rip + .LCPI0_5] ; 0x46 = '.'
+        kmovd        k1, eax
+        vpblendmb    xmm1 {k1}, xmm0, xmmword ptr [rdi]
+        vpcmpneqb    k0, xmm1, xmm0
+        kshiftlw     k1, k0, 1
+        kandnw       k1, k1, k0
+        kshiftrw     k2, k0, 1
+        kandnw       k2, k2, k0
+        vpaddb       xmm0, xmm1, xmmword ptr [rip + .LCPI0_1]
+        vmovdqa64    zmm1, zmmword ptr [rip + .LCPI0_2]
+        vpcompressd  zmm2 {k1} {z}, zmm1
+        vpcompressd  zmm1 {k2} {z}, zmm1
+        vpsubb       xmm1, xmm1, xmm2
+        vpslld       xmm1, xmm1, 3
+        vpshufb      xmm0, xmm0, xmm2
+        vpbroadcastd xmm2, dword ptr [rip + .LCPI0_3]
+        vpbroadcastd xmm3, dword ptr [rip + .LCPI0_4]
+        vpshldvd     xmm3, xmm2, xmm1
+        vpxor        xmm1, xmm1, xmm1
+        vpdpbusd     xmm1, xmm0, xmm3
+        vpmovdb      xmm0, xmm1
+        vmovd        eax, xmm0
+        ret
+
+
+
+		</g>
+	</g>
+
+	<g class="slide" id="end">
+		<text class="h2" x="960" y="525" text-anchor="middle" style="font-size: 100px; letter-spacing:0.1px;">fin</text>
+
+
+<script>
+{
+	const bullets = {
+		0: "&lt;tspan class=\"bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	const semicolons = {
+		0: "&lt;tspan class=\"invis bullet\"&gt;&bullet;&lt;/tspan&gt;&ThinSpace;&ThinSpace;&ThinSpace;&ThinSpace;",
+		2: "&lt;tspan class=\"invis bullet-dot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+		4: "&ThinSpace;&ThinSpace;&lt;tspan rotate=\"-45\" class=\"invis bullet-dot-rot\"&gt;.&lt;/tspan&gt;&ThinSpace;",
+	};
+
+	for (const bulleted of document.getElementsByClassName("bullets")) {
+
+		let click_offset = +(bulleted.getAttribute("click") ?? 1);
+		let iter = 0;
+		let iter2 = 0;
+		let y = +bulleted.getAttribute('y') - 70;
+		let x_axis = +bulleted.getAttribute('x');
+		let tmp = 0;
+
+
+		let lines = bulleted.innerHTML
+			.split('\n')
+			.filter(e => e.trimRight())
+			.flatMap(e => {
+				const sub_lines = e.split('@');
+				const first_line_prefix = sub_lines[0].match(/^ */)[0];
+				for (let i = 0; ++i < sub_lines.length;)
+					sub_lines[i] = first_line_prefix + '@' + sub_lines[i];
+				sub_lines[0] = "$$$" + sub_lines[0];
+				return sub_lines;
+			});
+
+		const unnecessary_whitespace = lines
+			.reduce((a, c) => Math.min(a, c.length - c.trimRight().length), Number.POSITIVE_INFINITY);
+
+		function boop(x,y) {
+			const thing = colors2.get(x);
+			return thing ? `fill="${thing}"` : `class="${x}"`
+		}
+
+		let indentation;
+		let using_semis;
+
+		const my_lines = lines.map((x, i) => {
+			indentation = x.match(/^\$\$\$/) ? x.match(/^\$\$\$( *)/)?.[1]?.length : indentation;
+			using_semis = x.match(/^\$\$\$/) ? x.match(/^\$\$\$( *):/) : using_semis;
+
+			// console.log({ indentation, using_semis });
+
+			const is_cont = !x.match(/^\$\$\$/);
+			const use_semis = is_cont && using_semis;
+			x = x.replace(/^\$\$\$/, "");
+			x = x.slice(unnecessary_whitespace);
+			x = x.replaceAll(/^(~+)/g, (_, x) => (click_offset += x.length, ""));
+			x = x.replace(/^( *):/, (_, spaces) => "&nbsp;".repeat(spaces.length) + (bullets[spaces.length] ?? ""));
+			x = x.replace(/^( *)@/, (_, spaces) => "&nbsp;".repeat(spaces.length) + ((use_semis ? semicolons : {})[indentation] ?? ""));
+			x = x.replace(/^( *)/, (_, spaces) => "&nbsp;".repeat(spaces.length));
+			x = x.replaceAll(/([^\\]):([)OopPD(])(?!\w)/g, (_, char, content) => char + `&lt;tspan style="letter-spacing: -32px" rotate="90" fill=\"${'cyan'}\"&gt;&lt;tspan style="baseline-shift: 42px;"&gt;:&lt;/tspan&gt;&lt;tspan style="baseline-shift: 22px;"&gt;${content}&lt;/tspan&gt;&lt;/tspan&gt;`);
+			x = x.replaceAll(/\_\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"sub\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/\^\{(.+?)\}/g, (_, content) => `&lt;tspan class=\"super\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/([^\\]):AT:/g, (_, char, color, content) => char + `@`);
+			x = x.replace(/^#/, '');
+			x = x.replace(/:v:/g, 'ˇ');
+			x = x.replace(/[⌊⌋]/ug, content => `&lt;tspan class=\"floor\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replace(/ˇ/gu, '&lt;tspan class="upside-down-caret"&gt;ˇ&lt;/tspan&gt;')
+			x = x.replace(/:\^:/g, '&lt;tspan class="rightside-up-caret"&gt;^&lt;/tspan&gt;')
+
+			x = x.replaceAll(/%([^%]+?)%\[([^\]]+?)\]/g, (_, color, content) => `&lt;tspan ${boop(color, content)}&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/%([^%]+?)%\{([^\}]+?)\}/g, (_, color, content) => `&lt;tspan ${boop(color, content)}&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/%([^%]+?)%&amp;lt;(.+?)&amp;gt;/g, (_, color, content) => `&lt;tspan ${boop(color, content)}&gt;${content}&lt;/tspan&gt;`);
+
+			x = x.replaceAll(/```(.+?)```/g, (_, content) => `&lt;tspan class=\"fill-rain\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/``(.+?)``/g, (_, content) => `&lt;tspan class=\"highlighted\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll(/`(.+?)`/g, (_, content) => `&lt;tspan class=\"highlighted-blue\"&gt;${content}&lt;/tspan&gt;`);
+			x = x.replaceAll("naive", "naïve");
+			x = x.replaceAll("\\:", ":");
+			x = x.replaceAll("=&amp;gt;", "&lt;tspan class=\"larr\"&gt;=&gt;&lt;/tspan&gt;");
+			return `&lt;text click="${i + click_offset}" class="h4" x="${x_axis + 30}" y="${y += 45 + (is_cont ? 0 : 35) }" text-anchor="start"&gt;${x}&lt;/text&gt;`
+		}).join("");
+		bulleted.innerHTML = my_lines;
+	}
+
+	for (const codeblock of document.getElementsByClassName("code")) {
+		const steps = codeblock.getAttribute("steps") || codeblock.getAttribute("mini-steps");
+		if (steps) {
+			let slide = codeblock;
+			do slide = slide.parentNode; while (!slide.classList.contains("slide"));
+			slide.setAttribute('clicks', steps.split(',').length + 1);
+		}
+	}
+
+	for (const slide of document.getElementsByClassName("slide")) {
+		const title = slide.getAttribute('title')
+		if (title) {
+			slide.insertAdjacentHTML("afterbegin", `&lt;text class="h2" x="980" y="100" text-anchor="middle"&gt;${title}&lt;/text&gt;`);
+		}
+	}
+
+	for (const bullet_post_process of bullet_post_processes) {
+		bullet_post_process();
+	}
+
+}
+</script>
+	</g>
+</svg>
+
+<svg id="overlay" style="overflow: hidden; width: 100%;" y="5000" viewBox="0 0 1920 1080" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<g class="slide" id="assembly-1-overlay">
+		<g id="visuals-holder">
+			  	<defs>
+					<!-- Define your rectangular crop zone -->
+					<clipPath id="rect-clip">
+					<rect x="650" y="0" width="1920" height="10000" />
+					</clipPath>
+				</defs>
+
+  <!-- Apply the clipPath to a group or specific graphic element -->
+  <g clip-path="url(#rect-clip)">
+	  <g id="top-level">
+			<rect click="1" id="assembly-backdrop" x="-10000" y="-10000" width="30000" height="30000" />
+			<foreignObject id="xmmword-data" class="no-slide-in" click="1" x="735" y="50" width="500" height="42">
+				  <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: center; height: 100%; font-family: Iosevka; color: rgb(255, 255, 102); letter-spacing: -1px; font-size: 24pt;">
+					<textarea id="entry" style="width: auto; min-width: 0; height: 100%; font-family: Iosevka; color: rgb(255, 255, 102); letter-spacing: -1px; font-size: 24pt; border: none; background: transparent; resize: none; overflow: hidden;">123.45.6.78</textarea>
+				  </div>
+
+				</foreignObject>
+
+			<rect id="xmmword-input" class="no-slide-in" click="1" x="730" y="50" width="305" height="42" fill="none" stroke="rgb(248, 248, 242)" stroke-width="3"/>
+			<rect id="xmmword-label-bg" class="no-slide-in" click="1" x="738" y="88" width="118" height="8" fill="rgb(0, 0, 0)"/>
+			<text id="xmmword-label" class="no-slide-in" click="1" x="740" y="97" text-anchor="start" style="font-family: Iosevka; font-size: 10pt; fill: rgb(255, 184, 104)">xmmword ptr <tspan fill="rgb(248, 248, 242)">[</tspan><tspan fill="#b6c8ff">rdi</tspan><tspan fill="rgb(248, 248, 242)">]</tspan></text>
+	  </g>
+  </g>
+<style>
+@keyframes draw {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes move-along-path {
+	to {
+		offset-distance: 100%;
+	}
+}
+</style>
+		<script>
+			function fnum(base, x, maxLength, rendering_options) {
+				const is_ascii = (rendering_options ?? []).find(e => e === "ascii");
+				console.log(x, rendering_options)
+				if (is_ascii)
+					base = 16;
+				const str = x.toString(base).toUpperCase().padStart(maxLength, 0);
+				if (is_ascii) {
+
+					return str.replaceAll(/[0-9A-F][0-9A-F]/g, s => {
+						const k = {
+							"0": 0,
+							"1": 1,
+							"2": 2,
+							"3": 3,
+							"4": 4,
+							"5": 5,
+							"6": 6,
+							"7": 7,
+							"8": 8,
+							"9": 9,
+							"A": 10,
+							"B": 11,
+							"C": 12,
+							"D": 13,
+							"E": 14,
+							"F": 15,
+						};
+						return String.fromCharCode((k[s[0]] << 4) | k[s[1]]);
+					});
+				}
+				return `${({ 16: "0x", 2: "0b", 10: "", })[base]}${str}`;
+			}
+
+			const apply_attr = (obj, o) => {
+				if (typeof obj === "string") {
+					obj = document.createElementNS('http://www.w3.org/2000/svg', obj);
+				}
+
+				for (const [attr, value] of Object.entries(o))
+					obj.setAttribute(attr.replaceAll('_', '-'), value);
+
+				return obj;
+			}
+
+			// Timings (in seconds) for the steps of an instruction's animation:
+			// arrows draw, then each operand row fades in one at a time, then the
+			// result box draws, then its value fades in.
+			const ANIM = {
+				arrow: 2,
+				row: 0.4,
+				box: 1,
+				fade: 0.4,
+				// Moving the view to where the next instruction draws
+				pan: 0.7,
+			};
+
+			let fade_id = 0;
+
+			// Fade an element in, `delay` seconds after its click
+			function fade_in(el, click, delay, duration = ANIM.fade) {
+				if (!el.id) el.setAttribute('id', `fade-${fade_id++}`);
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#${el.id}`,
+					slide_num: click,
+					continuous: true,
+					animation_delay: `${delay}s`,
+					animation_duration: `${duration}s`,
+					keyframes: {
+						0:   { opacity: 0 },
+						100: { opacity: 1 },
+					}
+				});
+			}
+
+			// Every row and box drawn, in order, so the camera can follow the
+			// newest instruction
+			const drawn = [];
+
+			// Same for arrows, which can start far from where they end
+			const drawn_arrows = [];
+
+			// Bounds of an absolute M/L/H/V/C path, with room for the arrowhead
+			function path_bounds(d) {
+				const tokens = d.match(/[MLHVC]|-?[\d.]+/g);
+				const xs = [], ys = [];
+				let cmd, x = 0, y = 0;
+				for (let i = 0; i < tokens.length;) {
+					if (/[A-Z]/.test(tokens[i])) cmd = tokens[i++];
+					if (cmd === 'H') x = +tokens[i++];
+					else if (cmd === 'V') y = +tokens[i++];
+					else {
+						if (cmd === 'C') i += 4;
+						x = +tokens[i++];
+						y = +tokens[i++];
+					}
+					xs.push(x);
+					ys.push(y);
+				}
+				return {
+					left_side: Math.min(...xs) - 12, right_side: Math.max(...xs) + 12,
+					top_y: Math.min(...ys) - 12, bottom_y: Math.max(...ys) + 12,
+				};
+			}
+
+			function createArrowH(top_level, a, b, click, is_same, delay = 0) {
+				const going_right = a[0].left_side !== b[0].left_side;
+				const x = b[0].left_side;
+				const y = b[0].top_y;
+				const text_content_length = a[0].right_side - a[0].left_side;
+				const midpoint = is_same ?
+						(a[0].left_side < x ? x : x + text_content_length) + -20 :
+						x - 6;
+
+				const top_y = is_same ? y + 3 : y + 24;
+
+				const arrow1 = createArrow(a[0], {
+					midpoint,
+					top_y,
+				}, click, is_same, undefined, delay);
+				top_level.insertAdjacentElement("beforeend", arrow1);
+			}
+
+			let arrowhead_id = 0;
+
+			function createArrow(from, to, click, is_same, custom_d, delay = 0) {
+				const stroke = "rgb(0, 255, 255)";
+				const stroke_width = '3';
+
+				let pathD;
+				if (custom_d) {
+					pathD = custom_d;
+				} else if (is_same) {
+					pathD = `M ${from.left_side + 18} ${from.bottom_y + 8} L ${to.midpoint} ${to.top_y - 6}`;
+				} else {
+					const x1 = from.left_side + 18;
+					const y1 = from.bottom_y + 8;
+					const cornerX = x1;
+					const cornerY = to.top_y - 3;
+					const x2 = to.midpoint - 9;
+					const y2 = cornerY;
+					const r = 10;
+					const dir = x2 < x1 ? -1 : 1; // turn left if the target is to the left
+
+					pathD = `M ${x1} ${y1} V ${cornerY - r} C ${cornerX} ${cornerY - r} ${cornerX + dir * r} ${cornerY} ${cornerX + dir * r} ${cornerY} H ${x2}`;
+				}
+
+				drawn_arrows.push({ ...path_bounds(pathD), end: delay + ANIM.arrow });
+
+				// Create path without marker
+				const path = apply_attr('path', { stroke, stroke_width, click, d: pathD, fill: "none" });
+
+				// Animate the stroke
+				const length = path.getTotalLength();
+				path.style.strokeDasharray = length;
+				path.setAttribute("id", `path-${arrowhead_id}`)
+
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#path-${arrowhead_id}`,
+					slide_num: click,
+					animation_delay: `${delay}s`,
+					continuous: true,
+					animation_duration: `${ANIM.arrow}s`,
+					keyframes: {
+						0:   { "stroke-dashoffset": length, opacity: 0 },
+						10:  { opacity: 1 },
+						100: { "stroke-dashoffset": 0, opacity: 1 },
+					}
+				});
+
+				// Fade back the click after it was drawn, so the newest arrows stand out
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#path-${arrowhead_id}`,
+					slide_num: click + 1,
+					animation_delay: "0s",
+					continuous: true,
+					animation_duration: "0.5s",
+					keyframes: {
+						0:   { "stroke-dashoffset": 0, opacity: 1 },
+						100: { "stroke-dashoffset": 0, opacity: 0.2 },
+					}
+				});
+
+				// Create animated arrowhead
+				const arrowhead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+				arrowhead.setAttribute('points', '0,-5 12,0 0,5');
+				arrowhead.setAttribute('fill', stroke);
+				arrowhead.setAttribute('stroke-width', stroke_width);
+				arrowhead.setAttribute("id", `arrowhead-${arrowhead_id}`)
+				arrowhead.style.offsetPath = `path('${pathD}')`;
+				//arrowhead.style.offsetDistance = '0%';
+
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#arrowhead-${arrowhead_id}`,
+					slide_num: click,
+					//forward_only: true,
+					continuous: true,
+					animation_delay: `${delay}s`,
+					animation_duration: `${ANIM.arrow}s`,
+					keyframes: {
+						0:   { "offset-distance": "0%", opacity: 0 },
+						10:  { opacity: 1 },
+						100: { "offset-distance": "100%", opacity: 1 },
+					}
+				});
+
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#arrowhead-${arrowhead_id}`,
+					slide_num: click + 1,
+					continuous: true,
+					animation_delay: "0s",
+					animation_duration: "0.5s",
+					keyframes: {
+						0:   { "offset-distance": "100%", opacity: 1 },
+						100: { "offset-distance": "100%", opacity: 0.2 },
+					}
+				});
+				//arrowhead.style.animation = 'move-along-path 5s ease-in-out forwards';
+
+				// Return both elements (you may need to wrap in a group)
+				const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				g.appendChild(path);
+				g.appendChild(arrowhead);
+				arrowhead_id++;
+				return g;
+			}
+
+			function createTextual(top_level, options) {
+				const { x, y, height, click, contentColor, text_content, delay } = options;
+				const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+				text.setAttribute('class', 'no-slide-in Iosevka _24');
+				text.setAttribute('click', click);
+				text.setAttribute('x', x);
+				text.setAttribute('y', y + height / 2 + 12);
+				text.setAttribute('text-anchor', 'start');
+				text.setAttribute('style', `fill: ${contentColor}`);
+				text.textContent = text_content;
+
+				const finalWidth = text_content.length * 16.8;
+
+				text.bottom_y   = y + height;
+				text.top_y = y;
+				text.left_side  = x;
+				text.midpoint   = x + finalWidth / 2;
+				text.right_side = x + finalWidth;
+
+				top_level.insertAdjacentElement("beforeend", text);
+				if (delay !== undefined) fade_in(text, click, delay);
+				drawn.push(text);
+				return text;
+			}
+
+			let box_id = 0;
+
+			// Draw a rect's outline on, clockwise from the top-left corner
+			function draw_outline(rect, click, delay) {
+				// Normalized so the animation doesn't depend on the box's size
+				// (which changes for boxes that resize with the input)
+				rect.setAttribute('pathLength', 100);
+				rect.setAttribute('stroke-dasharray', 100);
+				global_animations.push({
+					section: 'assembly-1-overlay',
+					selector: `#${rect.id}`,
+					slide_num: click,
+					continuous: true,
+					animation_delay: `${delay}s`,
+					animation_duration: `${ANIM.box}s`,
+					// Constant speed, so we can tell when the stroke reaches the label
+					linear: true,
+					keyframes: {
+						0:   { "stroke-dashoffset": 100 },
+						100: { "stroke-dashoffset": 0 },
+					}
+				});
+			}
+
+			function createRegisterBox(options) {
+				let {
+					x = 0, y = 0, height = 42, click = 1,
+					content = '', contentColor = 'rgb(191, 149, 249)',
+					label = '', labelColor = label.match(/^k[0-7]$/) ? "rgb(255, 184, 104)" : '#b6c8ff',
+					labelY = y + height + 5,
+					stroke = 'rgb(248, 248, 242)', strokeWidth = 3,
+					id = '',
+					// Seconds after the click to start drawing the outline, and to fade
+					// in the value (shown immediately if not given)
+					delay = 0,
+					content_delay,
+					top_level,
+				} = options;
+				console.log(content);
+
+				// Magic numbers for Iosevka
+				const CHAR_WIDTH_24PT = 16; // 24pt
+				const CHAR_WIDTH_10PT = 7.0;  // 10pt (for labels)
+
+				const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				g.options = options;
+				if (id) g.setAttribute('id', id);
+				g.setAttribute('class', 'no-slide-in');
+
+				if (typeof content === "bigint")
+					content = content.toString();
+
+				// Calculate width based on content
+				const finalWidth = content.length * CHAR_WIDTH_24PT + 4 + 4;
+
+				// Box rect
+				const rect = apply_attr("rect", {
+					class: 'no-slide-in',
+					click,
+					x: x.toString(),
+					y: y.toString(),
+					width: finalWidth.toString(),
+					height: height.toString(),
+					fill: 'none',
+					stroke: stroke,
+					stroke_width: strokeWidth,
+					id: `box-${box_id++}`,
+				})
+				g.rect = rect;
+				g.appendChild(rect);
+				draw_outline(rect, click, delay);
+
+				g.bottom_y   = y + height;
+				g.top_y = y;
+				g.left_side  = x;
+				g.midpoint   = x + finalWidth / 2;
+				g.right_side = x + finalWidth;
+
+				// Content text
+				if (content) {
+					const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+					text.setAttribute('class', 'no-slide-in Iosevka _24');
+					text.setAttribute('click', click);
+					text.setAttribute('x', x + 4);
+					text.setAttribute('y', y + height / 2 + 12);
+					text.setAttribute('text-anchor', 'start');
+					text.setAttribute('style', `fill: ${contentColor}`);
+					text.textContent = content;
+					top_level?.insertAdjacentElement("beforeend", text);
+					g.content_box = text;
+					if (content_delay !== undefined) fade_in(text, click, content_delay);
+				}
+
+				// Label below box
+				if (label) {
+					const labelWidth = label.length * CHAR_WIDTH_10PT + 4;
+
+					// Black background rect for label
+					const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+					labelBg.setAttribute('class', 'no-slide-in');
+					labelBg.setAttribute('click', click);
+					labelBg.setAttribute('x', x + 5);
+					labelBg.setAttribute('y', labelY - 10);
+					labelBg.setAttribute('width', labelWidth);
+					labelBg.setAttribute('height', 13);
+					labelBg.setAttribute('fill', 'rgb(0, 0, 0)');
+					g.appendChild(labelBg);
+
+					// Label text
+					const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+					labelText.setAttribute('class', 'no-slide-in Iosevka _10');
+					labelText.setAttribute('click', click);
+					labelText.setAttribute('x', x + 7);
+					labelText.setAttribute('y', labelY);
+					labelText.setAttribute('text-anchor', 'start');
+					labelText.setAttribute('style', `fill: ${labelColor}`);
+					labelText.textContent = label;
+					g.label = labelText;
+					g.appendChild(labelText);
+					// The outline draws clockwise from the top-left, so it gets back
+					// to the label on the way along the bottom edge. Fade the label
+					// in as the stroke reaches its right end. (Always fade, otherwise
+					// the label gets the default slide-in.)
+					const perimeter = 2 * (finalWidth + height);
+					const to_label = finalWidth + height + (finalWidth - 5 - labelWidth);
+					const label_delay = delay + ANIM.box * to_label / perimeter;
+					fade_in(labelBg, click, label_delay, ANIM.fade / 2);
+					fade_in(labelText, click, label_delay, ANIM.fade / 2);
+				}
+
+				top_level?.insertAdjacentElement("beforeend", g);
+				drawn.push(g);
+
+				return g;
+			}
+		</script>
+
+
+
+			<script>
+				(function() {
+					const len_box = createRegisterBox({
+						x: 683, y: 50, height: 42, content: "12", label: "esi",
+						click: 1, content_delay: ANIM.box,
+					});
+
+					// Magic numbers for Iosevka 24pt with letter-spacing -1px
+					const CHAR_WIDTH = 16.8; // approximate width per character
+
+					const textarea = document.getElementById('entry');
+					const xmmword_rect = document.getElementById('xmmword-input');
+					xmmword_rect.insertAdjacentElement("beforebegin", len_box);
+					xmmword_rect.insertAdjacentElement("beforebegin", len_box.content_box);
+
+					len_box.content_box.setAttribute('text-anchor', 'middle');
+
+					function resize() {
+						const textLength = textarea.value.length;
+						const textWidth = textLength * CHAR_WIDTH;
+						textarea.style.width = Math.max(124, textWidth - 10) + 'px';
+						const newWidth = Math.max(130, textWidth - 10);
+						xmmword_rect.setAttribute("width", newWidth);
+
+						// Update len_box content and width
+						const lengthText = textLength.toString();
+						len_box.content_box.textContent = lengthText;
+						const lenBoxWidth = lengthText.length * CHAR_WIDTH + 8;
+						len_box.rect.setAttribute('width', lenBoxWidth);
+						len_box.content_box.setAttribute('x', len_box.options.x + 4);
+
+						// Re-center label if it exists
+						const lenBoxLabel = len_box.content_box;
+
+						if (lenBoxLabel) {
+							const lenBoxX = parseFloat(len_box.rect.getAttribute('x'));
+							lenBoxLabel.setAttribute('x', lenBoxX + lenBoxWidth / 2);
+						}
+
+						// Adjust eax_box position
+						// const xmmwordX = parseFloat(xmmword_rect.getAttribute('x'));
+						// const eaxX = xmmwordX + newWidth + 5;
+						// eax_box.setAttribute('transform', `translate(${eaxX - 959}, 0)`);
+					}
+
+					textarea.addEventListener('input', resize);
+					resize();
+
+					// The static input box animates in like the generated ones: the
+					// outline draws on, its label fades in as the stroke gets back to
+					// it, and then the data fades in
+					fade_in(document.getElementById('assembly-backdrop'), 1, 0);
+					draw_outline(xmmword_rect, 1, 0);
+					{
+						const w = +xmmword_rect.getAttribute('width');
+						const h = +xmmword_rect.getAttribute('height');
+						const label_bg = document.getElementById('xmmword-label-bg');
+						const label_right = +label_bg.getAttribute('x') + +label_bg.getAttribute('width');
+						const to_label = w + h + Math.max(0, +xmmword_rect.getAttribute('x') + w - label_right);
+						const label_delay = ANIM.box * to_label / (2 * (w + h));
+						fade_in(label_bg, 1, label_delay, ANIM.fade / 2);
+						fade_in(document.getElementById('xmmword-label'), 1, label_delay, ANIM.fade / 2);
+					}
+					fade_in(document.getElementById('xmmword-data'), 1, ANIM.box);
+
+const MAX_INTS = new Map([
+	["zero",  2n**8n - 1n],
+	["byte",  2n**8n - 1n],
+	["short", 2n**16n - 1n],
+	["long",  2n**32n - 1n],
+	["quad",  2n**64n - 1n],
+]);
+
+const registers64 = new Set(["rax", "rbx", "rcx", "rdx", "rsi", "rdi", "rsp", "rbp",  "r8",  "r9",  "r10",  "r11",  "r12",  "r13",  "r14",  "r15"]);
+const registers32 = new Set(["eax", "ebx", "ecx", "edx", "esi", "edi", "esp", "ebp", "r8d", "r9d", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d"]);
+const registers16 = new Set([ "ax",  "bx",  "cx",  "dx",  "si",  "di",  "sp",  "bp", "r8w", "r9w", "r10w", "r11w", "r12w", "r13w", "r14w", "r15w"]);
+const  registers8 = new Set([ "al",  "bl",  "cl",  "dl", "sil", "dil", "spl", "bpl", "r8b", "r9b", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"]);
+const gpr_mapper = new Map([
+	...[...registers64].map((e, i) => [e, i]),
+	...[...registers32].map((e, i) => [e, i]),
+	...[...registers16].map((e, i) => [e, i]),
+	...[...registers8].map((e, i) => [e, i]),
+]);
+const gpr_size_mapper = new Map([
+	...[...registers64].map((e, i) => [e, 3]),
+	...[...registers32].map((e, i) => [e, 2]),
+	...[...registers16].map((e, i) => [e, 1]),
+	...[...registers8].map((e, i) => [e, 0]),
+]);
+
+const masks = [8, 16, 32, 64].map(e => BigInt("0b" + "1".repeat(e)));
+const simd_masks = [128, 256, 512].map(e => BigInt("0b" + "1".repeat(e)));
+
+class Machine {
+	gpr_values = new Array(registers64.size).fill([null, 0n]);
+	simd_values = new Array(32).fill([null, 0n]);
+	k_values = new Array(8).fill([null, 0n]);
+	constant_pool = new Map();
+	rendering_options = new Map();
+
+	is_gpr_reg(reg) {
+		const gpr_index = gpr_mapper.get(reg);
+		return gpr_index !== undefined;
+	}
+
+	is_simd_reg(reg) {
+		const is_simd_reg = reg.match(/^([xyz])mm(3[01]|[12]?[0-9])$/);
+		return is_simd_reg !== null;
+	}
+
+	simd_reg_byte_size(reg) {
+		const is_simd_reg = reg.match(/^([xyz])mm(3[01]|[12]?[0-9])$/);
+		return ({
+			x: 16,
+			y: 32,
+			z: 64,
+		})[is_simd_reg?.[1]];
+	}
+
+	is_k_reg(reg) {
+		const is_k_reg = reg.match(/^k[0-7]$/);
+		return is_k_reg !== null;
+	}
+
+	is_register(reg) {
+		return this.is_gpr_reg(reg) || this.is_simd_reg(reg) || this.is_k_reg(reg);
+	}
+
+	get(reg) {
+		const gpr_index = gpr_mapper.get(reg);
+		if (gpr_index !== undefined) {
+			let r = this.gpr_values[gpr_index];
+			r[1] &= masks[gpr_size_mapper.get(reg)];
+			return r;
+		}
+
+		const is_simd_reg = reg.match(/^([xyz])mm(3[01]|[12]?[0-9])$/);
+		if (is_simd_reg !== null) {
+			// A copy, so reading xmm2 doesn't truncate what's stored for zmm2
+			const r = this.simd_values[is_simd_reg[2]];
+			return [r[0], r[1] & simd_masks[is_simd_reg[1][0].charCodeAt() - 'x'.charCodeAt()]];
+		}
+
+		const is_k_reg = reg.match(/^k([0-7])$/);
+
+		if (is_k_reg !== null) {
+			return this.k_values[is_k_reg[1]];
+		}
+
+		throw new Error("Unable to access register " + reg)
+	}
+
+	set(reg, value) {
+		const gpr_index = gpr_mapper.get(reg);
+		if (gpr_index !== undefined) {
+			return this.gpr_values[gpr_index] = [value[0], BigInt(value[1]) & masks[gpr_size_mapper.get(reg)]];
+		}
+
+		const is_simd_reg = reg.match(/^([xyz])mm(3[01]|[12]?[0-9])$/)
+		if (is_simd_reg !== null) {
+			return this.simd_values[+is_simd_reg[2]] = [value[0], BigInt(value[1]) & simd_masks[is_simd_reg[1][0].charCodeAt() - 'x'.charCodeAt()]];
+		}
+
+		const is_k_reg = reg.match(/^k([0-7])$/);
+
+		if (is_k_reg !== null) {
+			return this.k_values[is_k_reg[1]] = [value[0], BigInt(value[1])];
+		}
+
+		throw new Error("Unable to access register " + reg)
+	}
+
+	constructor(source) {
+		source = source.trim();
+		const constant_multipliers = new Map([
+			["byte", 2n ** 8n],
+			["short", 2n ** 16n],
+			["long", 2n ** 32n],
+			["quad", 2n ** 64n],
+		]);
+
+		const lines = source.split("\n");
+
+		// Get constants
+		let i = 0;
+		for (; i < lines.length; i++) {
+			const line = lines[i].trim();
+			const label = line.match(/^\.(LCPI\d+_\d+):(.*)/);
+			if (label === null) break;
+			this.rendering_options.set(label[1], label[2].slice(2).split(",").filter(e => e));
+			//const attrs = new Set(label[2].startsWith(";;") ? label[2].slice(2).split(',') : []);
+			let data = 0n;
+			let next_line = (lines[++i] ?? "").trim();
+			const constant_part = next_line.match(/^\.(zero|long|byte)\s+(\S+)/);
+			if (constant_part === null) throw new Error("Where is the constant after this label? " + line);
+
+			let multiplier = 1n;
+			switch (constant_part[1]) {
+				case "zero": {
+					const [n, item] = constant_part[2].split(',');
+					for (let j = 0; j < +n; j++) {
+						data += BigInt(item.trim()) * multiplier;
+						multiplier *= 256n;
+					}
+					break;
+				}
+				case "long":
+				case "byte":
+				case "quad":
+				case "short": {
+					const multiplier_multiplier = constant_multipliers.get(constant_part[1]);
+					let next_constant_part = constant_part;
+					while (true) {
+						data += BigInt(next_constant_part[2]) * multiplier;
+						multiplier *= multiplier_multiplier;
+						next_line = (lines[i + 1] ?? "").trim();
+						next_constant_part = next_line.match(/^\.(zero|long|byte)\s+(\S+)/);
+						if (next_constant_part === null) break;
+						if (next_constant_part[1] != constant_part[1]) throw new Error("Heterogenous constant declaration?")
+						i++;
+					}
+					break;
+				}
+			}
+
+			this.constant_pool.set(label[1], data);
+		}
+
+		if ((lines[i++] ?? "").match(/^\w+:$/) === null) throw new Error("Where is the function label?");
+
+		let top_level_pos = 980;
+		const start_i = i;
+
+		// console.log("entries", [...this.constant_pool.entries()]);
+
+		this.set("esi", [len_box, len_box.content_box.textContent]);
+
+		const top_level = document.getElementById("top-level");
+
+		// The visible part of the overlay (see #rect-clip), and how far
+		// #top-level is currently panned
+		const VIEW = { left: 650, right: 1920, top: 0, bottom: 1080 };
+		let camera = { x: 0, y: 0, z: 1 };
+		// Hand tweaks to where the camera ends up on a click, in screen pixels.
+		// Negative x looks farther right.
+		// `center` centres what the click drew instead of moving as little as
+		// possible.
+		const CAMERA_NUDGE = {
+			21: { x: -150 },
+			23: { center: true },
+		};
+
+		// Same yellow as the input string
+		const asciiColor = 'rgb(255, 255, 102)';
+
+		// Rendered in memory order (byte 0 on the left) so the text reads naturally
+		const to_ascii = (v, s) => Array.from({ length: s }, (_, j) => {
+			const b = Number((v >> BigInt(8 * j)) & 0xFFn);
+			return b >= 0x20 && b < 0x7F ? String.fromCharCode(b) : '·';
+		}).join('');
+
+		// k masks are also rendered in memory order (bit 0 on the left) with no
+		// 0b prefix, so bit j lines up under byte j of the ASCII rows.
+		const to_kmask = (v, n = 16) => [...BigInt(v).toString(2).padStart(n, '0')].reverse().join('');
+
+		// Byte values that are small numbers rather than characters
+		const digitColor = 'rgb(80, 250, 123)';
+
+		// Apply f to each byte of an s-byte vector, wrapping like the hardware does
+		const bytewise = (v, s, f) => Array.from({ length: s }, (_, j) =>
+			(BigInt.asUintN(8, f((v >> BigInt(8 * j)) & 0xFFn, BigInt(j)))) << BigInt(8 * j)
+		).reduce((a, c) => a | c, 0n);
+
+		// Dword vectors are drawn as a grid: dword j is column j (lined up under
+		// byte j of the string) and its 4 bytes go down. Each byte is one
+		// base-32 digit (0-9, A-V); 0x80 means "zero this byte" to vpshufb and is
+		// drawn as a dim ~. Other bytes that aren't small numbers are a dot.
+		// `dim(j, k)` dims byte k of column j.
+		const dimColor = 'rgb(98, 114, 164)';
+		const GRID_HEIGHT = 42 + 30 * 3;
+		// With `w` > 1, cells are decimal, right-aligned to w characters and
+		// spaced apart (see grid_chars for the width).
+		const fill_dword_grid = (text, v, n, top_y, dim = () => false, w = 1) => {
+			text.setAttribute('y', top_y + 42 / 2 + 12);
+			text.replaceChildren(...Array.from({ length: 4 }, (_, k) => {
+				const line = apply_attr('tspan', { x: text.getAttribute('x'), dy: k ? 30 : 0 });
+				for (let j = 0; j < n; j++) {
+					const b = Number((v >> BigInt(32 * j + 8 * k)) & 0xFFn);
+					// Non-breaking spaces, since SVG collapses ordinary ones
+					if (w > 1 && j) line.appendChild(document.createTextNode('\u00A0'));
+					const ch = apply_attr('tspan', b === 0x80 || dim(j, k) ? { style: `fill: ${dimColor}` } : {});
+					const cell = b === 0x80 ? '~' : w > 1 ? String(b) : b < 32 ? b.toString(32).toUpperCase() : '·';
+					ch.textContent = cell.padStart(w, '\u00A0');
+					line.appendChild(ch);
+				}
+				return line;
+			}));
+		};
+
+		// How many characters wide an n-dword grid with w-wide cells is
+		const grid_chars = (n, w = 1) => w > 1 ? n * (w + 1) - 1 : n;
+
+		// An s-byte vector of numbers as a dword grid (see fill_dword_grid)
+		const num_height = s => GRID_HEIGHT;
+		const num_chars = (s, w = 1) => grid_chars(s / 4, w);
+		const fill_num = (text, v, s, top_y, dim = () => false, w = 1) =>
+			fill_dword_grid(text, v, s / 4, top_y, dim, w);
+
+		// A grid of arbitrary numbers, laid out like fill_dword_grid with w-wide
+		// cells, where `cell(j, k)` is the number for byte k of dword j
+		const fill_cells = (text, s, top_y, w, cell) => {
+			text.setAttribute('y', top_y + 42 / 2 + 12);
+			text.replaceChildren(...Array.from({ length: 4 }, (_, k) => {
+				const line = apply_attr('tspan', { x: text.getAttribute('x'), dy: k ? 30 : 0 });
+				line.textContent = Array.from({ length: s / 4 }, (_, j) =>
+					String(cell(j, k)).padStart(w, '\u00A0')).join('\u00A0');
+				return line;
+			}));
+		};
+
+		// One row of whole dword values, decimal, lined up with the columns of a
+		// w-wide grid
+		const fill_dwords = (text, v, n, w) => {
+			text.textContent = Array.from({ length: n }, (_, j) =>
+				String((v >> BigInt(32 * j)) & 0xFFFFFFFFn).padStart(w, '\u00A0')).join('\u00A0');
+		};
+
+		// Draw bytes in a row, with 0-9 as green digits (they're numbers now, not
+		// characters) and everything else as ASCII
+		const fill_bytes = (text, v, s) => text.replaceChildren(...Array.from({ length: s }, (_, j) => {
+			const b = Number((v >> BigInt(8 * j)) & 0xFFn);
+			if (b >= 10) return to_ascii(BigInt(b), 1);
+			const digit = apply_attr("tspan", { style: `fill: ${digitColor}` });
+			digit.textContent = String(b);
+			return digit;
+		}));
+
+		// The y just below every register box drawn so far
+		const lowest_y = () => Math.max(...[...this.gpr_values, ...this.simd_values, ...this.k_values]
+			.map(([e]) => e?.bottom_y ?? 0));
+
+		// `xmmword ptr [rip + .LCPI0_1]` -> `LCPI0_1`
+		const m_label = operand => operand.match(/\.(LCPI\d+_\d+)\]/)?.[1];
+
+		// Arrow from a source box into a row of text. Straight down if the source
+		// is directly above, otherwise in from whichever side the source is on.
+		// `left_pad` leaves room for an operator before the row.
+		const arrow_into = (from, textual, click, straight_down, delay = 0, left_pad = 0) => {
+			if (straight_down) {
+				top_level.insertAdjacentElement("beforeend", createArrow(from, {
+					midpoint: from.left_side + 18,
+					top_y: textual.top_y - 2,
+				}, click, true, undefined, delay));
+				return;
+			}
+			const from_left = from.left_side < textual.left_side;
+			const midpoint = from_left ?
+				textual.left_side - left_pad - 14 + 4 :
+				textual.right_side + 14 + 2;
+			// createArrow drops from left_side + 18 and ends at midpoint - 9;
+			// make sure the drop clears the end so the corner turns left.
+			const start = from_left ? from : {
+				left_side: Math.max(from.left_side, midpoint - 9 + 2),
+				bottom_y: from.bottom_y,
+			};
+			top_level.insertAdjacentElement("beforeend", createArrow(start, {
+				midpoint,
+				top_y: (textual.top_y + textual.bottom_y) / 2 + 3,
+			}, click, false, undefined, delay));
+		};
+
+		// Arrow from a box directly above into a row that isn't the first one.
+		// Coming straight down would cut through the rows on top, so go around
+		// the right side (nothing else comes in from there) and in from the right.
+		const arrow_around = (from, textual, click, delay = 0) => {
+			const r = 10;
+			const x1 = from.left_side + 18;
+			const y1 = from.bottom_y + 8;
+			const ya = from.bottom_y + 18;
+			const xr = Math.max(textual.right_side, from.right_side) + 30;
+			const yt = (textual.top_y + textual.bottom_y) / 2;
+			const x2 = textual.right_side + 7;
+			top_level.insertAdjacentElement("beforeend", createArrow(from, null, click, false,
+				`M ${x1} ${y1} V ${ya - r} L ${x1 + r} ${ya} H ${xr - r} ` +
+				`L ${xr} ${ya + r} V ${yt - r} L ${xr - r} ${yt} H ${x2}`,
+				delay,
+			));
+		};
+
+		for (; i < lines.length; i++) {
+			const line = lines[i].trim();
+			if (line === "ret") break;
+			const sep = line.indexOf(' ');
+			if (sep === -1) throw new Error("Missing arguments for " + line);
+			const mnemonic = line.slice(0, sep);
+			const args = line.slice(sep + 1).trim().replace(/;.*$/, '').split(', ');
+			// console.log(`'${mnemonic}'`, args)
+			const click = 2 + i - start_i;
+			const drawn_before = drawn.length;
+			const arrows_before = drawn_arrows.length;
+			const animations_before = global_animations.length;
+
+
+
+			switch (mnemonic) {
+				case "mov": case "kmovd": case "vmovd": case "vpbroadcastb": {
+					// `vmovd eax, xmm0`: the low dword out of a vector, drawn as its
+					// 4 bytes in memory order like a column of the vector's grid
+					if (mnemonic === "vmovd" && this.is_simd_reg(args[1])) {
+						const [dest, src] = args;
+						const [src_e, src_v] = this.get(src);
+						const value = src_v & 0xFFFFFFFFn;
+						const w = src_e.grid_width ?? 1;
+
+						const dest_e = this.get(dest)[0];
+						// Below everything, so it doesn't land on arrows coming out of
+						// boxes higher up in its column
+						const movd_box = createRegisterBox({
+							x: dest_e?.left_side ?? top_level_pos,
+							y: lowest_y() + 20,
+							height: 42,
+							content: 'X'.repeat(grid_chars(4, w)),
+							contentColor: digitColor,
+							label: dest,
+							click,
+							delay: ANIM.arrow,
+							content_delay: ANIM.arrow + ANIM.box,
+							top_level,
+						});
+						// Non-breaking spaces, since SVG collapses ordinary ones
+						movd_box.content_box.textContent = Array.from({ length: 4 }, (_, k) =>
+							String((value >> BigInt(8 * k)) & 0xFFn).padStart(w, '\u00A0')).join(w > 1 ? '\u00A0' : '');
+
+						// Into the middle of the box's side, like mov from a register
+						const from_left = src_e.left_side < movd_box.left_side;
+						const midpoint = from_left ? movd_box.left_side - 14 + 4 : movd_box.right_side + 14 + 12;
+						top_level.insertAdjacentElement("beforeend", createArrow(from_left ? src_e : {
+							left_side: Math.max(src_e.left_side, midpoint - 9 + 2),
+							bottom_y: src_e.bottom_y,
+						}, {
+							midpoint,
+							top_y: (movd_box.top_y + movd_box.bottom_y) / 2 + 3,
+						}, click));
+
+						if (!dest_e) top_level_pos = movd_box.right_side + 5;
+						this.set(dest, [movd_box, value]);
+						break;
+					}
+
+					let args_1 = args[1];
+					console.log("[0] args_1", args_1);
+					const regex = /^\w+ ptr \[rip \+ \.(LCPI\d+_\d+)\]/;
+					const m = args[1].match(regex);
+
+					let rendering_options = [];
+
+					if (m) {
+						const bitsies = this.constant_pool.get(m[1]);
+						args_1 = bitsies;
+						rendering_options = this.rendering_options.get(m[1]) ?? [];
+						console.log("[1] args_1", args_1, m[1],rendering_options);
+					}
+
+					if (mnemonic.startsWith("vpbroadcast")) {
+						const granularity = ({
+							"b": 8n,
+							"w": 16n,
+							"d": 32n,
+							"q": 64n,
+						})[mnemonic["vpbroadcast".length]];
+						if (!granularity) throw Error("invalid granularity")
+						const s = this.simd_reg_byte_size(args[0]);
+						const broadcasted = new Array(s)
+							.fill(0)
+							.map((_, i) => args_1 << (granularity*BigInt(i)))
+							.reduce((a, c) => a | c, 0n);
+						args_1 = broadcasted;
+					}
+
+					const content = BigInt(
+						this.is_register(args[1]) ?
+						this.get(args[1])[1] :
+						args_1
+					);
+
+					const o = this.get(args[0])?.[0];
+					const b = (this.is_register(args[1]) &&
+							this.get(args[1])?.[0]);
+
+					let my_y = 0;
+
+					if (o) {
+						if (b) {
+							my_y = Math.max(o.bottom_y, b.bottom_y);
+						} else {
+							my_y = o.bottom_y;
+						}
+					} else if (b) {
+						my_y = b.bottom_y;
+					}
+
+					if (my_y) {
+						my_y += 20;
+					}
+
+					// Box draws once the arrow from a source register has landed
+					const box_delay = b ? ANIM.arrow : 0;
+
+					const eax_box = createRegisterBox({
+						x: o?.left_side ?? top_level_pos,
+						y: my_y || 50,
+						height: 42,
+						content: this.is_k_reg(args[0]) ?
+							to_kmask(content) :
+							fnum(16, content, undefined, rendering_options),
+						label: args[0],
+						click,
+						delay: box_delay,
+						content_delay: box_delay + ANIM.box,
+						top_level,
+					});
+					//if (!my_y)
+
+						top_level_pos = eax_box.right_side + 5;
+					this.set(args[0], [eax_box, content]);
+
+					if (this.is_register(args[1])) {
+						// Point at the vertical middle of the destination's left edge.
+						// createArrow ends the line at midpoint - 9 and at top_y - 3;
+						// the arrowhead extends 12px beyond the path end.
+						const dest = this.get(args[0])[0];
+
+
+						//top_level.insertAdjacentElement("beforeend", createArrow(
+						//	this.get(args[1])[0],
+						//	{
+						//		midpoint: dest.left_side - 14 + 9,
+						//		top_y: (dest.top_y + dest.bottom_y) / 2 + 3,
+						//	},
+						//	click,
+						//));
+
+						const from = this.get(args[1])[0];
+
+						top_level.insertAdjacentElement("beforeend", createArrow(
+							from,
+							{
+								midpoint: from.left_side < dest.left_side ?
+									dest.left_side - 14 + 4 :
+									dest.right_side + 14 + 12,
+								top_y: (dest.top_y + dest.bottom_y) / 2 + 3,
+							},
+							click,
+						));
+						//let j = 0;
+						//const x = 20;
+						//const arrow1 = createArrow(this.get(args[1])[0], {
+						//	midpoint: j ? (this.get(args[1])[0].left_side < x ? x - 29 : x - 29 + text_content.length * 16.8) : x - 29 + (text_content.length / 2) * 16.8,
+						//	top_y: j ? y + 25 : y + 7,
+						//}, click, args[0] === args[j + 1]);
+						//top_level.insertAdjacentElement("beforeend", arrow1);
+					}
+
+					break;
+				}
+
+				case "bzhi": {
+					const [dest_e] = this.get(args[0]);
+					const x = dest_e.left_side;
+					let y = dest_e.bottom_y + 30;
+					const height = 42;
+					const inputs = [this.get(args[1])[1], this.get(args[2])[1]];
+					const contentColor = 'rgb(191, 149, 249)'
+
+					const processed_input_1 = ((1n << (inputs[1] & 0xFFn)) - 1n);
+					const result = inputs[0] & processed_input_1;
+
+					const str_input_0 = fnum(16, inputs[0]);
+
+					for (let j = 0; j < 2; j++) {
+						const text_content = j ? `& ${fnum(16, processed_input_1, str_input_0.length - 2)}` : "&nbsp;&nbsp;" + str_input_0;
+
+						const textual = createTextual(top_level, {
+							x: x - 29,
+							y,
+							height,
+							click, contentColor, text_content,
+							delay: ANIM.arrow + j * ANIM.row,
+						});
+
+						createArrowH(
+							top_level,
+							this.get(args[j + 1]),
+							[textual, args[0][1]],
+							click,
+							args[0] == args[j + 1],
+							j * ANIM.row,
+						);
+						//const arrow1 = createArrow(this.get(args[j + 1])[0], {
+						//	midpoint: j ? (this.get(args[j + 1])[0].left_side < x ? x - 29 : x - 29 + text_content.length * 16.8) - 8 : x - 29 + (text_content.length / 2) * 16.8,
+						//	top_y: (j ? y + 25 : y + 7 - 4),
+						//}, click, args[0] === args[j + 1]);
+						//top_level.insertAdjacentElement("beforeend", arrow1);
+
+						y += 30;
+					}
+
+					y += 10;
+
+					const bzhi_box = createRegisterBox({
+						x, y, height,
+						content: fnum(16, result, str_input_0.length - 2),
+						label: args[0],
+						click,
+						delay: ANIM.arrow + 2 * ANIM.row,
+						content_delay: ANIM.arrow + 2 * ANIM.row + ANIM.box,
+						top_level,
+					});
+
+					this.set(args[0], [bzhi_box, result]);
+					break;
+				}
+
+				case "vpblendmb": {
+					// e.g. `xmm1 {k1}, xmm0, xmmword ptr [rdi]`
+					const [dest, ...decorators] = args[0].split(/\s+/);
+					const mask_reg = decorators.map(d => d.match(/^\{(k[1-7])\}$/)?.[1]).find(e => e);
+					const zeroing = decorators.includes("{z}");
+					const s = this.simd_reg_byte_size(dest);
+					const height = 42;
+					const contentColor = 'rgb(191, 149, 249)';
+
+					const [src1_e, src1] = this.get(args[1]);
+					const [mask_e, mask] = mask_reg ?
+						this.get(mask_reg) :
+						[null, (1n << BigInt(s)) - 1n];
+
+					// The only memory operand in this demo is the string at [rdi]
+					// Bytes past the end of the string are unknown, drawn as a red X
+					let src2_e, src2, src2_text, src2_known_len = s;
+					if (this.is_register(args[2])) {
+						[src2_e, src2] = this.get(args[2]);
+						src2_text = to_ascii(src2, s);
+					} else {
+						const bytes = new TextEncoder().encode(textarea.value).slice(0, s);
+						src2 = [...bytes].reduceRight((a, b) => (a << 8n) | BigInt(b), 0n);
+						src2_known_len = bytes.length;
+						src2_text = String.fromCharCode(...bytes).padEnd(s, 'X');
+						const mx = +xmmword_rect.getAttribute("x");
+						src2_e = {
+							left_side: mx,
+							right_side: mx + +xmmword_rect.getAttribute("width"),
+							top_y: +xmmword_rect.getAttribute("y"),
+							bottom_y: +xmmword_rect.getAttribute("y") + +xmmword_rect.getAttribute("height"),
+						};
+					}
+
+					let result = 0n;
+					for (let j = 0n; j < BigInt(s); j++) {
+						const take_src2 = (mask >> j) & 1n;
+						const src = take_src2 ? src2 : zeroing ? 0n : src1;
+						result |= src & (0xFFn << (8n * j));
+					}
+
+					// Each register owns its own column, so a new destination gets a
+					// new one after everything else
+					const dest_e = this.get(dest)[0];
+					const column_e = dest_e;
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src1_e.bottom_y, mask_e?.bottom_y ?? 0, src2_e.bottom_y, dest_e?.bottom_y ?? 0) + 30;
+
+					// The source in our column goes first so its straight-down arrow
+					// doesn't cross the other rows. Otherwise rightmost first, so the
+					// longer drops don't cross the earlier rows.
+					const rows = [
+						[src1_e, to_ascii(src1, s)],
+						[src2_e, src2_text],
+						// Bit j lines up with byte j above and below
+						[mask_e, to_kmask(mask, s)],
+					].sort(([a], [b]) => (b === column_e) - (a === column_e) ||
+						(b?.left_side ?? -Infinity) - (a?.left_side ?? -Infinity));
+
+					let t = ANIM.arrow;
+					let right_side = 0;
+					for (const [from, text_content] of rows) {
+						const textual = createTextual(top_level, {
+							x: x + 4, y, height,
+							click, text_content,
+							contentColor: from === mask_e ? contentColor : asciiColor,
+							delay: t,
+						});
+						// Start the arrow so it lands just as its row fades in
+						const arrow_delay = t - ANIM.arrow;
+						t += ANIM.row;
+
+						if (from === src2_e && src2_known_len < s) {
+							textual.textContent = text_content.slice(0, src2_known_len);
+							const unknown = apply_attr("tspan", { style: "fill: rgb(255, 85, 85)" });
+							unknown.textContent = text_content.slice(src2_known_len);
+							textual.appendChild(unknown);
+						}
+
+						if (from) arrow_into(from, textual, click, from === column_e, arrow_delay);
+						right_side = Math.max(right_side, textual.right_side);
+
+						y += 30;
+					}
+
+					y += 10;
+
+					const blend_box = createRegisterBox({
+						x, y, height,
+						content: to_ascii(result, s),
+						contentColor: asciiColor,
+						label: dest,
+						click,
+						delay: t,
+						content_delay: t + ANIM.box,
+						top_level,
+					});
+
+					if (!dest_e) top_level_pos = Math.max(right_side, blend_box.right_side) + 5;
+					this.set(dest, [blend_box, result]);
+					break;
+				}
+
+				case "vpcmpneqb": {
+					// e.g. `k0, xmm1, xmm0`, optionally `k0 {k1}, ...` to AND with a mask
+					const [dest, ...decorators] = args[0].split(/\s+/);
+					const mask_reg = decorators.map(d => d.match(/^\{(k[1-7])\}$/)?.[1]).find(e => e);
+					const s = this.simd_reg_byte_size(args[1]);
+					const height = 42;
+
+					const [src1_e, src1] = this.get(args[1]);
+					const [src2_e, src2] = this.get(args[2]);
+					const [mask_e, mask] = mask_reg ?
+						this.get(mask_reg) :
+						[null, (1n << BigInt(s)) - 1n];
+
+					let result = 0n;
+					for (let j = 0n; j < BigInt(s); j++) {
+						const a = (src1 >> (8n * j)) & 0xFFn;
+						const b = (src2 >> (8n * j)) & 0xFFn;
+						if (a !== b) result |= 1n << j;
+					}
+					result &= mask;
+
+					// A new k register gets its own column after everything else
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src1_e.bottom_y, src2_e.bottom_y, mask_e?.bottom_y ?? 0, dest_e?.bottom_y ?? 0) + 30;
+
+					// Rightmost source first, so the longer drops from further left
+					// don't cross the horizontal runs of earlier rows.
+					const rows = [
+						[src1_e, to_ascii(src1, s), asciiColor],
+						[src2_e, to_ascii(src2, s), asciiColor],
+						...(mask_e ? [[mask_e, to_kmask(mask, s), 'rgb(191, 149, 249)']] : []),
+					].sort(([a], [b]) => b.left_side - a.left_side);
+
+					let right_side = 0;
+					let t = ANIM.arrow;
+					for (const [from, text_content, contentColor] of rows) {
+						const textual = createTextual(top_level, {
+							x: x + 4, y, height,
+							click, contentColor, text_content,
+							delay: t,
+						});
+						arrow_into(from, textual, click, from === dest_e, t - ANIM.arrow);
+						t += ANIM.row;
+						right_side = Math.max(right_side, textual.right_side);
+						y += 30;
+					}
+
+					y += 10;
+
+					const cmp_box = createRegisterBox({
+						x, y, height,
+						content: to_kmask(result, s),
+						label: dest,
+						click,
+						delay: t,
+						content_delay: t + ANIM.box,
+						top_level,
+					});
+
+					if (!dest_e) top_level_pos = Math.max(right_side, cmp_box.right_side) + 5;
+					this.set(dest, [cmp_box, result]);
+					break;
+				}
+
+				case "kshiftlb": case "kshiftlw": case "kshiftld": case "kshiftlq":
+				case "kshiftrb": case "kshiftrw": case "kshiftrd": case "kshiftrq": {
+					// e.g. `k1, k0, 1`
+					const [dest, src, imm] = args;
+					const bits = ({ b: 8, w: 16, d: 32, q: 64 })[mnemonic.at(-1)];
+					const width_mask = (1n << BigInt(bits)) - 1n;
+					const count = BigInt(imm);
+					const height = 42;
+
+					const [src_e, src_v] = this.get(src);
+					// Shifting left moves bits towards higher indices, which is to
+					// the right in memory order.
+					const result = count >= BigInt(bits) ? 0n :
+						mnemonic[6] === 'l' ?
+							(src_v << count) & width_mask :
+							(src_v & width_mask) >> count;
+
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src_e.bottom_y, dest_e?.bottom_y ?? 0) + 30;
+
+					const textual = createTextual(top_level, {
+						x: x + 4, y, height,
+						click,
+						contentColor: 'rgb(191, 149, 249)',
+						text_content: to_kmask(src_v & width_mask, bits),
+						delay: ANIM.arrow,
+					});
+					arrow_into(src_e, textual, click, src_e === dest_e);
+
+					y += 30;
+
+					const is_left = mnemonic[6] === 'l';
+					createTextual(top_level, {
+						x: x + 4, y, height,
+						click,
+						contentColor: 'rgb(255, 121, 198)',
+						text_content: `${is_left ? '<<' : '>>'} ${count}`,
+						delay: ANIM.arrow + ANIM.row,
+					});
+
+					y += 30 + 10;
+
+					const result_text = to_kmask(result, bits);
+					const shift_box_delay = ANIM.arrow + 2 * ANIM.row;
+					const shift_box = createRegisterBox({
+						x, y, height,
+						content: result_text,
+						label: dest,
+						click,
+						delay: shift_box_delay,
+						content_delay: shift_box_delay + ANIM.box,
+						top_level,
+					});
+
+					// The box starts out showing the source bits. Then the bits that
+					// fall off the end collapse and fade out while the shifted-in
+					// zeros fade in and open up on the other side, so the rest of
+					// the bits visibly slide over.
+					const n_in = Number(count < BigInt(bits) ? count : BigInt(bits));
+					if (n_in > 0) {
+						const src_text = to_kmask(src_v & width_mask, bits);
+						const in_id = `shift-in-${click}`;
+						const out_id = `shift-out-${click}`;
+						const shifted_in = apply_attr('tspan', { id: in_id });
+						const shifted_out = apply_attr('tspan', { id: out_id });
+						shifted_in.textContent = '0'.repeat(n_in);
+
+						if (is_left) {
+							shifted_out.textContent = src_text.slice(bits - n_in);
+							shift_box.content_box.replaceChildren(shifted_in, src_text.slice(0, bits - n_in), shifted_out);
+						} else {
+							shifted_out.textContent = src_text.slice(0, n_in);
+							shift_box.content_box.replaceChildren(shifted_out, src_text.slice(n_in), shifted_in);
+						}
+
+						// -1ch cancels out exactly one character's advance, so a
+						// collapsed tspan takes up no room at all.
+						const collapsed = { "letter-spacing": "-1ch", opacity: 0 };
+						const normal = { "letter-spacing": "0ch", opacity: 1 };
+						for (const [id, keyframes] of [[in_id, { 0: collapsed, 100: normal }], [out_id, { 0: normal, 100: collapsed }]]) {
+							global_animations.push({
+								section: 'assembly-1-overlay',
+								selector: `#${id}`,
+								slide_num: click,
+								continuous: true,
+								// Once the rest of the value has faded in
+								animation_delay: `${shift_box_delay + ANIM.box + ANIM.fade}s`,
+								animation_duration: "0.6s",
+								keyframes,
+							});
+						}
+					}
+
+					if (!dest_e) top_level_pos = Math.max(textual.right_side, shift_box.right_side) + 5;
+					this.set(dest, [shift_box, result]);
+					break;
+				}
+
+				case "kandb": case "kandw": case "kandd": case "kandq":
+				case "kandnb": case "kandnw": case "kandnd": case "kandnq":
+				case "korb": case "korw": case "kord": case "korq":
+				case "kxorb": case "kxorw": case "kxord": case "kxorq":
+				case "kxnorb": case "kxnorw": case "kxnord": case "kxnorq": {
+					// e.g. `k1, k1, k0`
+					const [dest, src1, src2] = args;
+					const bits = ({ b: 8, w: 16, d: 32, q: 64 })[mnemonic.at(-1)];
+					const width_mask = (1n << BigInt(bits)) - 1n;
+					const op = mnemonic.slice(1, -1);
+					const height = 42;
+
+					const [src1_e, a] = this.get(src1);
+					const [src2_e, b] = this.get(src2);
+					// The operator is drawn before the second row. andn's NOT applies to
+					// src1, so for it src1 is drawn second, as `src2 & ~src1`.
+					let [result, prefix, swap] = ({
+						and:  [a & b,    "&",   false],
+						andn: [~a & b,   "& ~", true],
+						or:   [a | b,    "|",   false],
+						xor:  [a ^ b,    "^",   false],
+						xnor: [~(a ^ b), "^ ~", false],
+					})[op];
+					result &= width_mask;
+
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src1_e.bottom_y, src2_e.bottom_y, dest_e?.bottom_y ?? 0) + 30;
+
+					// Otherwise, the source in our column goes first so its straight-down
+					// arrow doesn't cross the other row.
+					const rows = swap ?
+						[[src2_e, b], [src1_e, a]] :
+						[[src1_e, a], [src2_e, b]].sort(([p], [q]) => (q === dest_e) - (p === dest_e));
+
+					let right_side = 0;
+					for (const [j, [from, v]] of rows.entries()) {
+						const row_delay = ANIM.arrow + j * ANIM.row;
+						const textual = createTextual(top_level, {
+							x: x + 4, y, height,
+							click,
+							contentColor: 'rgb(191, 149, 249)',
+							text_content: to_kmask(v & width_mask, bits),
+							delay: row_delay,
+						});
+
+						let prefix_left = textual.left_side;
+						const op_gap = 0;
+						if (j === 1) {
+							const op_e = createTextual(top_level, {
+								x: textual.left_side - op_gap, y, height,
+								click,
+								contentColor: 'rgb(255, 121, 198)',
+								text_content: prefix,
+								delay: row_delay,
+							});
+							op_e.setAttribute('text-anchor', 'end');
+							prefix_left = textual.left_side - op_gap - prefix.length * 16.8;
+						}
+
+						if (from === dest_e && j !== 0) {
+							// Directly above but not the first row: coming straight down
+							// would cut through the first row, so leave the bottom left
+							// of the box, swing out left past the operator, and come in
+							// from the left.
+							const r = 10;
+							const x1 = from.left_side + 18;
+							const y1 = from.bottom_y + 8;
+							const ya = from.bottom_y + 18;
+							const x2 = prefix_left - 19;
+							const xl = x2 - 2 * r;
+							const yt = (textual.top_y + textual.bottom_y) / 2;
+							top_level.insertAdjacentElement("beforeend", createArrow(from, null, click, false,
+								// Corners are diagonal cuts, matching createArrow's
+								`M ${x1} ${y1} V ${ya - r} L ${x1 - r} ${ya} H ${xl + r} ` +
+								`L ${xl} ${ya + r} V ${yt - r} L ${xl + r} ${yt} H ${x2}`,
+								row_delay - ANIM.arrow,
+							));
+						} else {
+							arrow_into(from, textual, click, from === dest_e, row_delay - ANIM.arrow);
+						}
+						right_side = Math.max(right_side, textual.right_side);
+						y += 30;
+					}
+
+					y += 10;
+
+					const logic_box = createRegisterBox({
+						x, y, height,
+						content: to_kmask(result, bits),
+						label: dest,
+						click,
+						delay: ANIM.arrow + rows.length * ANIM.row,
+						content_delay: ANIM.arrow + rows.length * ANIM.row + ANIM.box,
+						top_level,
+					});
+
+					if (!dest_e) top_level_pos = Math.max(right_side, logic_box.right_side) + 5;
+					this.set(dest, [logic_box, result]);
+					break;
+				}
+
+				case "vmovdqa": case "vmovdqa32": case "vmovdqa64": {
+					// e.g. `zmm1, zmmword ptr [rip + .LCPI0_2]`
+					const [dest, src] = args;
+					const s = this.simd_reg_byte_size(dest);
+
+					let value, options = [];
+					if (this.is_register(src)) {
+						value = this.get(src)[1];
+					} else {
+						const label = m_label(src);
+						if (!label) throw new Error("Unsupported operand " + src);
+						value = this.constant_pool.get(label);
+						options = this.rendering_options.get(label) ?? [];
+					}
+
+					// `dword_index`: drawn as a grid of dwords (see fill_dword_grid)
+					const by_dword = options.includes("dword_index");
+					const content = by_dword ? 'X'.repeat(s / 4) : to_ascii(value, s);
+
+					// zmm1 shares xmm1's column, but goes below everything so it
+					// doesn't land on the arrows coming out of xmm1
+					const dest_e = this.get(dest)[0];
+					const mov_y = lowest_y() + 20;
+					const mov_box = createRegisterBox({
+						x: dest_e?.left_side ?? top_level_pos,
+						y: mov_y,
+						height: by_dword ? GRID_HEIGHT : 42,
+						content,
+						contentColor: options.includes("dword_index") ? digitColor : asciiColor,
+						label: dest,
+						click,
+						content_delay: ANIM.box,
+						top_level,
+					});
+
+					if (by_dword) {
+						fill_dword_grid(mov_box.content_box, value, s / 4, mov_y);
+						mov_box.numeric = true;
+					}
+
+					if (!dest_e) top_level_pos = mov_box.right_side + 5;
+					this.set(dest, [mov_box, value]);
+					break;
+				}
+
+				case "vpcompressd": {
+					// e.g. `zmm2 {k1} {z}, zmm1`: pack the dwords picked by k1 down
+					// to the start, then zero (or keep, without {z}) the rest
+					const [dest, ...decorators] = args[0].split(/\s+/);
+					const mask_reg = decorators.map(d => d.match(/^\{(k[1-7])\}$/)?.[1]).find(e => e);
+					const zeroing = decorators.includes("{z}");
+					const n = this.simd_reg_byte_size(dest) / 4;
+
+					const [src_e, src_v] = this.get(args[1]);
+					const [mask_e, mask] = mask_reg ?
+						this.get(mask_reg) :
+						[null, (1n << BigInt(n)) - 1n];
+					const [dest_e, dest_v] = this.get(dest);
+
+					const dword = (v, j) => (v >> BigInt(32 * j)) & 0xFFFFFFFFn;
+					let result = 0n, packed = 0;
+					for (let j = 0; j < n; j++) {
+						if ((mask >> BigInt(j)) & 1n) result |= dword(src_v, j) << BigInt(32 * packed++);
+					}
+					for (let j = packed; j < n; j++) {
+						if (!zeroing) result |= dword(dest_v ?? 0n, j) << BigInt(32 * j);
+					}
+
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src_e.bottom_y, mask_e?.bottom_y ?? 0, dest_e?.bottom_y ?? 0) + 30;
+
+					// A source in our own column goes first so its straight-down
+					// arrow doesn't cut through the other row; otherwise rightmost
+					// first, so the longer drops don't cross the earlier rows
+					const rows = [[src_e, true], ...(mask_e ? [[mask_e, false]] : [])]
+						.sort(([a], [b]) => (b === dest_e) - (a === dest_e) || b.left_side - a.left_side);
+
+					let right_side = 0;
+					for (const [j, [from, is_grid]] of rows.entries()) {
+						const row_delay = ANIM.arrow + j * ANIM.row;
+						const textual = createTextual(top_level, {
+							x: x + 4, y,
+							height: is_grid ? GRID_HEIGHT : 42,
+							click,
+							contentColor: is_grid ? digitColor : 'rgb(191, 149, 249)',
+							text_content: is_grid ? 'X'.repeat(n) : to_kmask(mask, n),
+							delay: row_delay,
+						});
+						// Dim the dwords the mask doesn't pick
+						if (is_grid) fill_dword_grid(textual, src_v, n, y, j => !((mask >> BigInt(j)) & 1n));
+						arrow_into(from, textual, click, from === dest_e, row_delay - ANIM.arrow);
+						right_side = Math.max(right_side, textual.right_side);
+						y += (is_grid ? GRID_HEIGHT - 42 : 0) + 30;
+					}
+
+					y += 10;
+
+					const compress_box_delay = ANIM.arrow + rows.length * ANIM.row;
+					const compress_box = createRegisterBox({
+						x, y,
+						height: GRID_HEIGHT,
+						content: 'X'.repeat(n),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						delay: compress_box_delay,
+						content_delay: compress_box_delay + ANIM.box,
+						top_level,
+					});
+					// Dim the zeroed tail
+					fill_dword_grid(compress_box.content_box, result, n, y, j => zeroing && j >= packed);
+					compress_box.numeric = true;
+
+					if (!dest_e) top_level_pos = Math.max(right_side, compress_box.right_side) + 5;
+					this.set(dest, [compress_box, result]);
+					break;
+				}
+
+				case "vpshufb": {
+					// e.g. `xmm0, xmm0, xmm2`: byte i = table[index[i] & 15], or 0 if
+					// index[i] has its top bit set (within each 16-byte lane)
+					const [dest, table, index] = args;
+					const s = this.simd_reg_byte_size(dest);
+
+					const [table_e, table_v] = this.get(table);
+					const [index_e, index_v] = this.get(index);
+					const byte = (v, i) => (v >> BigInt(8 * i)) & 0xFFn;
+
+					let result = 0n;
+					for (let i = 0; i < s; i++) {
+						const idx = byte(index_v, i);
+						const lane = i & ~15;
+						if (!(idx & 0x80n)) result |= byte(table_v, lane + Number(idx & 15n)) << BigInt(8 * i);
+					}
+
+					// Numeric indices (rather than ASCII) give a numeric result
+					const as_num = !!index_e.numeric;
+
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					// Below everything so far (not just its operands), so the rows
+					// don't sit alongside whatever was drawn in the other columns
+					let y = lowest_y() + 30;
+
+					// Same ordering as vpcompressd
+					const rows = [table_e, index_e]
+						.sort((a, b) => (b === dest_e) - (a === dest_e) || b.left_side - a.left_side);
+
+					let right_side = 0;
+					for (const [j, from] of rows.entries()) {
+						const row_delay = ANIM.arrow + j * ANIM.row;
+						const is_num = from === index_e && as_num;
+						const textual = createTextual(top_level, {
+							x: x + 4, y,
+							height: is_num ? num_height(s) : 42,
+							click,
+							contentColor: is_num ? digitColor : asciiColor,
+							text_content: 'X'.repeat(is_num ? num_chars(s) : s),
+							delay: row_delay,
+						});
+						if (is_num) fill_num(textual, index_v, s, y);
+						else fill_bytes(textual, from === index_e ? index_v : table_v, s);
+						arrow_into(from, textual, click, from === dest_e, row_delay - ANIM.arrow);
+						right_side = Math.max(right_side, textual.right_side);
+						y += (is_num ? num_height(s) - 42 : 0) + 30;
+					}
+
+					y += 10;
+
+					const shuf_box_delay = ANIM.arrow + rows.length * ANIM.row;
+					const shuf_box = createRegisterBox({
+						x, y,
+						height: as_num ? num_height(s) : 42,
+						content: 'X'.repeat(as_num ? num_chars(s) : s),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						delay: shuf_box_delay,
+						content_delay: shuf_box_delay + ANIM.box,
+						top_level,
+					});
+					if (as_num) {
+						// Dim the bytes that were zeroed by a ~ index
+						fill_num(shuf_box.content_box, result, s, y,
+							(j, k) => !!(byte(index_v, 4 * j + k) & 0x80n));
+						shuf_box.numeric = true;
+					} else {
+						fill_bytes(shuf_box.content_box, result, s);
+					}
+
+					if (!dest_e) top_level_pos = Math.max(right_side, shuf_box.right_side) + 5;
+					this.set(dest, [shuf_box, result]);
+					break;
+				}
+
+				case "vpbroadcastd": {
+					// e.g. `xmm2, dword ptr [rip + .LCPI0_3]`: copy one dword into
+					// every dword, drawn as a dword grid
+					const [dest, src] = args;
+					const s = this.simd_reg_byte_size(dest);
+					const n = s / 4;
+
+					const label = m_label(src);
+					if (!label) throw new Error("Unsupported operand " + src);
+					const d = this.constant_pool.get(label) & 0xFFFFFFFFn;
+					const options = this.rendering_options.get(label) ?? [];
+					// `dec`: bytes too big for one base-32 digit
+					const w = options.includes("dec") ? 3 : 1;
+
+					let value = 0n;
+					for (let j = 0; j < n; j++) value |= d << BigInt(32 * j);
+
+					// Below everything, so it doesn't land on arrows coming out of
+					// boxes higher up in its column
+					const dest_e = this.get(dest)[0];
+					const bc_y = lowest_y() + 20;
+					const bc_box = createRegisterBox({
+						x: dest_e?.left_side ?? top_level_pos,
+						y: bc_y,
+						height: num_height(s),
+						content: 'X'.repeat(num_chars(s, w)),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						content_delay: ANIM.box,
+						top_level,
+					});
+					fill_num(bc_box.content_box, value, s, bc_y, undefined, w);
+					bc_box.numeric = true;
+					bc_box.grid_width = w;
+
+					if (!dest_e) top_level_pos = bc_box.right_side + 5;
+					this.set(dest, [bc_box, value]);
+					break;
+				}
+
+				case "vpshldvd": {
+					// e.g. `xmm3, xmm2, xmm1`: per dword, join dest (high) onto src2
+					// (low), shift left by src3, and keep the high half. Bytes go
+					// down the grid low first, so src2's grid sits directly on top
+					// of dest's to make one 8-byte column per dword.
+					const [dest, src2, src3] = args;
+					const s = this.simd_reg_byte_size(dest);
+					const n = s / 4;
+
+					const [dest_e, dest_v] = this.get(dest);
+					const [src2_e, src2_v] = this.get(src2);
+					const [src3_e, src3_v] = this.get(src3);
+					const dword = (v, j) => (v >> BigInt(32 * j)) & 0xFFFFFFFFn;
+
+					let result = 0n;
+					for (let j = 0; j < n; j++) {
+						const joined = (dword(dest_v, j) << 32n) | dword(src2_v, j);
+						const shifted = (joined << (dword(src3_v, j) & 31n)) >> 32n;
+						result |= (shifted & 0xFFFFFFFFn) << BigInt(32 * j);
+					}
+
+					// Everything at the widest cell width, so the columns line up
+					const w = Math.max(...[dest_e, src2_e, src3_e].map(e => e?.grid_width ?? 1));
+					const chars = num_chars(s, w);
+					const op_color = 'rgb(255, 121, 198)';
+
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(dest_e?.bottom_y ?? 0, src2_e.bottom_y, src3_e.bottom_y) + 30;
+
+					const rows = [
+						[src2_e, src2_v, undefined],
+						[dest_e, dest_v, undefined],
+						// Only the low 5 bits of each count matter, so dim the rest
+						[src3_e, src3_v, (j, k) => k > 0],
+					];
+					const op = "<<";
+					let right_side = 0;
+					for (const [j, [from, v, dim]] of rows.entries()) {
+						const row_delay = ANIM.arrow + j * ANIM.row;
+						const textual = createTextual(top_level, {
+							x: x + 4, y,
+							height: num_height(s),
+							click,
+							contentColor: digitColor,
+							text_content: 'X'.repeat(chars),
+							delay: row_delay,
+						});
+						fill_num(textual, v, s, y, dim, w);
+
+						const is_count = from === src3_e;
+						if (is_count) {
+							const op_e = createTextual(top_level, {
+								x: textual.left_side, y: y + (num_height(s) - 42) / 2, height: 42,
+								click,
+								contentColor: op_color,
+								text_content: op,
+								delay: row_delay,
+							});
+							op_e.setAttribute('text-anchor', 'end');
+						}
+
+						const arrow_delay = row_delay - ANIM.arrow;
+						if (from === dest_e && j !== 0) {
+							arrow_around(from, textual, click, arrow_delay);
+						} else {
+							arrow_into(from, textual, click, from === dest_e, arrow_delay,
+								is_count ? op.length * 16.8 + 4 : 0);
+						}
+
+						right_side = Math.max(right_side, textual.right_side);
+						y += num_height(s) - 42 + 30;
+						// The two halves touch, with the count row after a gap
+						if (j === 1) y += 10;
+					}
+
+					y += 10;
+
+					const shld_box_delay = ANIM.arrow + rows.length * ANIM.row;
+					const shld_box = createRegisterBox({
+						x, y,
+						height: num_height(s),
+						content: 'X'.repeat(chars),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						delay: shld_box_delay,
+						content_delay: shld_box_delay + ANIM.box,
+						top_level,
+					});
+					fill_num(shld_box.content_box, result, s, y, undefined, w);
+					shld_box.numeric = true;
+					shld_box.grid_width = w;
+
+					if (!dest_e) top_level_pos = Math.max(right_side, shld_box.right_side) + 5;
+					this.set(dest, [shld_box, result]);
+					break;
+				}
+
+				case "vpdpbusd": {
+					// e.g. `xmm1, xmm0, xmm3`: per dword, multiply the 4 unsigned bytes
+					// of src1 by the 4 signed bytes of src2 and add them all onto
+					// dest. Down a column that's the dot product, so the digits
+					// times 100, 10, 1 become the number.
+					const [dest, src1, src2] = args;
+					const s = this.simd_reg_byte_size(dest);
+					const n = s / 4;
+
+					const [dest_e, dest_v] = this.get(dest);
+					const [src1_e, src1_v] = this.get(src1);
+					const [src2_e, src2_v] = this.get(src2);
+					const byte = (v, j, k) => (v >> BigInt(32 * j + 8 * k)) & 0xFFn;
+
+					let result = 0n;
+					for (let j = 0; j < n; j++) {
+						let sum = (dest_v >> BigInt(32 * j)) & 0xFFFFFFFFn;
+						for (let k = 0; k < 4; k++)
+							sum += byte(src1_v, j, k) * BigInt.asIntN(8, byte(src2_v, j, k));
+						result |= BigInt.asUintN(32, sum) << BigInt(32 * j);
+					}
+
+					// Multiply first: one product per byte, in the same grid shape
+					const product = (j, k) => byte(src1_v, j, k) * BigInt.asIntN(8, byte(src2_v, j, k));
+					const w = Math.max(3, ...[dest_e, src1_e, src2_e].map(e => e?.grid_width ?? 1),
+						...Array.from({ length: n * 4 }, (_, i) => String(product(i >> 2, i & 3)).length),
+						...Array.from({ length: n }, (_, j) => String((result >> BigInt(32 * j)) & 0xFFFFFFFFn).length));
+					const chars = num_chars(s, w);
+					const op_color = 'rgb(255, 121, 198)';
+					const op_pad = op => op.length * 16.8 + 4;
+
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(dest_e?.bottom_y ?? 0, src1_e.bottom_y, src2_e.bottom_y) + 30;
+					let right_side = 0;
+
+					// One row (or grid) of numbers, with an optional operator before it
+					const row = (op, height, delay, fill) => {
+						const textual = createTextual(top_level, {
+							x: x + 4, y,
+							height,
+							click,
+							contentColor: digitColor,
+							text_content: 'X'.repeat(chars),
+							delay,
+						});
+						fill(textual, y);
+						if (op) {
+							const op_e = createTextual(top_level, {
+								x: textual.left_side, y: y + (height - 42) / 2, height: 42,
+								click,
+								contentColor: op_color,
+								text_content: op,
+								delay,
+							});
+							op_e.setAttribute('text-anchor', 'end');
+						}
+						right_side = Math.max(right_side, textual.right_side);
+						y += height - 42 + 30;
+						return textual;
+					};
+
+					// The two operands
+					const src1_delay = ANIM.arrow;
+					const src1_row = row(null, num_height(s), src1_delay,
+						(t, top_y) => fill_num(t, src1_v, s, top_y, undefined, w));
+					arrow_into(src1_e, src1_row, click, src1_e === dest_e, src1_delay - ANIM.arrow);
+
+					const src2_delay = src1_delay + ANIM.row;
+					const src2_row = row("×", num_height(s), src2_delay,
+						(t, top_y) => fill_num(t, src2_v, s, top_y, undefined, w));
+					arrow_into(src2_e, src2_row, click, false, src2_delay - ANIM.arrow, op_pad("×"));
+
+					// A dotted line under the operands, like long multiplication
+					const line_delay = src2_delay + ANIM.row;
+					const line_y = y + 16;
+					const line = apply_attr('line', {
+						class: 'no-slide-in',
+						click,
+						x1: src2_row.left_side - op_pad("×"), y1: line_y,
+						x2: src2_row.right_side, y2: line_y,
+						stroke: 'rgb(248, 248, 242)',
+						stroke_width: 2,
+						stroke_dasharray: '4 6',
+					});
+					top_level.insertAdjacentElement("beforeend", line);
+					fade_in(line, click, line_delay);
+
+					// The products under it, as an intermediate result
+					y += 16;
+					const products_delay = line_delay + ANIM.fade;
+					row("=", num_height(s), products_delay,
+						(t, top_y) => fill_cells(t, s, top_y, w, product));
+
+					// Then the accumulator comes in last, and adds onto each column's sum
+					y += 10;
+					const acc_delay = products_delay + ANIM.row + ANIM.arrow;
+					const acc_row = row("+", 42, acc_delay, t => fill_dwords(t, dest_v, n, w));
+					if (dest_e) arrow_around(dest_e, acc_row, click, acc_delay - ANIM.arrow);
+
+					y += 10;
+
+					const dp_box_delay = acc_delay + ANIM.row;
+					// The result as a grid too, so each dword's bytes go down its column
+					const dp_box = createRegisterBox({
+						x, y,
+						height: GRID_HEIGHT,
+						content: 'X'.repeat(chars),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						delay: dp_box_delay,
+						content_delay: dp_box_delay + ANIM.box,
+						top_level,
+					});
+					fill_dword_grid(dp_box.content_box, result, n, y, undefined, w);
+					dp_box.numeric = true;
+					dp_box.grid_width = w;
+
+					if (!dest_e) top_level_pos = Math.max(right_side, dp_box.right_side) + 5;
+					this.set(dest, [dp_box, result]);
+					break;
+				}
+
+				case "vpmovdb": {
+					// e.g. `xmm0, xmm1`: keep the low byte of each dword, packed
+					// into the low bytes of dest (the rest is zeroed). With src as a
+					// grid, those are its first row: the other rows fade away and
+					// dest's box draws around what's left.
+					const [dest, src] = args;
+					const n_src = this.simd_reg_byte_size(src) / 4;
+
+					const [src_e, src_v] = this.get(src);
+					let result = 0n;
+					for (let j = 0; j < n_src; j++)
+						result |= ((src_v >> BigInt(32 * j)) & 0xFFn) << BigInt(8 * j);
+
+					const w = Math.max(3, src_e.grid_width ?? 1);
+					const chars = grid_chars(n_src, w);
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					const y = Math.max(src_e.bottom_y, dest_e?.bottom_y ?? 0) + 30;
+
+					const textual = createTextual(top_level, {
+						x: x + 4, y,
+						height: GRID_HEIGHT,
+						click,
+						contentColor: digitColor,
+						text_content: 'X'.repeat(chars),
+						delay: ANIM.arrow,
+					});
+					fill_dword_grid(textual, src_v, n_src, y, undefined, w);
+					// At the first row, since that's all that'll be left
+					arrow_into(src_e, { left_side: textual.left_side, right_side: textual.right_side,
+						top_y: y, bottom_y: y + 42 }, click, src_e === dest_e);
+
+					// The high bytes fade away
+					const drop_delay = ANIM.arrow + ANIM.row + ANIM.fade;
+					for (const [k, line] of [...textual.children].entries()) {
+						if (k === 0) continue;
+						line.setAttribute('id', `movdb-${click}-${k}`);
+						global_animations.push({
+							section: 'assembly-1-overlay',
+							selector: `#${line.id}`,
+							slide_num: click,
+							continuous: true,
+							animation_delay: `${drop_delay}s`,
+							animation_duration: `${ANIM.fade}s`,
+							keyframes: {
+								0:   { opacity: 1 },
+								100: { opacity: 0 },
+							},
+						});
+					}
+
+					// Then dest's box goes around the first row, which is already
+					// drawn, so the box itself has no text of its own
+					const movdb_box = createRegisterBox({
+						x, y,
+						height: 42,
+						content: ' '.repeat(chars),
+						label: dest,
+						click,
+						delay: drop_delay + ANIM.fade,
+						top_level,
+					});
+					movdb_box.numeric = true;
+					movdb_box.grid_width = w;
+
+					if (!dest_e) top_level_pos = Math.max(textual.right_side, movdb_box.right_side) + 5;
+					this.set(dest, [movdb_box, result]);
+					break;
+				}
+
+				case "vpslld": case "vpsrld": {
+					// e.g. `xmm1, xmm1, 3`: shift each dword by an immediate
+					const [dest, src, imm] = args;
+					const s = this.simd_reg_byte_size(dest);
+					const n = s / 4;
+					const count = BigInt(imm);
+					const is_left = mnemonic === "vpslld";
+
+					const [src_e, src_v] = this.get(src);
+					let result = 0n;
+					for (let j = 0; j < n; j++) {
+						const d = (src_v >> BigInt(32 * j)) & 0xFFFFFFFFn;
+						const shifted = count >= 32n ? 0n : is_left ? (d << count) & 0xFFFFFFFFn : d >> count;
+						result |= shifted << BigInt(32 * j);
+					}
+
+					const as_num = !!src_e.numeric;
+					const row_height = as_num ? num_height(s) : 42;
+					const draw = (text, v, top_y) => as_num ?
+						fill_num(text, v, s, top_y) :
+						fill_bytes(text, v, s);
+
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					let y = Math.max(src_e.bottom_y, dest_e?.bottom_y ?? 0) + 30;
+
+					const textual = createTextual(top_level, {
+						x: x + 4, y,
+						height: row_height,
+						click,
+						contentColor: as_num ? digitColor : asciiColor,
+						text_content: 'X'.repeat(as_num ? num_chars(s) : s),
+						delay: ANIM.arrow,
+					});
+					draw(textual, src_v, y);
+					arrow_into(src_e, textual, click, src_e === dest_e);
+
+					y += row_height - 42 + 30;
+
+					// The shift amount goes on its own line under the operand, like kshift
+					createTextual(top_level, {
+						x: x + 4, y, height: 42,
+						click,
+						contentColor: 'rgb(255, 121, 198)',
+						text_content: `${is_left ? '<<' : '>>'} ${count}`,
+						delay: ANIM.arrow + ANIM.row,
+					});
+
+					y += 30 + 10;
+
+					const sll_box_delay = ANIM.arrow + 2 * ANIM.row;
+					const sll_box = createRegisterBox({
+						x, y,
+						height: row_height,
+						content: 'X'.repeat(as_num ? num_chars(s) : s),
+						contentColor: digitColor,
+						label: dest,
+						click,
+						delay: sll_box_delay,
+						content_delay: sll_box_delay + ANIM.box,
+						top_level,
+					});
+					draw(sll_box.content_box, result, y);
+					sll_box.numeric = as_num;
+
+					if (!dest_e) top_level_pos = Math.max(textual.right_side, sll_box.right_side) + 5;
+					this.set(dest, [sll_box, result]);
+					break;
+				}
+
+				case "vpaddb": case "vpsubb": case "vpxor": case "vpand": case "vpor": {
+					// e.g. `xmm0, xmm1, xmmword ptr [rip + .LCPI0_1]`
+					const [dest, src1, src2] = args;
+					const s = this.simd_reg_byte_size(dest);
+					const height = 42;
+					const n = s / 4;
+
+					// `vpxor xmm1, xmm1, xmm1` just makes a zero, so draw a zero box
+					// with nothing flowing in. It's drawn as one row of dword values, since
+					// it's usually an accumulator.
+					if (src1 === src2 && (mnemonic === "vpxor" || mnemonic === "vpsubb")) {
+						const dest_e = this.get(dest)[0];
+						const w = 3;
+						const zero_y = lowest_y() + 20;
+						const zero_box = createRegisterBox({
+							x: dest_e?.left_side ?? top_level_pos,
+							y: zero_y,
+							height,
+							content: 'X'.repeat(grid_chars(n, w)),
+							contentColor: digitColor,
+							label: dest,
+							click,
+							content_delay: ANIM.box,
+							top_level,
+						});
+						fill_dwords(zero_box.content_box, 0n, n, w);
+						zero_box.dword_values = true;
+						zero_box.grid_width = w;
+
+						if (!dest_e) top_level_pos = zero_box.right_side + 5;
+						this.set(dest, [zero_box, 0n]);
+						break;
+					}
+
+					const [op_text, op_fn] = ({
+						vpaddb: ["+", (a, b) => a + b],
+						vpsubb: ["-", (a, b) => a - b],
+						vpxor:  ["^", (a, b) => a ^ b],
+						vpand:  ["&", (a, b) => a & b],
+						vpor:   ["|", (a, b) => a | b],
+					})[mnemonic];
+					let shown_op = op_text;
+
+					const [src1_e, src1_v] = this.get(src1);
+
+					// The second operand is either a register or a constant. A `neg`
+					// constant is drawn negated with the operator flipped, so adding
+					// 208s reads as subtracting '0's.
+					let src2_e = null, src2_v;
+					if (this.is_register(src2)) {
+						[src2_e, src2_v] = this.get(src2);
+					} else {
+						const m = src2.match(/^\w+ ptr \[rip \+ \.(LCPI\d+_\d+)\]/);
+						if (!m) throw new Error("Unsupported operand " + src2);
+						src2_v = this.constant_pool.get(m[1]);
+					}
+					let shown2 = src2_v;
+					if (!src2_e && (this.rendering_options.get(m_label(src2)) ?? []).includes("neg") &&
+							(op_text === "+" || op_text === "-")) {
+						shown2 = bytewise(src2_v, s, b => -b);
+						shown_op = op_text === "+" ? "-" : "+";
+					}
+
+					const result = bytewise(src1_v, s, (a, j) => op_fn(a, (src2_v >> (8n * j)) & 0xFFn));
+
+					const dest_e = this.get(dest)[0];
+					const x = dest_e?.left_side ?? top_level_pos;
+					// Start below everything drawn so far, so the arrow from xmm1
+					// doesn't cut through the k mask work
+					let y = lowest_y() + 30;
+
+					// Operands drawn as dword grids (e.g. the vpcompressd results) are
+					// added/subtracted as grids, giving a grid
+					const as_num = !!(src1_e?.numeric || src2_e?.numeric);
+					const row_height = as_num ? num_height(s) : height;
+					const w = Math.max(src1_e?.grid_width ?? 1, src2_e?.grid_width ?? 1);
+
+					const rows = [[src1_e, src1_v], [src2_e, shown2]];
+					let right_side = 0;
+					for (const [j, [from, v]] of rows.entries()) {
+						const row_delay = ANIM.arrow + j * ANIM.row;
+						const textual = createTextual(top_level, {
+							x: x + 4, y,
+							height: row_height,
+							click,
+							text_content: as_num ? 'X'.repeat(num_chars(s, w)) : to_ascii(v, s),
+							contentColor: as_num ? digitColor : asciiColor,
+							delay: row_delay,
+						});
+						if (as_num) fill_num(textual, v, s, y, undefined, w);
+
+						if (j === 1) {
+							// Vertically centred, in case it's a grid
+							const op_e = createTextual(top_level, {
+								x: textual.left_side, y: y + (row_height - height) / 2, height,
+								click,
+								contentColor: 'rgb(255, 121, 198)',
+								text_content: shown_op,
+								delay: row_delay,
+							});
+							op_e.setAttribute('text-anchor', 'end');
+						}
+
+						if (from) arrow_into(from, textual, click, from === dest_e, row_delay - ANIM.arrow);
+						right_side = Math.max(right_side, textual.right_side);
+						y += row_height - height + 30;
+					}
+
+					y += 10;
+
+					const add_box_delay = ANIM.arrow + rows.length * ANIM.row;
+					const add_box = createRegisterBox({
+						x, y,
+						height: row_height,
+						content: as_num ? 'X'.repeat(num_chars(s, w)) : to_ascii(result, s),
+						contentColor: asciiColor,
+						label: dest,
+						click,
+						delay: add_box_delay,
+						content_delay: add_box_delay + ANIM.box,
+						top_level,
+					});
+
+					if (as_num) {
+						fill_num(add_box.content_box, result, s, y, undefined, w);
+						add_box.numeric = true;
+						add_box.grid_width = w;
+					} else {
+						fill_bytes(add_box.content_box, result, s);
+					}
+
+					if (!dest_e) top_level_pos = Math.max(right_side, add_box.right_side) + 5;
+					this.set(dest, [add_box, result]);
+					break;
+				}
+
+				default: {
+					return;
+				}
+			}
+
+
+			// Pan so everything this instruction drew is in view
+			const new_drawn = drawn.slice(drawn_before);
+			const new_arrows = drawn_arrows.slice(arrows_before);
+			if (new_drawn.length) {
+				const margin = 20;
+				const W = VIEW.right - VIEW.left - 2 * margin;
+				const H = VIEW.bottom - VIEW.top - 2 * margin;
+				const bounds = es => ({
+					left:   Math.min(...es.map(e => e.left_side)),
+					right:  Math.max(...es.map(e => e.right_side)),
+					top:    Math.min(...es.map(e => e.top_y)),
+					bottom: Math.max(...es.map(e => e.bottom_y)),
+				});
+
+				// Move as little as possible from where we are: if it's already in
+				// view, stay put. If it doesn't all fit, the left/top edge wins.
+				const pan_to = ({ left, right, top, bottom }) => {
+					let x = Math.min(camera.x, VIEW.right - margin - right);
+					x = Math.min(0, Math.max(x, VIEW.left + margin - left));
+					let y = Math.min(camera.y, VIEW.bottom - margin - bottom);
+					y = Math.min(0, Math.max(y, VIEW.top + margin - top));
+					return { x, y, z: 1 };
+				};
+
+				const all = bounds([...new_drawn, ...new_arrows]);
+				const fits = all.right - all.left <= W && all.bottom - all.top <= H;
+
+				// If the arrows fit too, keep them in view. Otherwise zoom out to
+				// show everything while the arrows draw, then zoom back in on the
+				// new rows and result.
+				const nudge = CAMERA_NUDGE[click] ?? {};
+				const target = fits ? all : bounds(new_drawn);
+				const target_fits = target.right - target.left <= W && target.bottom - target.top <= H;
+				const panned = nudge.center && target_fits ? {
+					x: VIEW.left + margin + (W - (target.right - target.left)) / 2 - target.left,
+					y: VIEW.top + margin + (H - (target.bottom - target.top)) / 2 - target.top,
+					z: 1,
+				} : pan_to(target);
+				const final = { ...panned, x: panned.x + (nudge.x ?? 0), y: panned.y + (nudge.y ?? 0) };
+				let wide = null;
+				if (!fits) {
+					const z = Math.min(W / (all.right - all.left), H / (all.bottom - all.top));
+					wide = {
+						x: VIEW.left + margin + (W - z * (all.right - all.left)) / 2 - z * all.left,
+						y: VIEW.top + margin + (H - z * (all.bottom - all.top)) / 2 - z * all.top,
+						z,
+					};
+				}
+
+				const tf = ({ x, y, z }) => `translate(${x}px, ${y}px) scale(${z})`;
+				const first = wide ?? final;
+				if (first.x !== camera.x || first.y !== camera.y || first.z !== camera.z) {
+					// Pan first, then play this instruction's animations. (Its
+					// arrows fading on the next click are left alone.)
+					for (const a of global_animations.slice(animations_before)) {
+						if (a.slide_num === click)
+							a.animation_delay = `${parseFloat(a.animation_delay ?? "0") + ANIM.pan}s`;
+					}
+
+					// When zoomed out, hold until the last arrow lands, then zoom in
+					const hold = wide ? Math.max(ANIM.arrow, ...new_arrows.map(a => a.end)) : 0;
+					const total = ANIM.pan + hold + (wide ? ANIM.pan : 0);
+					global_animations.push({
+						section: 'assembly-1-overlay',
+						selector: `#top-level`,
+						slide_num: click,
+						animation_delay: "0s",
+						continuous: true,
+						// Earlier clicks shouldn't start out panned
+						skip_auto_prev_state: true,
+						animation_duration: `${total}s`,
+						keyframes: wide ? {
+							0:   { transform: tf(camera) },
+							[100 * ANIM.pan / total]: { transform: tf(wide) },
+							[100 * (ANIM.pan + hold) / total]: { transform: tf(wide) },
+							100: { transform: tf(final) },
+						} : {
+							0:   { transform: tf(camera) },
+							100: { transform: tf(final) },
+						}
+					});
+					camera = final;
+				}
+			}
+		}
+	}
+}
+
+const m = new Machine(document.getElementById("parse_ip_asm").innerHTML);
+
+})();
+			</script>
+
+
+		</g>
+		<rect click="1" id="x-out" x="1890" y="0" height="30" width="30" fill="blue"></rect>
+
+		<script>{
+		}</script>
+
+		<script>{
+
+
+			const backdrop = document.getElementById("visuals-holder");
+			for (const el_id of ["x-out"]) {
+				document.getElementById(el_id).onclick = () => {
+					if (backdrop.getAttribute("hidden") === null) {
+						backdrop.setAttribute("hidden", "");
+					} else {
+						backdrop.removeAttribute("hidden");
+					}
+				}
+			}
+
+		}</script>
+
+		<style>
+			#x-out:hover {
+				cursor: pointer;
+			}
+			#x-out-text:hover {
+				cursor: pointer;
+			}
+		</style>
+	</g>
+</svg>
+
+<style>
+	#button-left, #button-right {
+		position: fixed;
+		font-size: 5rem;
+		font-family: 'Press Start 2P';
+		bottom: 5rem;
+		color: white;
+		text-align: center;
+		align-content: center;
+		height: 1.5rem;
+		width: 4rem;
+		padding: 0.5rem 0.85rem;
+		background: none;
+		border: none;
+	}
+
+	#button-left {
+		left: 1rem;
+	}
+
+	#button-right {
+		right: 1rem;
+	}
+
+	.code-star {
+		fill: rgb(255, 121, 198);
+		font-size: 100%;
+		alignment-baseline: middle;
+	}
+
+	.code-color-white { fill: #fff; }
+	.code-color-0 { fill: rgb(80, 250, 123); }
+	.code-color-1 { fill: #60f4d4; }
+	.code-color-2 { fill: rgb(189, 147, 249); }
+	.code-color-3 { fill: rgb(255, 121, 198); }
+	.code-color-4 { fill: rgb(255, 184, 104); }
+	.code-color-5 { fill: #F1FA8C; }
+	.code-color-6 { fill: #7960f4; }
+	.code-color-7 { fill: #f46060; }
+	/* .code-color-8 { fill: #60f4d4; } */
+
+	.code-block-label {
+		text-decoration: underline;
+		fill: rgb(80, 250, 123);
+	}
+
+	.code-builtin {
+		fill: rgb(139, 233, 253);
+	}
+
+	.code-num {
+		fill: rgb(189, 147, 249);
+	}
+
+	.code-type, .code-keyword, .code-symbol-1, .code-symbol-2 {
+		fill: rgb(255, 121, 198);
+	}
+
+	.code-symbol-2 {
+		baseline-shift: -14px;
+	}
+
+	.code-struct-type {
+		fill: rgb(255, 184, 104);
+		font-style: italic;
+	}
+
+	.code-register {
+		fill: #b6c8ff;
+	}
+
+	.code-register-2, .code-register-3 {
+		fill: rgb(255, 184, 104);
+		font-style: italic;
+	}
+
+	.code-comment {
+		font-style: normal;
+		fill: #6272a4;
+	}
+
+	.code-type {
+		font-style: italic;
+	}
+
+	.code-string {
+		fill: #F1FA8C;
+	}
+
+	.code-space {
+		fill: rgb(98, 114, 164);
+	}
+
+	.bit-1 {
+		fill: #F1FA8C;
+	}
+
+	.line-of-code, .line-number, .bits, .label, .small-label, .xsmall-label, .ysmall-label, .big-label {
+		font-family: 'Iosevka', 'Press Start 2P', 'Courier New', Courier, monospace;
+		font-size: 64px;
+		letter-spacing: -6px;
+		fill: rgb(248, 248, 242)
+	}
+
+	.bits, .bits .code-type {
+		font-style: normal;
+	}
+
+	.label {
+		font-size: 40px;
+		baseline-shift: 10px;
+		letter-spacing: -4px;
+	}
+
+	.small-label {
+		font-size: 28px;
+		baseline-shift: 10px;
+		letter-spacing: -1px;
+	}
+
+	.xsmall-label {
+		font-size: 20px;
+		baseline-shift: 10px;
+		letter-spacing: -1px;
+	}
+
+	.ysmall-label {
+		font-size: 25px;
+		baseline-shift: 10px;
+		letter-spacing: -1px;
+	}
+
+	.big-label {
+		font-size: 70px;
+	}
+
+	.code-func-name {
+		fill: rgb(80, 250, 123);
+	}
+
+	.code-instruction {
+		fill: rgb(255, 121, 198);
+	}
+
+	.code-keyword-asm {
+		fill: rgb(255, 184, 104);
+	}
+
+	.code-curly-0 { fill: rgb(248, 248, 242); }
+	.code-curly-1 { fill: rgb(255, 121, 198); }
+	.code-curly-2 { fill: rgb(139, 233, 253); }
+	.code-curly-3 { fill: rgb(80, 250, 123); }
+	.code-curly-4 { fill: rgb(189, 147, 249); }
+	.code-curly-5 { fill: rgb(255, 184, 104); }
+
+	.code-paren-0 { fill: rgb(248, 248, 242); }
+	.code-paren-1 { fill: #F1FA8C; }
+	.code-paren-2 { fill: rgb(255, 184, 104); }
+	.code-paren-3 { fill: rgb(255, 121, 198); }
+ 	.code-paren-4 { fill: rgb(189, 147, 249); }
+ 	.code-paren-5 { fill: rgb(139, 233, 253); }
+
+	.code-brack-0 { fill: rgb(248, 248, 242); }
+	.code-brack-1 { fill: #F1FA8C; }
+	.code-brack-2 { fill: rgb(255, 184, 104); }
+	.code-brack-3 { fill: rgb(255, 121, 198); }
+	.code-brack-4 { fill: rgb(189, 147, 249); }
+	.code-brack-5 { fill: rgb(139, 233, 253); }
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Bold-Italic.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Bold-Italic.woff') format('woff');
+		font-weight: 700;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Bold.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Bold.woff') format('woff');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-ExtraBold-Italic.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-ExtraBold-Italic.woff') format('woff');
+		font-weight: 800;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-ExtraBold.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-ExtraBold.woff') format('woff');
+		font-weight: 800;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Italic.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Italic.woff') format('woff');
+		font-weight: 400;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Medium-Italic.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Medium-Italic.woff') format('woff');
+		font-weight: 500;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Medium.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Medium.woff') format('woff');
+		font-weight: 500;
+		font-style: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'JetBrains Mono';
+		src: url('./fonts/JetBrainsMono/JetBrainsMono-Regular.woff2') format('woff2'),
+			url('./fonts/JetBrainsMono/JetBrainsMono-Regular.woff') format('woff');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+</style>
+
+<button id="button-left" onclick="goBackward()">&lt;</button>
+<button id="button-right" onclick="goForward()">&gt;</button>
+
+<style>
+	.thin-space {
+		letter-spacing: -0.3em;
+	}
+</style>
+
+
+<script>
+	const code_snippets = new Map();
+	code_snippets.set("title", "Optimal IPv4 Parsing\nby Niles Salter (validark.dev)");
+
+	function processRanges(ranges, joined_lines) {
+		return ranges
+			.reduce((a, [n, start, end]) =>
+				`${a.slice(0, start)}<tspan class="code-${n}">${n === "register-2" ? "<tspan class=\"thin-space\">&nbsp;</tspan>" : ""}${
+					a.slice(start, end)
+					.replaceAll(/ +/g, e => "&nbsp;".repeat(e.length))
+				}${n === "register-2" ? "<tspan class=\"thin-space\">&nbsp;</tspan>" : ""}</tspan>${a.slice(end)}`,
+				joined_lines.replaceAll("&gt;", ">").replaceAll("&lt;", "<")
+			)
+			.split('\n');
+	}
+
+	function preprocess(slide_id, text, lang) {
+		let start_pos = text.indexOf("\n");
+		let end_pos = text.lastIndexOf("\n");
+
+		if (text.slice(0, start_pos + 1).trim() !== "")
+			start_pos = -1;
+
+		if (text.slice(end_pos, -1).trim() !== "")
+			end_pos = -1
+
+		let lines = text
+			.slice(start_pos + 1, end_pos)
+			.replaceAll(/;;[^\n]+/g, "")
+			.split('\n')
+			.map(e => e.trimRight().replaceAll('\t', '    '));
+
+		const unnecessary_whitespace = lines
+			.filter(e => e)
+			.reduce((a, c) => Math.min(a, c.length - c.trimLeft().length), Number.POSITIVE_INFINITY);
+
+		lines = lines.map(e => e.slice(unnecessary_whitespace));
+		code_snippets.set(slide_id, (code_snippets.get(slide_id) || "") +
+			lines
+				.join("\n")
+				.replaceAll("&gt;", ">")
+				.replaceAll("&lt;", "<")
+				.replaceAll("&amp;", "&")
+		);
+		let curly_depth = 0;
+		let paren_depth = 0;
+
+		const joined_lines = lines.join('\n')
+			.replaceAll("&gt;&gt;", "&raquo;")
+			.replaceAll("&lt;&lt;", "&laquo;")
+			.replaceAll("-&gt;", "&RightArrow;")
+			.replaceAll(" =&gt; ", " &rArr; ")
+			.replaceAll(" != ", " &ne; ")
+			.replaceAll(" &lt;= ", " &le; ")
+			.replaceAll(" &gt;= ", " &ge; ")
+			// .replaceAll(" == ", " &Equal; ")
+			.replaceAll("&lt;", "<")
+			.replaceAll("&gt;", ">");
+
+		const ranges = new Array();
+
+		// for (; )
+		// for (let regex = /".+?"/g, cur = regex.exec(joined_lines); cur; cur = regex.exec(joined_lines));
+
+		// const meme = RegExp.prototype.exec.bind(/".+?"/g, joined_lines);
+		// joined_lines;
+
+		const in_match = new Array(joined_lines.length).fill(false);
+
+		if (lang === 'zig' || lang === 'ziggy') {
+			// console.log(joined_lines);
+
+			// let pos = 0;
+			for (const match of joined_lines.matchAll(lang === "ziggy"
+			? /\/\/([^_]*|$)|"[^_]*?(?<!\\)"|'[^_]*?'|\\\\([^_]*|$)/g
+			: /\/\/([^\n]*|$)|"[^\n]*?(?<!\\)"|'[^\n]*?'|\\\\([^\n]*|$)/g)) {
+				const { index, 0: { length } } = match;
+				for (let q = 0; q < length; q++) in_match[index + q] = true;
+				ranges.push([match[0][0] === '/' ? "comment" : "string", index, index + length]);
+			}
+
+
+
+			// for (const [regex, name] of [
+			// 	[/\/\/([^\n]*|$)/g, "comment"],
+			// 	[/"[^\n]*?"|'[^\n]*?'/g, "string"],
+			// ]) {
+			// 	outer: for (const { index, 0: s } of joined_lines.matchAll(regex)) {
+			// 		const { length } = s;
+			// 		// console.log({index, length, s})
+			// 		for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
+			// 		for (let q = 0; q < length; q++) in_match[index + q] = true;
+			// 		ranges.push([name, index, index + length]);
+			// 	}
+			// }
+
+			for (const [regex, name] of [
+				[/(?<!\w)(usingnamespace|linksection|threadlocal|unreachable|addrspace|allowzero|nosuspend|anyframe|callconv|comptime|continue|errdefer|noinline|volatile|anytype|noalias|suspend|export|undefined|extern|inline|opaque|orelse|packed|false|true|null|resume|return|struct|switch|align|async|await|break|catch|const|defer|error|union|while|else|enum|test|and|asm|for|pub|try|var|fn|if|or)(?!\w)/g, "keyword"],
+				[/(?<!\w)(Carry|HHID|Foo|Bar|Allocator|IndexItem|FastDivider32|IpAddress|V|T|V64u8|V8u64)(?!\w+)/g, "struct-type"],
+				[/@\w+/g, "builtin"],
+				[/ +/g, "space"],
+				[/(?:&rArr;)|(?:&amp;)|(?:&ne;)|(?:&le;)|(?:&ge;)|(?:&Equal;)|(?:&raquo;)|(?:&laquo;)|(?:&RightArrow;)|[+-]?%|\.\.\.?|[:=><!+~?|^/-]|\.(?=\*)/ug, "symbol-1"],
+				[/(?<=\.)\*/g, "symbol-2"],
+				[/\w+(?=\()|(?<=fn )\w+/g, "func-name"],
+				[/(?<!\w)(?:[ui]\d+|void|bool|u?int|[ui]size)(?!\w)/g, "type"],
+				[/(?<!\w)0x[\dA-Fa-f]+/g, "num"],
+				[/(?<!\w)(?:0[b])?\d+/g, "num"],
+				[/\*/g, "star"],
+			]) {
+				outer: for (const { index, 0: { length } } of joined_lines.matchAll(regex)) {
+					for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
+					for (let q = 0; q < length; q++) in_match[index + q] = true;
+					ranges.push([name, index, index + length]);
+				}
+			}
+		} else if (lang === "asm") {
+			for (const [regex, name] of [
+				[/;[^\n]*/g, "comment"],
+				[/"[^\n]+?"|'[^\n]+?'/g, "string"],
+			]) {
+				outer: for (const { index, 0: { length } } of joined_lines.matchAll(regex)) {
+					for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
+					for (let q = 0; q < length; q++) in_match[index + q] = true;
+					ranges.push([name, index, index + length]);
+				}
+			}
+
+			for (const [regex, name] of [
+				[/ +/g, "space"],
+				[/\+/g, "symbol-1"],
+				[/\*/g, "star"],
+				[/(?<!\w)(?:[re]?[abcd]x|[abcd][hl]|[er]?[sb]p|[er]?[ds]i|r[89][bwd]?|r1[0-5][bwd]?|[xyz]mm[0-9]|zmm[12][0-9]|[xy]mm1[0-5]|zmm3[01]|rip)(?!\w)/g, "register"],
+				[/(?<=\{)(?:z|k[0-7])(?=\})/g, "register-2"],
+				[/(?<!\w)(?:k[0-7])(?!\w)/g, "register-3"],
+				// [/[:=]/g, "symbol-1"],
+				[/.LBB\d+_\d+/g, "block-label"],
+				[/(?<!\w)0x[\dA-Fa-f]+/g, "num"],
+				[/(?<!\w)-?\d+/g, "num"],
+				[/(?<=call +)[_.\w]+/g, "func-name"],
+				[/(?<=\+ ?)[_.\w]+/g, "func-name"],
+				[/(?<=^|\n)[_.\w]+:/g, "func-name"],
+				[/(?<!\w)(qword|ptr|dword|byte|word|xmmword|ymmword|zmmword)(?!\w)/g, "keyword-asm"],
+				[/(?<=^[ \t]*|\n[ \t]*)\.?\w+/g, "instruction"],
+				]) {
+					if (name === "instruction") {
+						for (const x of joined_lines.matchAll(regex)) {
+							const { index, 0: { length } } = x;
+							// console.log(index, length, x);
+						}
+					}
+
+				outer: for (const { index, 0: { length } } of joined_lines.matchAll(regex)) {
+					if (length === 0) throw new Error("bad news");
+					for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
+					for (let q = 0; q < length; q++) in_match[index + q] = true;
+					ranges.push([name, index, index + length]);
+				}
+			}
+		} if (lang === "rainbow") {
+			let cur_color = 0;
+			for (let i = 0; i < joined_lines.length; ) {
+				for (; i < joined_lines.length && joined_lines[i] !== '1'; i++) {
+					ranges.push([`color-white`, i, i + 1]);
+				}
+				for (; i < joined_lines.length && joined_lines[i] === '1'; i++) {
+					ranges.push([`color-${5}`, i, i + 1]);
+				}
+				cur_color += 1;
+			}
+		}
+
+
+		// .replaceAll(//g, (_, pre, e) => `${pre}<tspan class="code-func-name">${e}</tspan>`)
+
+		for (const [regex, name, [opener, closer]] of [
+			[/[{}]/g, "curly", "{}"],
+			[/[()]/g, "paren", "()"],
+			[/[[\]]/g, "brack", "()"],
+		]) {
+			outer: for (const { index, 0: { 0: e, length } } of joined_lines.matchAll(regex)) {
+				for (let q = 0; q < length; q++) if (in_match[index + q]) continue outer;
+				for (let q = 0; q < length; q++) in_match[index + q] = true;
+				if (e === closer) {
+					curly_depth--;
+				}
+
+				ranges.push([`${name}-${curly_depth % 6}`, index, index + length]);
+
+				if (e === opener) {
+					curly_depth++;
+				}
+			}
+		}
+
+		return [
+			processRanges(ranges.sort(([, a], [, b]) => b - a), joined_lines),
+			ranges
+		];
+	}
+
+	const container = document.getElementById("container");
+	const overlay = document.getElementById("overlay");
+	const slide_elements = [...container.children];
+	const overlay_elements_raw = slide_elements.map(e => document.getElementById(e.id + "-overlay"));
+	const overlay_elements = slide_elements.map(e => document.getElementById(e.id + "-overlay") || (() => {
+		overlay.insertAdjacentHTML("beforeend", `<g class="slide" id="${e.id}-overlay"></g>`)
+		return document.getElementById(`${e.id}-overlay`);
+	})());
+
+	const EmptyFunction = () => {};
+
+	const clicks = new Map();
+	const slidesById = new Map();
+	const pane_heights = new Map();
+
+function applyState(line, s) {
+  line.setAttribute("x1", s.x1);
+  line.setAttribute("y1", s.y1);
+  line.setAttribute("x2", s.x2);
+  line.setAttribute("y2", s.y2);
+}
+
+let my_thread = { id: 0 };
+
+// Critically damped (no overshoot, fastest)
+const STIFFNESS_DEFAULT = 25;
+const zeta = 1; // critical
+const DAMPING_DEFAULT = 2 * Math.sqrt(STIFFNESS_DEFAULT) * zeta; // ≈ 10
+
+// Slightly overdamped (no overshoot, a bit “heavier” feel)
+// const stiffness = 25;
+// const zeta = 1.2;
+// const damping = 2 * Math.sqrt(stiffness) * zeta; // ≈ 12
+
+
+// const STIFFNESS_DEFAULT = 0.6;
+// const DAMPING_DEFAULT = 1;
+
+
+
+function springTween(line, from, to, opts = {}) {
+  let state = { ...from };
+  let velocity = { x1: 0, y1: 0, x2: 0, y2: 0 };
+
+  const stiffness = opts.stiffness ?? STIFFNESS_DEFAULT;   // spring strength (per second)
+  const damping   = opts.damping   ?? DAMPING_DEFAULT;    // damping (per second)
+  const delay   = opts.delay   ?? 0;    // damping (per second)
+
+  const my_thread_id = my_thread.id;
+  let lastTime = null;
+
+  function animate(timestamp) {
+    if (lastTime === null) lastTime = timestamp + delay * 1000;
+	let done = false;
+	if (timestamp >= lastTime) {
+		const deltaMs = timestamp - lastTime;
+		const dt = deltaMs / 500;       // convert to seconds
+		lastTime = timestamp;
+
+		done = true;
+
+		if (my_thread_id === my_thread.id) {
+			line.setAttribute("opacity", 1);
+			for (let key in state) {
+				// displacement
+				const dist = to[key] - state[key];
+
+				// spring force (Hooke's law) scaled by dt
+				const springForce = dist * stiffness;
+
+				// damping force scaled by velocity
+				const dampingForce = velocity[key] * damping;
+
+				// acceleration
+				const accel = springForce - dampingForce;
+
+				// integrate velocity & position
+				velocity[key] += accel * dt;
+				state[key] += velocity[key] * dt;
+
+				// check if still moving noticeably
+				if (Math.abs(dist) > 0.1 || Math.abs(velocity[key]) > 0.01) {
+					done = false;
+				}
+			}
+		}
+	} else {
+		if (my_thread_id === my_thread.id)
+  			line.setAttribute("opacity", 0);
+	}
+
+    if (done) {
+      applyState(line, to);
+    } else {
+      applyState(line, state);
+      requestAnimationFrame(animate);
+    }
+  }
+
+  if (from.x1 !== to.x1 ||
+  	  from.x2 !== to.x2 ||
+  	  from.y1 !== to.y1 ||
+  	  from.y2 !== to.y2)
+  	requestAnimationFrame(animate);
+}
+
+
+
+
+// <!-- [553, 631], [820, 787], [957, 958], [1157.25, 1129], [1224, 1278] -->
+const startState = { x1: 553, y1: 250, x2: 631, y2: 429 };
+const endState   = { x1: 820, y1: 250, x2: 787, y2: 429 };
+
+	function recursivelyHandleChildren(child_state_transitions, child, current_click_num) {
+		for (const grandchild of child.children) {
+			let click_attr = grandchild.getAttribute("click")
+			if (click_attr !== null) {
+				grandchild.setAttribute("hidden", "");
+				const [click, click2] = click_attr.split('-');
+				const clicky = (click === "") ? ++current_click_num : parseInt(click) || 1;
+
+				// if (grandchild.id === "change-highlighted-color") {
+				// 	console.log({grandchild})
+				// }
+
+				if (grandchild.tagName === "line" && clicky && click && click2) {
+					//console.log({clicky, click, click2})
+					const data1 = [+grandchild.getAttribute("x1"),
+										+grandchild.getAttribute("x2"),
+										+grandchild.getAttribute("y1"),
+										+grandchild.getAttribute("y2"),];
+
+					data1.stiffness = STIFFNESS_DEFAULT;
+					data1.damping = DAMPING_DEFAULT;
+
+					const map = new Map([
+						[click - 1, data1]
+					]);
+
+					for (let i = +click; i <= +click2; i++) {
+						const data = grandchild.getAttribute(`click-${i}`)?.split(', ');
+						map.set(i, data);
+					}
+
+					//console.log({map});
+					const thread_incrementers = new Set();
+					let incr = 0;
+
+					for (const [i, data] of map.entries()) {
+						if (data) {
+							const damping = data.damping ?? grandchild.getAttribute("damping") ?? DAMPING_DEFAULT;
+							const stiffness = data.stiffness ?? grandchild.getAttribute("stiffness") ?? STIFFNESS_DEFAULT;
+							const delay = 2 !== ++incr ? 0 : +(data.delay ?? grandchild.getAttribute("delay") ?? "0");
+							const [x1, x2, y1=250, y2=429-50] = data;
+							// console.log({x1, x2,y1,y2});
+							thread_incrementers.add(i);
+
+							child_state_transitions[i]?.push(() => {
+								springTween(grandchild,
+									{
+										x1: +grandchild.getAttribute("x1"),
+										y1: +grandchild.getAttribute("y1"),
+										x2: +grandchild.getAttribute("x2"),
+										y2: +grandchild.getAttribute("y2"),
+									},
+									{
+										x1: +x1,
+										y1: +y1,
+										x2: +x2,
+										y2: +y2,
+									},
+									{ stiffness, damping, delay });
+							});
+						}
+					}
+
+					for (const i of thread_incrementers)
+						child_state_transitions[i]?.unshift(() => my_thread.id++)
+				}
+
+				const unhide_slide = () => {
+					// setTimeout(() => grandchild.removeAttribute("hidden"), 1000);
+					grandchild.classList.remove("hide-slide");
+					grandchild.classList.add("unhide-slide");
+					grandchild.removeAttribute("hidden");
+				};
+
+
+				const hide_slide = () => {
+					// console.log("hiding", grandchild);
+					grandchild.classList.remove("unhide-slide");
+					grandchild.classList.add("hide-slide");
+					grandchild.setAttribute("hidden", "");
+
+
+					// setTimeout(() => {
+					// 	console.log({a:+click < +cur_click, b: +cur_click > (+click2 || -Infinity)})
+					// 	if (!(+cur_click > (+click2 || -Infinity) || +click < +cur_click))
+					// 		grandchild.setAttribute("hidden", "");
+					// }, 1000);
+				};
+
+				child_state_transitions[clicky].push(unhide_slide);
+				child_state_transitions[clicky - 1].push(hide_slide);
+
+				if (click2) {
+					child_state_transitions[click2]?.push(hide_slide);
+					child_state_transitions[click2 - 1]?.push(unhide_slide);
+				}
+			}
+			current_click_num = recursivelyHandleChildren(child_state_transitions, grandchild, current_click_num);
+		}
+
+		return current_click_num;
+	}
+
+	function countClicks(child, state) {
+		for (const grandchild of child.children) {
+			let click = grandchild.getAttribute("click")
+			if (click !== null) {
+				grandchild.setAttribute("hidden", "");
+				const clicky = (click === "") ? ++state.current_click_num : parseInt(click) || 1;
+				if (clicky > state.max_click_num) state.max_click_num = clicky;
+			}
+			countClicks(grandchild, state);
+		}
+		return state;
+	}
+
+	let IS_MOBILE_FULL_SCREEN = false;
+
+	post_processes.push(() => {
+		for (const [is_overlay, elements] of  [[false, slide_elements], [true, overlay_elements]]) {
+			for (const [i, child] of elements.entries()) {
+				child.setAttribute("hidden", "");
+				const id = child.getAttribute("id");
+				if (id === null) throw new Error("Please add an ID to slide " + i + ` (after the slide with an id of "${elements[i - 1].id}")`);
+				// console.log(is_overlay, i, id, child);
+				const id_without_overlay = id.replace("-overlay", "");
+				const click_attr = child.getAttribute("clicks");
+				const num_clicks = is_overlay ? clicks.get(id_without_overlay) : parseInt(click_attr?.split(",").length > 1 ? click_attr.split(",").length + 1 : click_attr) ||
+					(1 + countClicks(child, { current_click_num: 0, max_click_num: 0 }).max_click_num);
+
+				clicks.set(id_without_overlay, num_clicks);
+				const arr = slidesById.get(id_without_overlay) || [];
+				arr.push(child);
+				slidesById.set(id_without_overlay, arr);
+
+				const child_state_transitions = state_transitions.get(id_without_overlay) ?? [];
+				if (!is_overlay) {
+					// while (child_state_transitions.length < num_clicks)
+					// 	child_state_transitions.push([]);
+
+					for (let j = 0; j < num_clicks; j++)
+						child_state_transitions[j] ??= [];
+
+				}
+
+				// const child_state_transitions = is_overlay ? state_transitions.get(id_without_overlay) : new Array(num_clicks).fill(0).map(() => []);
+				if (!is_overlay) state_transitions.set(id, child_state_transitions);
+
+				child_state_transitions[0].push(() => {
+					if (!is_overlay || overlay_elements_raw[i]) {
+						child.removeAttribute("hidden");
+						if (is_overlay) {
+							overlay.removeAttribute("hidden");
+						}
+					}
+					if (is_overlay && !overlay_elements_raw[i]) {
+						overlay.setAttribute("hidden", "");
+						// console.log("hiding overlay", i)
+					};
+					if (i > 0) elements[i - 1].setAttribute("hidden", "")
+					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
+					if (!is_overlay)
+						container.setAttribute("viewBox", `0 0 1920 ${pane_heights.get(id) || 1200}`);
+				});
+
+				child_state_transitions[num_clicks - 1].push(() => {
+					if (!is_overlay || overlay_elements_raw[i]) {
+						child.removeAttribute("hidden");
+						if (is_overlay) {
+							overlay.removeAttribute("hidden");
+						}
+					}
+					if (is_overlay && !overlay_elements_raw[i]) {
+						overlay.setAttribute("hidden", "");
+						// console.log("hiding overlay", i)
+					};
+					if (i > 0) elements[i - 1].setAttribute("hidden", "")
+					if (i < elements.length - 1) elements[i + 1].setAttribute("hidden", "")
+				});
+
+				// if (is_overlay)
+				// 	state_transitions.get(id_without_overlay).forEach((a, i) => {
+				// 		child_state_transitions.forEach((b, j) => {
+				// 			console.log(a);
+				// 			a.push(b);
+				// 		});
+				// 	});
+
+				recursivelyHandleChildren(child_state_transitions, child, 0)
+			}
+		}
+	});
+
+				// 	global_scrolls.push({
+				// 	section: slide_id,
+				// 	slide_num: i + 1,
+				// 	animation_duration,
+				// 	pos: next,
+				// });
+
+	post_processes.push(() => {
+		/**
+		 * Create a cubic-bezier easing function.
+		 * @param {number} p0x
+		 * @param {number} p0y
+		 * @param {number} p1x
+		 * @param {number} p1y
+		 */
+		function cubicBezier(p0x, p0y, p1x, p1y) {
+		// Helper functions for bezier math
+		function cubic(a, b, m) { return ((1 - 3*b + 3*a) * m ** 3) + ((3*b - 6*a) * m ** 2) + (3*a * m); }
+		function cubicDerivative(a, b, m) { return (3*(1 - 3*b + 3*a) * m ** 2) + (2*(3*b - 6*a) * m) + (3*a); }
+
+		return function(t) {
+			// Newton-Raphson iteration to find the parametric value for time t
+			let x = t, i = 0;
+			for (; i < 5; i++) {
+			const xEstimate = cubic(p0x, p1x, x) - t;
+			const dx = cubicDerivative(p0x, p1x, x);
+			if (Math.abs(xEstimate) < 1e-6) break;
+			x -= xEstimate / dx;
+			}
+			return cubic(p0y, p1y, x);
+		};
+		}
+
+		// Your easing curve: cubic-bezier(0.69, 0.02, 0.53, 1)
+		const easeCustom = cubicBezier(0.69, 0.02, 0.53, 1);
+
+		/**
+		 * Smooth scroll to target using cubic-bezier easing.
+		 */
+		let active_scroll_id = 0;
+		function scrollToPosition(targetY, duration = 500) {
+			const startY = window.scrollY;
+			const distance = targetY - startY;
+			let startTime = null;
+			const my_scroll_id = ++active_scroll_id;
+
+			function step(timestamp) {
+				if (active_scroll_id !== my_scroll_id) return;
+				if (!startTime) startTime = timestamp;
+				const elapsed = timestamp - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+
+				const easedProgress = easeCustom(progress);
+
+				if (elapsed < duration) {
+					window.scrollTo(0, startY + distance * easedProgress);
+					requestAnimationFrame(step);
+				} else {
+					window.scrollTo(0, targetY);
+				}
+			}
+
+			requestAnimationFrame(step);
+		}
+
+		let scroll_id = 0;
+
+		function scrollElementOffsetAnimated(elem, offsetPx, duration = 500, section) {
+			if (IS_MOBILE_FULL_SCREEN) return;
+			let startTime = 0.0;
+			const my_scroll_id = ++scroll_id;
+
+			function step(timestamp) {
+				if (cur_slide != section) return;
+				if (my_scroll_id !== scroll_id) return;
+				if (!startTime) startTime = timestamp;
+				const elapsed = timestamp - startTime;
+				const rect = elem.getBoundingClientRect();
+				window.scrollTo(0, window.scrollY + rect.top - offsetPx);
+				if (elapsed < duration) requestAnimationFrame(step);
+			}
+
+			requestAnimationFrame(step);
+		}
+
+
+		{
+			let i = 0;
+			const selectors = new Set();
+			const sections = new Set();
+
+			const positions = global_scrolls.map(({ pos }) => 120 - pos * 80 - 55);
+
+			for (const [i, { section, slide_num, animation_duration, selector, pos, do_not_move_mobile }] of global_scrolls.entries()) {
+				// console.log({ section, slide_num, animation_duration, selector, pos });
+				if (do_not_move_mobile) continue;
+
+				// console.log({selector:selector.slice(0, -("-rect".length))});
+				sections.add(section);
+				selectors.add(selector);
+
+				global_animations.push({
+					section,
+					selector: selector.slice(0, -("-rect".length)),
+					slide_num,
+					animation_duration,
+					forward_only: true,
+					keyframes: {
+						0:    {  transform: `translateY(${positions[i - 1] || 0}px)` },
+						100:   { transform: `translateY(${positions[i]}px)` },
+					},
+					mobile_full_screen_only: true,
+				});
+
+				global_animations.push({
+					section,
+					selector: selector.slice(0, -("-rect".length)),
+					slide_num,
+					animation_duration: global_scrolls[i+1]?.animation_duration,
+					backward_only: true,
+					keyframes: {
+						0:    {  transform: `translateY(${positions[i + 1] || 0}px)` },
+						100:   { transform: `translateY(${positions[i]}px)` },
+					},
+					mobile_full_screen_only: true,
+				});
+
+				state_transitions.get(section)[slide_num].push(() => {
+					const elem = document.querySelector(selector);
+					const styles = getComputedStyle(elem);
+
+					// console.log("selector", selector);
+					// console.log("elem", elem);
+					// console.log("styles.animationDuration", styles.animationDuration);
+
+					scrollElementOffsetAnimated(document.querySelector(selector),
+						// offset from top
+						70,
+						1000 * styles.animationDuration.slice(0, -1), section);
+				});
+
+			}
+
+			const selectors_arr = [...selectors];
+			const sections_arr = [...sections];
+
+			for (let i = 0; i < selectors_arr.length; i++)
+				state_transitions.get(sections_arr[i])[0].push(() => {
+					scrollElementOffsetAnimated(document.querySelector(selectors_arr[i]),
+								// offset from top
+								70,
+								1000, sections_arr[i]);
+				});
+		}
+
+		// console.log(global_scrolls);
+	})
+
+	const code_info = new Map();
+
+	let code_block_i = 0;
+
+	for (const codeblock of document.getElementsByClassName("code")) {
+		let codeblock_id = codeblock.getAttribute("id");
+		const x = +codeblock.getAttribute("x");
+		const y = +codeblock.getAttribute("y");
+		const steps = codeblock.getAttribute("steps");
+		const do_not_move_mobile = codeblock.hasAttribute("do-not-move-mobile");
+		const mini_steps = codeblock.getAttribute("mini-steps");
+		const lang = codeblock.getAttribute("lang");
+		const width = +codeblock.getAttribute("width");
+		const click = +codeblock.getAttribute("click");
+		if (codeblock.getAttribute("height")) {
+			throw new Error("Height is not allowed on code block")
+		}
+		const line_height = +codeblock.getAttribute("line-height");
+		const font_size = codeblock.getAttribute("font-size") || "";
+		const letter_spacing = codeblock.getAttribute("letter-spacing") || "";
+
+		const rect_width = codeblock.getAttribute("rect-width") || 1950;
+		const line_num_indent = +codeblock.getAttribute("line-num-indent");
+		const hide_line_numbers = codeblock.hasAttribute("hide-line-numbers");
+		const line_number_font_size = codeblock.getAttribute("line-number-font-size");
+		const line_number_letter_spacing = codeblock.getAttribute("line-number-letter-spacing");
+
+		const line_indent = +codeblock.getAttribute("line-indent");
+		let slide = codeblock;
+		do slide = slide.parentNode; while (!slide.classList.contains("slide"));
+		const slide_id = slide.getAttribute("id");
+
+
+		const [lines, ranges] = preprocess(slide_id, codeblock.innerHTML, lang);
+
+		if (codeblock_id) {
+			code_info.set(codeblock_id, { x, y, width, line_height, line_num_indent, hide_line_numbers, line_indent, slide, ranges });
+		} else {
+			codeblock_id = `${slide_id}-codeblock-${code_block_i++}`;
+			codeblock.setAttribute("id", codeblock_id);
+		}
+
+		if (lines.length > 0) {
+			let innerHTML = codeblock.hasAttribute("hide-background") ? '' : `<rect x="${x || 0}" y="${y || 0}" height="${y + (line_height*(codeblock.getAttribute("lines") || lines.length)) + 20}" width="${width}" fill="black"></rect>`;
+			innerHTML += lines.map((e, i) => `<text class="line-of-code" line-no="${i-1}" x="${x + line_indent}" y="${y + (line_height*(i+1))}">${e}</text>`).join('\n');
+
+			if (!hide_line_numbers)
+				innerHTML += lines.map((_, i) => `<text class="line-number" style="font-size: ${line_number_font_size ?? "45px"}; letter-spacing: ${line_number_letter_spacing ?? "-1px"}" x="${x + line_num_indent}" y="${y + (line_height*(i+1)) - 1}" text-anchor="end">${i + 1}</text>`);
+
+			const extra_height = y + (line_height*(lines.length));
+			const [body] = document.getElementsByTagName("body");
+			if (extra_height > 1080) {
+				pane_heights.set(slide_id, extra_height);
+
+				body.insertAdjacentHTML("beforeend",
+					`
+					<style>
+					#container[slide="${slide_id}"] {
+					height: ${extra_height / 10.80}%
+					}
+					</style>
+				`);
+			}
+
+			if (font_size || letter_spacing) {
+				body.insertAdjacentHTML("beforeend", `
+				<style>
+				#${codeblock_id} text.line-of-code {
+					${font_size && `font-size: ${font_size};`}
+					${letter_spacing && `letter-spacing: ${letter_spacing};`}
+				}
+				</style>
+				`);
+			}
+
+			codeblock.innerHTML = innerHTML;
+		}
+
+
+		const colors = ["rgb(0, 100, 0)", "purple", "rgb(130, 0, 0)", "rgb(88, 0, 158)", "rgb(0, 0, 200)"];
+
+		if (mini_steps) {
+// <svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+
+
+//   <!-- visible frame for reference -->
+//   <rect x="10" y="10" width="200" height="80" fill="none" stroke="#333"/>
+
+//   <!-- anything inside this group will be clipped to the rect above -->
+//   <defs>
+//     <clipPath id="boxClip" clipPathUnits="userSpaceOnUse">
+//       <!-- rectangle that defines the clipping box -->
+//       <rect x="10" y="10" width="200" height="80" rx="8"/>
+//     </clipPath>
+//   </defs>
+//   <g clip-path="url(#boxClip)">
+//     <!-- content that extends beyond the rect -->
+//     <rect x="0" y="0" width="260" height="120" fill="lightblue"/>
+//     <text x="20" y="60" font-size="28">This gets clipped →</text>
+//   </g>
+// </svg>
+
+			codeblock.innerHTML = `
+			<defs>
+			  <clipPath id="${codeblock_id}-clipper" clipPathUnits="userSpaceOnUse">
+			    <rect x="${x}" y="${y}" width="${1920-x}" height="${1250}"/>
+			  </clipPath>
+			</defs>
+			<g clip-path="url(#${codeblock_id}-clipper)">
+			<g id="${codeblock_id}-translator">
+			<rect id="${codeblock_id}-box" width="700"></rect>
+			${codeblock.innerHTML}
+			</g>
+			</g>`;
+
+			let last_translation = 0;
+			let last_height = 0;
+			let last_x = x + 40;
+			let last_y = y;
+
+			const mini_step_data = mini_steps.split(',').map((str, i) => {
+				let [line, len] = str.split(':');
+				len = i && +(len || 1);
+				line = +line;
+
+				return {
+					prev_y: last_translation,
+					y: last_translation = -line_height * Math.max(0, line - 4) - 10,
+					prev_height: last_height,
+					height: last_height = line_height * len,
+
+					prev_box_y: last_y,
+					box_y: last_y = y + line_height * (line + 1) + 10,
+
+					prev_color: colors[(click + i + 4) % colors.length],
+					color: colors[(click + i + 5) % colors.length],
+				};
+			});
+
+			mini_step_data.push({
+				prev_y: y,
+				y: y,
+				prev_height: 0,
+				height: 0,
+
+				prev_box_y: y,
+				box_y: y,
+
+				prev_color: colors[(click + mini_step_data.length + 0) % colors.length],
+				color: colors[(click + mini_step_data.length + 1) % colors.length],
+			});
+
+			Array.prototype.push.apply(global_animations, mini_steps.split(',').map((str, i) => {
+				let [line, len] = str.split(':');
+				len = +len || 0;
+				line = +line;
+
+				const current_step = mini_step_data[i];
+				const next_step = mini_step_data[i + 1];
+				const animation_duration = i !== 0 ? "0.25s" : "2s";
+
+				return [{
+					section: slide_id,
+					selector: `#${codeblock_id}-translator`,
+					slide_num: click + i,
+					forward_only: true,
+					skip_auto_prev_state: true,
+					animation_delay: i ? "0s" : "1s",
+					animation_duration: i !== 0 ? "0.25s" : "2s",
+					keyframes: {
+						0:   { transform: `translateY(${current_step.prev_y}px)` },
+						100: { transform: `translateY(${current_step.y}px)` },
+					}
+				}, {
+					section: slide_id,
+					selector: `#${codeblock_id}-box`,
+					slide_num: click + i,
+					forward_only: true,
+					skip_auto_prev_state: true,
+					animation_delay: i ? "0s" : "1s",
+					animation_duration: i !== 0 ? "0.25s" : "2s",
+					keyframes: {
+						0:   { height: `${current_step.prev_height}px`, fill: current_step.prev_color, x: last_x, y: current_step.prev_box_y },
+						100: { height: `${current_step.height}px`, fill: current_step.color, x: last_x, y: current_step.box_y },
+					}
+				}, {
+					section: slide_id,
+					selector: `#${codeblock_id}-translator`,
+					slide_num: click + i,
+					backward_only: true,
+					skip_auto_prev_state: true,
+					animation_duration: "0.25s",
+					keyframes: {
+						0:   { transform: `translateY(${next_step.y}px)` },
+						100: { transform: `translateY(${current_step.y}px)` },
+					}
+				}, {
+					section: slide_id,
+					selector: `#${codeblock_id}-box`,
+					slide_num: click + i,
+					backward_only: true,
+					skip_auto_prev_state: true,
+					animation_duration: "0.25s",
+					keyframes: {
+						0:   { height: `${next_step.height}px`, fill: next_step.color, x: last_x, y: next_step.box_y },
+						100: { height: `${current_step.height}px`, fill: current_step.color, x: last_x, y: current_step.box_y },
+					}
+				}];
+			}).flat());
+
+		}
+
+		if (steps) {
+			codeblock.insertAdjacentHTML("afterbegin", `<rect id="${codeblock_id}-rect" width="${rect_width}" fill="purple" style="opacity: 0.6"></rect>`)
+			let last = 0;
+			let last_height = "0px";
+			let last_y = "0px";
+
+			Array.prototype.push.apply(global_animations, steps.split(",").map((av, i, k) => {
+				const isLast = k.length === i + 1;
+				let [v, num_lines] = av.split(":");
+				num_lines ||= '1';
+				const prev = last;
+
+				// (8 - num_lines)
+				// 2076
+
+				const next = last = Math.min(0, (-v + Math.max(2, 3 - num_lines)) * line_height) - 9;
+				let anim_duration = Math.max(0.2, Math.abs(next - prev) / (10000));
+				if (anim_duration > 1) {
+					anim_duration = 2;
+				}
+				const animation_duration = `${(i === 0 ? 1/0.9 : 1.25) * anim_duration}s`;
+				// console.log({ prev, next, animation_duration });
+				// console.log([v, y + (line_height*(v - 1)) + 10]);
+
+				const prev_height = last_height;
+				const next_height = last_height = `${line_height*(num_lines || 1) + line_height / 7}px`;
+
+				const prev_y = last_y;
+				const next_y_num = y + (line_height*(v - 1)) + line_height / 7;
+				const next_y = last_y = `${next_y_num}px`;
+
+				global_scrolls.push({
+					section: slide_id,
+					slide_num: i + 1,
+					animation_duration,
+					linear: true,
+					pos: +v,
+					selector: `#${codeblock_id}-rect`,
+					do_not_move_mobile,
+				});
+
+				// console.log({codeblock_id,v,animation_duration,prev_height, prev_y, next_height, next_y})
+
+
+				return [
+
+				// {
+				// 	section: slide_id,
+				// 	selector: "#" + codeblock_id,
+				// 	slide_num: i + 1,
+				// 	forward_only: true,
+				// 	skip_auto_prev_state: true,
+				// 	animation_duration,
+				// 	keyframes: {
+				// 		0:   { transform: `translateY(${prev}px)` },
+				// 		100: { transform: `translateY(${next}px)` },
+				// 	}
+				// }, {
+				// 	section: slide_id,
+				// 	selector: "#" + codeblock_id,
+				// 	slide_num: i,
+				// 	backward_only: true,
+				// 	skip_auto_prev_state: true,
+				// 	animation_duration,
+				// 	keyframes: {
+				// 		0:   { transform: `translateY(${next}px)` },
+				// 		100: { transform: `translateY(${prev}px)` },
+				// 	}
+				// },
+				{
+					section: slide_id,
+					selector: `#${codeblock_id}-rect`,
+					slide_num: i + 1,
+					forward_only: true,
+					skip_auto_prev_state: true,
+					animation_duration,
+					keyframes: {
+						0:   { height: prev_height, y: prev_y, fill: colors[(click + i + 0) % colors.length] },
+						90: i === 0 ? { y: next_y, height: 0 } : undefined,
+						100: { height: next_height, y: next_y, fill: colors[(i + 1) % colors.length] },
+					}
+				}, {
+					section: slide_id,
+					selector: `#${codeblock_id}-rect`,
+					slide_num: i,
+					backward_only: true,
+					skip_auto_prev_state: true,
+					animation_duration,
+					keyframes: {
+						0:   { height: next_height, y: next_y, fill: colors[(click + i + 1) % colors.length] },
+						10: i === 0 ? { height: 0 } : undefined,
+						100: { height: prev_height, y: prev_y, fill: colors[(click + i + 0) % colors.length] },
+					}
+				}, isLast && {
+					section: slide_id,
+					selector: `#${codeblock_id}-rect`,
+					slide_num: i + 1,
+					backward_only: true,
+					skip_auto_prev_state: true,
+					animation_duration,
+					keyframes: {
+						0:   { height: next_height, y: next_y },
+						90: i === 0 ? { y: next_y, height: 0 } : undefined,
+						100: { height: next_height, y: next_y },
+					}
+				},
+				// isLast && {
+				// 	section: slide_id,
+				// 	selector: "#" + codeblock_id,
+				// 	slide_num: i + 1,
+				// 	backward_only: true,
+				// 	skip_auto_prev_state: true,
+				// 	animation_duration,
+				// 	keyframes: {
+				// 		0:   { transform: `translateY(${next}px)` },
+				// 		100: { transform: `translateY(${next}px)` },
+				// 	}
+				// }
+			];
+			}).flat())
+		}
+	}
+
+	for (const text of [...document.getElementsByTagName("text")]) {
+		const align = text.getAttribute("align");
+		if (align) {
+			const line = +text.getAttribute("line");
+			const info = code_info.get(align);
+
+			text.setAttribute("x", info.x + info.line_indent);
+			text.setAttribute("y", info.y + (info.line_height*(line+1)));
+
+			for (const cl of ["label", "small-label", "xsmall-label", "ysmall-label", "big-label"]) {
+				const label = text.getAttribute(cl);
+
+				if (label) {
+					const click = text.getAttribute("click");
+					text.insertAdjacentHTML("beforebegin", `<text id="${text.getAttribute("id")}-label" class="${cl}" ${click ? `click=${click}` : ""} text-anchor="end" x="${info.x + info.line_indent}" y="${info.y + (info.line_height*(line+1))}">${label.replaceAll(">>", "»").replaceAll("<<", "«")}${label.length === 1 ? '' : `:`}&nbsp;</text>`)
+				}
+			}
+		}
+	}
+
+	for (const bits of document.getElementsByClassName("bits-auto-color")) {
+		bits.innerHTML = bits.innerHTML.replaceAll(/1+/g, e => `<tspan class="bit-1">${e}</tspan>`);
+	}
+
+	// const indexToChar = new Array(64).fill('').map((_, i) => i < 62 ? i < 36 ? i.toString(36) : (i - 26).toString(36).toUpperCase() : '&$'[i - 62]);
+
+
+	for (const bits of document.getElementsByClassName("bits-match-color")) {
+		const align = bits.getAttribute("align");
+		if (!align) throw new Error("bits-match-color must use the 'align' property to be paired up with something!")
+		const info = code_info.get(align);
+		// console.log(bits.innerHTML);
+		bits.innerHTML = processRanges(info.ranges, bits.innerHTML).join('\n');
+	}
+
+	{
+		let i = 0;
+		for (const bits of document.getElementsByClassName("bits-match-color2")) {
+			const align = bits.getAttribute("align");
+			if (!align) throw new Error("bits-match-color2 must use the 'align' property to be paired up with something!")
+			const info = code_info.get(align);
+
+			const [smally] = bits.getElementsByClassName("bits-small")
+
+			for (const [kind, bottom, top] of info.ranges) {
+				if (bottom <= i && i < top) {
+					smally.classList.add("code-" + kind);
+					break;
+				}
+			}
+			// bits.innerHTML = processRanges(info.ranges, bits.innerHTML).join('\n');
+			i++;
+		}
+	}
+
+	for (const post_process of post_processes) post_process();
+
+	const all_styles = new Map();
+
+{
+	let i = 0;
+	let styles = new Array();
+	let prev_selector;
+	let prev_slide_num;
+	let prev_section;
+	let prev_mobile_full_screen_only;
+	const animations = new Array();
+
+	function getSelectorForInternal(ge, num_clicks) {
+		if (ge === num_clicks) throw new Error("num_clicks must be higher than the target click (clicks start at 0)")
+		let arr = [];
+		let y = ge;
+		for (; y % 10; y++) {
+			if (y >= num_clicks) return arr;
+			arr.push(`[click="${y}"]`);
+		}
+
+		let z = y;
+		let i = -1;
+		for (; z % 100; z += 10) {
+			if (z >= num_clicks) return arr;
+			if (z / 10 === ge) {
+				for (; z % 100; z += 10) {
+					if (z >= num_clicks) return arr;
+					arr[++i] = `[click^="${z / 10}"]`
+				}
+				break;
+			}
+			// console.log(arr.findIndex(v => v === `[click="${z / 10}"]`), `[click="${z / 10}"]`);
+			arr.push(`[click^="${z / 10}"]:not([click="${z / 10}"])`);
+		}
+
+		let q = z;
+		i = -1;
+		for (; z % 1000; z += 100) {
+			if (z >= num_clicks) return arr;
+			// console.log(z, ge)
+			if (z / 100 === ge) {
+				for (; z % 1000; z += 100) {
+					if (z >= num_clicks) return arr;
+					arr[++i] = `[click^="${z / 100}"]`
+				}
+				break;
+			}
+			// console.log(arr.findIndex(v => v === `[click="${z / 10}"]`), `[click="${z / 10}"]`);
+			for (let j = 0; j < 10; j++) {
+				const k = z / 10 + j;
+
+				arr.push(`[click^="${k}"]${ge <= k && k < num_clicks ? '' : `:not([click="${k}"])`}`);
+			}
+		}
+
+		return arr;
+	}
+
+	function getSelectorFor(ge, num_clicks) {
+		return `:is(${getSelectorForInternal(+ge, +num_clicks).join(", ")})`;
+	}
+
+	function getSelectorForRangeInternal(num_clicks, ge, lt) {
+		if (ge === num_clicks) throw new Error("num_clicks must be higher than the target click (clicks start at 0)")
+		let arr = [];
+		let y = ge;
+		for (; y % 10; y++) {
+			if (y >= num_clicks) return arr;
+			arr.push(`[click="${y}"]`);
+		}
+
+		let z = y;
+		let i = -1;
+		for (; z % 100; z += 10) {
+			if (z >= num_clicks) return arr;
+			if (z / 10 === ge) {
+				for (; z % 100; z += 10) {
+					if (z >= num_clicks) return arr;
+					arr[++i] = `[click^="${z / 10}"]`
+				}
+				break;
+			}
+			// console.log(arr.findIndex(v => v === `[click="${z / 10}"]`), `[click="${z / 10}"]`);
+			arr.push(`[click^="${z / 10}"]:not([click="${z / 10}"])`);
+		}
+
+		let q = z;
+		i = -1;
+		for (; z % 1000; z += 100) {
+			if (z >= num_clicks) return arr;
+			// console.log(z, ge)
+			if (z / 100 === ge) {
+				for (; z % 1000; z += 100) {
+					if (z >= num_clicks) return arr;
+					arr[++i] = `[click^="${z / 100}"]`
+				}
+				break;
+			}
+			// console.log(arr.findIndex(v => v === `[click="${z / 10}"]`), `[click="${z / 10}"]`);
+			for (let j = 0; j < 10; j++) {
+				const k = z / 10 + j;
+
+				arr.push(`[click^="${k}"]${ge <= k && k < num_clicks ? '' : `:not([click="${k}"])`}`);
+			}
+		}
+
+		return arr;
+	}
+
+	function getSelectorForRange(num_clicks, ge, lt) {
+		return `:is(${getSelectorForRangeInternal(+num_clicks, +ge, +lt).join(", ")})`;
+	}
+
+	// console.log(getSelectorFor('5', '23'));
+	// console.log(getSelectorFor('23', '33'));
+	// console.log(getSelectorFor('20', '30'));
+
+	const elements_to_selectors = new Map();
+	const selectors_to_keyframes = new Map();
+
+	for (const { section = (() => { throw "Invalid section" })(), selector, slide_num, keyframes } of global_animations.filter(e => e)) {
+		const start_keyframe = keyframes[0];
+		const end_keyframe = keyframes[100];
+
+		for (const [, individual_selector] of selector.matchAll(/([^,]+?)(?:, ?|$)/g)) {
+			for (const element of document.querySelectorAll(individual_selector)) {
+				const old = elements_to_selectors.get(element);
+				if (old && old !== individual_selector) {
+					throw new Error("Cannot make an object peacefully coexist in two different classes/ids. Please use id's instead. Conflict between `" + individual_selector + "` and `" + old + "`");
+				} else {
+					elements_to_selectors.set(element, individual_selector);
+				}
+			}
+
+			let arr = selectors_to_keyframes.get(individual_selector);
+			if (arr === undefined) {
+				arr = new Array();
+				selectors_to_keyframes.set(individual_selector, arr);
+			}
+			arr.push({ slide_num, start_keyframe, end_keyframe });
+		}
+	}
+
+	for (const [i, v] of selectors_to_keyframes.entries()) {
+		let prev_slide_num = 0;
+
+		for (const { slide_num, start_keyframe, end_keyframe } of v.sort((a, b) => a.slide_num - b.slide_num)) {
+			// prev_slide_num, slide_num, new Array(slide_num - prev_slide_num).fill().map((_, i) => i + prev_slide_num);
+			// console.log(slide_num, prev_slide_num);
+			prev_slide_num = slide_num;
+		}
+	}
+
+	//
+	for (const { section, selector, slide_num, keyframes, animation_delay = '0s', animation_duration = '0s', skip_auto_prev_state = section === prev_section && selector === prev_selector, forward_only = false, backward_only = false, ease = false, linear = false, continuous = false, mobile_full_screen_only = false } of global_animations.filter(e => e)) {
+		if (section !== (prev_section ?? section)) {
+			all_styles.set(prev_section, styles.join("\n"));
+			styles = [all_styles.get(section) ?? ""] ?? new Array();
+		}
+		i += 1;
+		const old_styles_len = styles.length;
+		const keyframe_entries = Object.entries(keyframes).filter(e => e[1] !== undefined).map(([a, b]) => [+a, b]).sort((a, b) => a[0] - b[0]);
+		if (keyframe_entries[0]?.[0] !== 0) throw "Missing keyframe 0";
+		if (keyframe_entries[keyframe_entries.length - 1]?.[0] !== 100) throw "Missing keyframe 100";
+
+		if (selector !== prev_selector || slide_num !== prev_slide_num || mobile_full_screen_only !== prev_mobile_full_screen_only) {
+			animations.length = 0;
+		}
+
+		const animation = `animation${i} ${animation_duration} ${linear ? "linear" : ease === true ? "ease" : ease || "cubic-bezier(0.69, 0.02, 0.53, 1)"} ${animation_delay} 1 forwards normal`;
+		animations.push(animation)
+
+		const mobile_only = mobile_full_screen_only ? "#container[mobile-translate] " : ""
+		let selectors = selector.split(',');
+
+		if (!skip_auto_prev_state) {
+			styles.push(`${mobile_only}.slide#${section} ${selector} {
+		${Object.entries(keyframe_entries[0][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
+	}`);
+		}
+
+
+		// if (selector.startsWith('.')) {
+		// 	Array.prototype.push.apply(selectors, [...document.querySelectorAll(selector)].filter(x => x.id).map(x => `${selector}#${x.id}`));
+		// }
+
+		styles.push(`${selectors.map(selector => `${mobile_only}.slide#${section}[${continuous ? 'fragment-' : 'click="'}${slide_num}${continuous ? '' : '"'}]${forward_only ? "[present-went-forward]" : backward_only ? "[present-went-backward]" : ""} ${selector}`).join(',\n')} {
+		animation: ${animations.join(",\n\t")};
+	}`);
+
+		if (!continuous) styles.push(`${selectors.map(selector => `${mobile_only}.slide#${section}[fragment-${slide_num + 1}] ${selector}`).join(',\n')} {
+		${Object.entries(keyframe_entries[keyframe_entries.length - 1][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
+	}`);
+
+	// 	if (forward_only) styles.push(`${`${selectors.map(selector => `.slide#${section}[click="${slide_num}"][present-went-backward] ${selector}`).join(',\n')} {
+	// 	${Object.entries(keyframe_entries[keyframe_entries.length - 1][1]).map(([a, b]) => `${a}: ${b};`).join("\n\t")}
+	// }`}`);
+
+		styles.push(`@keyframes animation${i} {
+		${keyframe_entries.map(([a, b]) => `${a}% { ${Object.entries(b).map(([a, b]) => `${a}: ${b};`).join(" ")} }`).join("\n\t")}
+	}`);
+
+		if (mobile_full_screen_only) {
+			// for (let n = old_styles_len; n < styles.length; n++)
+				// console.log(styles[n]);
+			// console.log(styles[styles.length - 1]);
+		}
+
+		prev_selector = selector;
+		prev_slide_num = slide_num;
+		prev_section = section;
+		prev_mobile_full_screen_only = mobile_full_screen_only;
+	}
+
+	all_styles.set(prev_section, styles.join("\n"));
+
+	var styleSheet = document.createElement("style");
+	styleSheet.id = "slide-animations";
+	styleSheet.innerHTML = [...all_styles.values()].join('\n');
+	document.head.appendChild(styleSheet);
+}
+
+	const getStateFromURL = () => {
+		const slide_arg = window.location.href.split("#").pop();
+		const [slide_title, clicks_amt] = slide_arg.split("?");
+		let cur_slide = slide_title || slide_elements[0].id;
+		if (!clicks.has(cur_slide)) [[cur_slide]] = clicks;
+
+		return [
+			cur_slide,
+			(clicks_amt || "").startsWith("click=")
+			? Math.min(clicks.get(cur_slide) - 1, parseInt(clicks_amt.slice("click=".length)) || 0)
+			: 0
+		];
+	}
+
+	let [cur_slide, cur_click] = getStateFromURL();
+
+	const updateURL = () => window.location.href = "#" + cur_slide + (cur_click === 0 ? '' : `?click=${cur_click}`);
+
+	const updateContainerSlideAttribute = () => {
+		container.setAttribute("slide", cur_slide);
+		overlay.setAttribute("slide", cur_slide + "-overlay");
+	}
+
+
+	// window.onhashchange = function() {
+	// 	const targetState = getSlideFromURL();
+	// 	setState(targetState)
+	// };
+
+	function applyTransitions() {
+		for (const cur_slide_element of slidesById.get(cur_slide)) {
+			cur_slide_element.setAttribute("click", "" + cur_click);
+			for (let i = 0; i <= cur_click; i++) cur_slide_element.setAttribute(`fragment-${i}`, "");
+			const max_clicks = clicks.get(cur_slide);
+			for (let i = cur_click; ++i < max_clicks; ) cur_slide_element.removeAttribute(`fragment-${i}`);
+		}
+
+		for (const state_transition of state_transitions.get(cur_slide)[cur_click]) {
+			state_transition();
+		}
+	}
+
+	function applyStateTransitionsUpToCurrentClickInSlide() {
+		for (let i = 0; i <= cur_click; i++) {
+			for (const state_transition of state_transitions.get(cur_slide)[i]) {
+				state_transition();
+			}
+		}
+	}
+
+	function nextSlide() {
+		let next_slide;
+		let wasPreviousCurrentSlide = false;
+		for (const [slide] of clicks) {
+			if (wasPreviousCurrentSlide) {
+				next_slide = slide;
+				break;
+			}
+			wasPreviousCurrentSlide = cur_slide === slide;
+		}
+		if (!next_slide) return false;
+		for (const cur_slide_element of slidesById.get(cur_slide)) {
+			for (let i = 0; i < cur_click; i++) {
+				cur_slide_element.removeAttribute(`fragment-${i}`);
+			}
+			cur_slide_element.removeAttribute("click");
+			cur_click = 0;
+		}
+
+		cur_slide = next_slide;
+		updateContainerSlideAttribute();
+		return true;
+	}
+
+	function goForward() {
+		const old_slide = cur_slide;
+		const max_click = clicks.get(cur_slide) - 1;
+		cur_click++;
+		let is_new_slide = true;
+		if (cur_click > max_click) {
+			is_new_slide = nextSlide();
+			if (!is_new_slide)
+				cur_click--;
+		}
+		for (const old_slide_element of slidesById.get(old_slide)) {
+			old_slide_element.removeAttribute("present-went-backward");
+			if (old_slide !== cur_slide) old_slide_element.removeAttribute("present-went-forward");
+		}
+		for (const cur_slide_element of slidesById.get(cur_slide)) cur_slide_element.setAttribute("present-went-forward", "");
+		if (is_new_slide) {
+			applyTransitions();
+			updateURL();
+		}
+	}
+
+	function prevSlide() {
+		for (const slide of slidesById.get(cur_slide)) {
+			slide.removeAttribute("click");
+			slide.removeAttribute("fragment-0");
+		}
+		let [[previous_slide]] = clicks
+		for (const [slide] of clicks) {
+			if (cur_slide === slide) break;
+			previous_slide = slide;
+		}
+		cur_slide = previous_slide;
+		cur_click = clicks.get(cur_slide) - 1;
+		applyStateTransitionsUpToCurrentClickInSlide();
+		updateContainerSlideAttribute();
+	}
+
+	function goBackward() {
+		const old_slide = cur_slide;
+
+		if (cur_click === 0) {
+			prevSlide();
+		} else {
+			cur_click--;
+		}
+
+		for (const old_slide_element of slidesById.get(old_slide)) {
+			old_slide_element.removeAttribute("present-went-forward");
+			if (old_slide !== cur_slide) old_slide_element.removeAttribute("present-went-backward");
+		}
+		for (const slide of slidesById.get(cur_slide)) slide.setAttribute("present-went-backward", "");
+
+		applyTransitions();
+		updateURL();
+	}
+
+	let is_control_depressed = false;
+
+	window.addEventListener("touchend", () => {
+		document.body.requestFullscreen({ navigationUI: "hide" })
+		.then(() => {
+			IS_MOBILE_FULL_SCREEN = true;
+			container.setAttribute("mobile-translate", "");
+		})
+		.catch(err => {
+			console.error("Fullscreen request failed:", err);
+		});
+	});
+	// window.addEventListener("touchstart", () => void (document.querySelector("body").requestFullscreen({ navigationUI: "hide" })));
+	window.addEventListener("keyup", function (event) {
+		// Do nothing if the event was already processed
+		if (event.defaultPrevented) return;
+		switch (event.key) {
+		case "Control":
+			is_control_depressed = false;
+			break;
+		default:
+			return; // Quit when this doesn't handle the key event.
+		}
+	});
+
+	window.addEventListener("keydown", function (event) {
+		// Do nothing if the event was already processed
+		if (event.defaultPrevented) return;
+
+		switch (event.key) {
+		case "ArrowLeft":
+			goBackward();
+			break;
+		case "ArrowRight":
+			goForward();
+			break;
+		case "Control":
+			is_control_depressed = true;
+			break;
+		case 'c':
+			if (is_control_depressed) {
+				navigator.clipboard.writeText(code_snippets.get(cur_slide));
+			}
+		default:
+			return; // Quit when this doesn't handle the key event.
+		}
+
+		// Cancel the default action to avoid it being handled twice
+		event.preventDefault();
+	}, true);
+
+	applyTransitions();
+	updateURL();
+	applyStateTransitionsUpToCurrentClickInSlide();
+	updateContainerSlideAttribute();
+	for (const slide of slidesById.get(cur_slide)) slide.setAttribute("present-went-forward", "");
+</script>
+
+
+<script>
+function subtractBinary(a, b) {
+    // Convert binary strings to integers
+    const intA = BigInt(`0b${[...a.replaceAll('.', '0')].reverse().join('')}`);
+    const intB = BigInt(`0b${[...b.replaceAll('.', '0')].reverse().join('')}`);
+
+    // Subtract
+    let result = intA - intB;
+	const flip_around = result < 0n;
+
+    // If negative, handle appropriately
+    if (flip_around) {
+        result = ~result;
+    }
+
+	let str = result.toString(2).padStart(64, '0');
+
+	if (flip_around) {
+        str = str.replaceAll(/[01]/g, e => ['1', '0'][+e]);
+    }
+
+    // Convert back to binary string
+    return [...str.replaceAll('0', '.')].reverse().join('');
+}
+
+function opBinary(a, b, op) {
+    // Convert binary strings to integers
+    const intA = BigInt(`0b${[...a.replaceAll('.', '0')].reverse().join('')}`);
+    const intB = BigInt(`0b${[...b.replaceAll('.', '0')].reverse().join('')}`);
+
+    // Subtract
+
+    let result = undefined;
+
+	switch (op) {
+		case '-': result = intA - intB; break;
+		case '^': result = intA ^ intB; break;
+		case '&': result = intA & intB; break;
+		case '&~': result = intA & ~intB; break;
+		case '|': result = intA | intB; break;
+	}
+
+	const flip_around = result < 0n;
+
+    // If negative, handle appropriately
+    if (flip_around) {
+        result = ~result;
+    }
+
+	let str = result.toString(2).padStart(64, '0');
+
+	if (flip_around) {
+        str = str.replaceAll(/[01]/g, e => ['1', '0'][+e]);
+    }
+
+    // Convert back to binary string
+    return [...str.replaceAll('0', '.')].reverse().join('');
+}
+
+// Example:
+const even_series = opBinary(
+	"0111.111.1..1111.1.11111.11111.111111111.11111.1111.1111111111.1",
+	"11..111....111....1111...1111..111.1111.11111.1111.1111111.11.11", '-');
+
+const esc_and_term = opBinary(even_series, '.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1', '^');
+const escaped = opBinary(esc_and_term, "11..111....111....1111...1111..111.1111.11111.1111.1111111.11.11", "^");
+// console.log(even_series);
+// console.log(esc_and_term);
+// console.log(escaped);
+
+// console.log(opBinary(
+// 	"1....1.....1...11...1.1..1.......11............11............1..",
+// 	"1...............1.................1..............1..............", "-"));
+
+// const starts_and_quote_bounds = opBinary("...............1.................1..............1...............", opBinary("1..........1....1.....1........................1................", opBinary("...............1.................1..............1...............",
+// opBinary("1...............1.................1..........................1.." & "1..........1....1.....1........................1................", "&"), '-'), '&'), '|');
+
+const starts = "1...............1.................1..........................1..";
+const quote_bounds_incl_carry = "1..........1....1.....1........................1................";
+const starts_and_quote_bounds = opBinary(starts, quote_bounds_incl_carry, '&');
+const carriages_or_newlines_or_eof = "...............1.................1..............1...............";
+const subbed = opBinary(carriages_or_newlines_or_eof, starts_and_quote_bounds, '-');
+const imm = opBinary(quote_bounds_incl_carry, subbed, '&');
+let imm2 = opBinary(carriages_or_newlines_or_eof, imm, '|');
+imm2 = opBinary(imm2, starts, '&~');
+
+const cur_ends = opBinary(imm2, opBinary(imm2, starts, '-'), '&~');
+
+
+// console.log({cur_ends});
+
+</script>
+
+<style>
+	.bits-small {
+		font-size: 25px;
+		letter-spacing: -2px;
+		text-align: center;
+	}
+</style>
+
+</body>
+</html>
