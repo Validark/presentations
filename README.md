@@ -7,3 +7,5 @@ Accelerating the Zig Parser II https://www.youtube.com/live/FDiUKafPs0U&t=210s (
 Accelerating the Zig Parser III https://www.youtube.com/watch?v=NM1FNB5nagk
 
 Intro to SIMD https://www.youtube.com/watch?v=fajcuqMX-mo (slides: https://validark.dev/presentations/simd-intro)
+
+Accelerating the Zig Tokenizer https://youtu.be/E6dWIwPLx3s
